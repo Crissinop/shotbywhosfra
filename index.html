@@ -953,21 +953,12 @@
     }
   }
 
-  /* BLINK ANIMATION */
-  @keyframes blink {
-    0%, 88%, 100% { transform: scaleY(1); }
-    93% { transform: scaleY(0.06); }
-    96% { transform: scaleY(1); }
-    98% { transform: scaleY(0.04); }
-  }
-  #eye-lids { animation: blink 6s ease-in-out infinite; transform-origin: 200px 92px; }
-
-  /* Subtle iris pulse */
-  @keyframes irisPulse {
-    0%, 100% { r: 44; }
-    50% { r: 42; }
-  }
-  #iris-disc { animation: irisPulse 4s ease-in-out infinite; }
+  /* BLINK SYSTEM UPDATED - mask based (no distortion) */
+#eye-svg{
+  shape-rendering: geometricPrecision;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
 
   /* SCAN LINE subtle bg effect */
   #home::after {
@@ -1177,9 +1168,17 @@
           <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise"/>
           <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
         </filter>
+      
+        <!-- Blink mask for realistic eyelid animation -->
+        <mask id="blinkMask">
+          <rect x="0" y="0" width="400" height="200" fill="white"/>
+          <rect id="blinkRect" x="0" y="-200" width="400" height="200" fill="black"/>
+        </mask>
+
       </defs>
 
       <!-- ═══ EYEBALL GROUP — moves slightly with background ═══ -->
+      <g mask="url(#blinkMask)">
       <g id="eye-bg-group">
         <!-- SCLERA (white of eye) — warm, realistic tone -->
         <path d="M 40 100
@@ -1348,6 +1347,7 @@
                C 92 136, 55 120, 40 100 Z"
             fill="none" stroke="rgba(158,215,48,0.15)" stroke-width="12"/>
 
+          </g>
     </svg>
   </div>
 
@@ -1995,5 +1995,30 @@ document.addEventListener('keydown', e => {
 // ---- EYE CLICK → show reel ----
 document.getElementById('eye-container').addEventListener('click', openContact);
 </script>
+
+<script>
+const blinkRect = document.getElementById("blinkRect");
+
+function blink(){
+  if(!blinkRect) return;
+
+  blinkRect.animate([
+    { transform: "translateY(-200px)" },
+    { transform: "translateY(0px)" },
+    { transform: "translateY(-200px)" }
+  ],{
+    duration: 220,
+    easing: "ease-in-out"
+  });
+}
+
+function scheduleBlink(){
+  blink();
+  setTimeout(scheduleBlink, 3000 + Math.random()*4000);
+}
+
+scheduleBlink();
+</script>
+
 </body>
 </html>
