@@ -1,8 +1,8 @@
-# 👁 Francesco Aiena — Portfolio
+# 👁 Francesco Aiena: Portfolio
 
 Personal portfolio site for Francesco Aiena, video editor and creative director specializing in AI, VFX and motion design.
 
-Built as a single HTML file. No framework, no build step, no dependencies — just open it and it works.
+Built as a single HTML file. No framework, no build step, no dependencies.
 
 ---
 
@@ -15,20 +15,13 @@ Built as a single HTML file. No framework, no build step, no dependencies — ju
 - Fully responsive — mobile layout reflows cleanly without anything getting cut off
 
 ## Stack
-
 Pure HTML · CSS · Vanilla JS · Google Fonts (Syne + DM Serif Display)  
 No React. No npm. No build tools. One file.
 
 ## Deploy
-
-**Vercel** — drag and drop the HTML file into [vercel.com/new](https://vercel.com/new). Done.
-
-**Netlify** — same thing at [app.netlify.com/drop](https://app.netlify.com/drop).
-
-**GitHub Pages** — rename the file to `index.html`, push to a repo, enable Pages from Settings → Pages → Deploy from branch.
+**GitHub Pages**: rename the file to `index.html`, push to a repo, enable Pages from Settings → Pages → Deploy from branch.
 
 ## Customization
-
 Everything lives in one file. Search for these to update content quickly:
 
 | What | Search for |
