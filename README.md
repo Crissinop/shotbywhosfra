@@ -1,5 +1,4 @@
 # 👁 Francesco Aiena: Portfolio
-
 Personal portfolio site for Francesco Aiena, video editor and creative director specializing in AI, VFX and motion design.
 
 Built as a single HTML file. No framework, no build step, no dependencies.
@@ -7,7 +6,6 @@ Built as a single HTML file. No framework, no build step, no dependencies.
 ---
 
 ## What's inside
-
 - **Homepage** with an animated eye that follows your cursor and blinks every 5 seconds
 - **5 sections**: Video, AI, VFX, Motion, About
 - Vertical nav bottom-left, contact modal, personalized greeting via localStorage
@@ -15,8 +13,7 @@ Built as a single HTML file. No framework, no build step, no dependencies.
 - Fully responsive — mobile layout reflows cleanly without anything getting cut off
 
 ## Stack
-Pure HTML · CSS · Vanilla JS · Google Fonts (Syne + DM Serif Display)  
-No React. No npm. No build tools. One file.
+Pure HTML · CSS · Vanilla JS · Google Fonts (Syne + DM Serif Display)
 
 ## Deploy
 **GitHub Pages**: rename the file to `index.html`, push to a repo, enable Pages from Settings → Pages → Deploy from branch.
@@ -34,5 +31,4 @@ Everything lives in one file. Search for these to update content quickly:
 | Video / project titles | `videoData` `vfxData` |
 
 ## License
-
 Do whatever you want with it. Just don't pretend you made the eye.
