@@ -13,7 +13,10 @@ Built as a single HTML file. No framework, no build step, no dependencies.
 - Fully responsive — mobile layout reflows cleanly without anything getting cut off
 
 ## Stack
-Pure HTML · CSS · Vanilla JS · Google Fonts (Syne + DM Serif Display)
+- HTML
+- CSS
+- Vanilla JS
+- Google Fonts (Syne + DM Serif Display)
 
 ## Deploy
 **GitHub Pages**: rename the file to `index.html`, push to a repo, enable Pages from Settings → Pages → Deploy from branch.
