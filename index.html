@@ -109,6 +109,9 @@
     cursor: none;
     line-height: 1;
   }
+  .header-firstname {
+    letter-spacing: -0.02em;
+  }
   .header-back {
     font-family: var(--font-display);
     font-size: clamp(11px, 1.1vw, 14px);
@@ -1081,11 +1084,23 @@
     position: relative;
     display: flex;
     align-items: flex-end;
+    overflow: hidden;
+  }
+  .project-detail-hero-video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    display: block;
+    pointer-events: none;
   }
   .project-detail-hero-overlay {
     position: absolute;
     inset: 0;
     background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 40%, transparent 70%);
+    z-index: 1;
   }
   .project-detail-hero-content {
     position: relative;
@@ -1640,9 +1655,9 @@
         <span class="about-lead-sub">AI · VFX · Motion · Color · Italy → World.</span>
       </p>
       <div class="about-numbers">
-        <div class="about-number"><strong>12+</strong><span>Years</span></div>
-        <div class="about-number"><strong>340+</strong><span>Projects</span></div>
-        <div class="about-number"><strong>80M+</strong><span>Views</span></div>
+        <div class="about-number"><strong>6+</strong><span>Years</span></div>
+        <div class="about-number"><strong>350+</strong><span>Projects</span></div>
+        <div class="about-number"><strong>500K+</strong><span>Views</span></div>
       </div>
     </div>
 
@@ -1913,62 +1928,143 @@ function showProjectDetail(projectData, fromSection) {
   const dp = document.getElementById('project-detail-page');
   const container = document.getElementById('project-detail-content');
 
-  container.innerHTML = `
-    <div class="project-detail-hero" style="background-image:url('${projectData.heroImg}')">
-      <div class="project-detail-hero-overlay"></div>
-      <div class="project-detail-hero-content">
-        <span class="project-detail-cat">${projectData.category}</span>
-        <h1 class="project-detail-title">${projectData.title}</h1>
-        <span class="project-detail-client">${projectData.client}</span>
-      </div>
-    </div>
+  // ── Build hero via DOM API (not innerHTML) so browser treats video as native ──
+  const heroDiv = document.createElement('div');
+  heroDiv.className = 'project-detail-hero';
 
-    <div class="project-detail-body">
-      <div class="project-detail-section project-detail-row">
-        <div class="project-detail-img" style="background-image:url('${projectData.img1}')"></div>
-        <div class="project-detail-text">
-          <h2>${projectData.heading1}</h2>
-          <p>${projectData.text1}</p>
-        </div>
-      </div>
+  let heroVidEl = null;
+  if (projectData.heroVideo) {
+    // createElement is the ONLY reliable way to get autoplay working on dynamic video
+    heroVidEl = document.createElement('video');
+    heroVidEl.className = 'project-detail-hero-video';
+    heroVidEl.muted = true;          // property (not attribute) is what browsers check
+    heroVidEl.loop = true;
+    heroVidEl.playsInline = true;
+    heroVidEl.preload = 'auto';
+    heroVidEl.setAttribute('muted', '');           // Safari belt-and-suspenders
+    heroVidEl.setAttribute('playsinline', '');
+    heroVidEl.setAttribute('webkit-playsinline', '');
+    heroVidEl.src = projectData.heroVideo;         // set src AFTER properties
+    heroDiv.appendChild(heroVidEl);
+  } else {
+    heroDiv.style.backgroundImage = "url('" + projectData.heroImg + "')";
+  }
 
-      <div class="project-detail-section project-detail-row reverse">
-        <div class="project-detail-img" style="background-image:url('${projectData.img2}')"></div>
-        <div class="project-detail-text">
-          <h2>${projectData.heading2}</h2>
-          <p>${projectData.text2}</p>
-        </div>
-      </div>
+  // Overlay + text (safe: no video element here)
+  const heroOverlay = document.createElement('div');
+  heroOverlay.className = 'project-detail-hero-overlay';
+  heroDiv.appendChild(heroOverlay);
 
-      <div class="project-detail-closing">
-        <p class="project-detail-closing-text">${projectData.closing}</p>
-      </div>
-    </div>
+  const heroContent = document.createElement('div');
+  heroContent.className = 'project-detail-hero-content';
+  heroContent.innerHTML =
+    '<span class="project-detail-cat">' + projectData.category + '</span>' +
+    '<h1 class="project-detail-title">' + projectData.title + '</h1>' +
+    '<span class="project-detail-client">' + projectData.client + '</span>';
+  heroDiv.appendChild(heroContent);
 
-    <div class="page-footer">
-      <div class="footer-inner">
-        <div class="footer-bottom">
-          <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
-          <span class="footer-tagline">Francesco Aiena</span>
-        </div>
-        <div class="footer-socials">
-          <a class="footer-social" href="#">YouTube</a>
-          <a class="footer-social" href="#">Instagram</a>
-          <a class="footer-social" href="#">LinkedIn</a>
-        </div>
-      </div>
-    </div>
-  `;
+  // ── Inject all content ────────────────────────────────────────────────────
+  container.innerHTML = '';
+  container.appendChild(heroDiv);
 
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  // Build body with createElement — zero string-quoting issues
+  function makeEl(tag, cls, style) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (style) el.style.cssText = style;
+    return el;
+  }
+
+  var body = makeEl('div', 'project-detail-body');
+
+  // Section 1
+  var sec1 = makeEl('div', 'project-detail-section project-detail-row');
+  var img1el = makeEl('div', 'project-detail-img');
+  img1el.style.backgroundImage = 'url(' + projectData.img1 + ')';
+  var txt1el = makeEl('div', 'project-detail-text');
+  txt1el.innerHTML = '<h2>' + projectData.heading1 + '</h2><p>' + projectData.text1 + '</p>';
+  sec1.appendChild(img1el);
+  sec1.appendChild(txt1el);
+  body.appendChild(sec1);
+
+  // Section 2
+  var sec2 = makeEl('div', 'project-detail-section project-detail-row reverse');
+  var img2el = makeEl('div', 'project-detail-img');
+  img2el.style.backgroundImage = 'url(' + projectData.img2 + ')';
+  var txt2el = makeEl('div', 'project-detail-text');
+  txt2el.innerHTML = '<h2>' + projectData.heading2 + '</h2><p>' + projectData.text2 + '</p>';
+  sec2.appendChild(img2el);
+  sec2.appendChild(txt2el);
+  body.appendChild(sec2);
+
+  // Closing quote
+  var closing = makeEl('div', 'project-detail-closing');
+  var closingP = makeEl('p', 'project-detail-closing-text');
+  closingP.textContent = projectData.closing;
+  closing.appendChild(closingP);
+  body.appendChild(closing);
+
+  container.appendChild(body);
+
+  // Footer
+  var footer = makeEl('div', 'page-footer');
+  footer.innerHTML =
+    '<div class="footer-inner">' +
+      '<div class="footer-bottom">' +
+        '<span class="footer-copy">© 2026</span>' +
+        '<span class="footer-sep"></span>' +
+        '<span class="footer-tagline">Francesco Aiena</span>' +
+      '</div>' +
+      '<div class="footer-socials">' +
+        '<a class="footer-social" href="#">YouTube</a>' +
+        '<a class="footer-social" href="#">Instagram</a>' +
+        '<a class="footer-social" href="#">LinkedIn</a>' +
+      '</div>' +
+    '</div>';
+  container.appendChild(footer);
+  // ── Activate page ─────────────────────────────────────────────────────────
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   dp.classList.add('active');
   dp.scrollTop = 0;
   currentPage = 'project-detail';
 
-  const fn = document.getElementById('header-firstname');
-  const ln = document.getElementById('header-lastname');
-  const hb = document.getElementById('header-back');
+  // ── Play video after page is visible ──────────────────────────────────────
+  // Browsers refuse play() on opacity:0 elements. We wait for the CSS fade-in
+  // transition to finish (transitionend on 'opacity'), then play.
+  if (heroVidEl) {
+    var played = false;
+    function tryPlay() {
+      if (played) return;
+      played = true;
+      heroVidEl.muted = true;
+      var promise = heroVidEl.play();
+      if (promise && typeof promise.catch === 'function') {
+        promise.catch(function() {
+          // Still blocked — play on first user interaction
+          dp.addEventListener('click', function resume() {
+            heroVidEl.play().catch(function(){});
+            dp.removeEventListener('click', resume);
+          });
+        });
+      }
+    }
+
+    // Primary trigger: after the opacity transition ends
+    dp.addEventListener('transitionend', function onFadeIn(e) {
+      if (e.target === dp && e.propertyName === 'opacity') {
+        dp.removeEventListener('transitionend', onFadeIn);
+        tryPlay();
+      }
+    });
+
+    // Fallback: 600ms timeout (covers reduced-motion / instant transitions)
+    setTimeout(tryPlay, 600);
+  }
+
+  // ── Header state ──────────────────────────────────────────────────────────
+  var fn = document.getElementById('header-firstname');
+  var ln = document.getElementById('header-lastname');
+  var hb = document.getElementById('header-back');
   if (fn) fn.style.display = 'none';
   if (ln) ln.style.display = 'none';
   if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage(previousSection); }; }
@@ -2082,17 +2178,18 @@ const aiDetails = [
 
 // ---- VIDEO GRID ----
 const videoData = [
-  { title: 'Brand Reel 2026', client: 'Nike × Francesco', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format',
+  { title: 'Yugi Carosello', client: 'Nike × Francesco', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format',
     detail: {
+      heroVideo: 'media/video/Yugi_Carosello_copertina.mp4',
       heroImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1400&q=90&auto=format',
-      category: 'Commercial', title: 'Brand Reel 2026', client: 'Nike × Francesco',
+      category: 'Commercial', title: 'Yugi Carosello', client: 'Nike × Francesco',
       img1: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&q=85&auto=format',
-      heading1: 'The Vision',
-      text1: 'A high-energy brand reel capturing the essence of Nike\'s 2026 campaign. Shot across three continents over two weeks, every frame was designed to convey movement, power, and aspiration. The edit rhythm mirrors the athlete\'s heartbeat — starting slow, building to an explosive crescendo.',
+      heading1: 'Il Concept',
+      text1: 'Yugi Carosello è una campagna Nike pensata per esaltare il ritmo, il movimento e l\'identità urbana. Il video nasce da una visione ibrida: la spontaneità della street culture fusa con l\'estetica pulita del brand. Ogni inquadratura è stata costruita per catturare l\'energia di chi non si ferma mai.',
       img2: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=85&auto=format',
-      heading2: 'The Craft',
-      text2: 'Color grading in DaVinci Resolve with a custom LUT designed specifically for this project. Sound design layered 40+ tracks of ambient audio captured on location. The final mix was mastered in Dolby Atmos for a truly immersive experience across all platforms.',
-      closing: '"Every frame tells a story of ambition — this reel is the heartbeat of a brand that never stops moving."',
+      heading2: 'Post-Produzione',
+      text2: 'Il color grading in DaVinci Resolve ha seguito una palette cromatica intensa, con contrasti netti e skin tones caldi. Il sound design è stato progettato intorno al ritmo del montaggio: ogni taglio segue un beat preciso, rendendo il video un\'esperienza audiovisiva coesa dall\'inizio alla fine.',
+      closing: '"Yugi Carosello non è solo un commercial — è un manifesto visivo per chi corre verso qualcosa di più grande."',
     }
   },
   { title: 'Documentary Edit', client: 'Red Bull Media', dur: '18:42', cat: 'Documentary', thumb: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80&auto=format',
