@@ -102,7 +102,7 @@
     font-family: var(--font-display);
     font-size: clamp(15px, 1.6vw, 20px);
     font-weight: 800;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
     color: var(--white);
     pointer-events: all;
@@ -182,7 +182,7 @@
   .nav-items { display: flex; flex-direction: column; gap: 0; }
 
   .nav-item {
-    font-size: clamp(24px, 3.2vw, 42px);
+    font-size: clamp(22px, 3vw, 38px);
     font-weight: 800;
     letter-spacing: -0.02em;
     color: var(--white);
@@ -1059,7 +1059,7 @@
       padding: 16px 20px 0;
       align-self: flex-end;
     }
-    .nav-item { font-size: clamp(24px, 7.5vw, 36px); }
+    .nav-item { font-size: clamp(22px, 7vw, 34px); }
     .nav-toggle { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
 
     .about-grid { grid-template-columns: 1fr; }
@@ -1069,122 +1069,6 @@
     body { cursor: auto; }
     #cursor { display: none; }
     #particles { display: none; }
-  }
-
-  /* PROJECT DETAIL PAGE */
-  .project-detail-hero {
-    width: 100%;
-    height: 70vh;
-    min-height: 400px;
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    display: flex;
-    align-items: flex-end;
-  }
-  .project-detail-hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 40%, transparent 70%);
-  }
-  .project-detail-hero-content {
-    position: relative;
-    z-index: 2;
-    padding: 60px 48px;
-    max-width: 700px;
-  }
-  .project-detail-cat {
-    display: inline-block;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    background: rgba(158,215,48,0.85);
-    color: #0a0a0a;
-    padding: 4px 12px;
-    border-radius: 4px;
-    margin-bottom: 16px;
-  }
-  .project-detail-title {
-    font-size: clamp(36px, 6vw, 72px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    margin-bottom: 12px;
-    color: var(--white);
-  }
-  .project-detail-client {
-    font-family: var(--font-serif);
-    font-size: clamp(14px, 2vw, 20px);
-    font-style: italic;
-    opacity: 0.6;
-  }
-  .project-detail-body {
-    padding: 0 48px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .project-detail-section {
-    padding: 80px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-  }
-  .project-detail-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
-    align-items: center;
-  }
-  .project-detail-row.reverse .project-detail-img {
-    order: 2;
-  }
-  .project-detail-row.reverse .project-detail-text {
-    order: 1;
-  }
-  .project-detail-img {
-    width: 100%;
-    aspect-ratio: 4/3;
-    background-size: cover;
-    background-position: center;
-    border-radius: 14px;
-    transition: transform 0.4s var(--transition);
-  }
-  .project-detail-img:hover { transform: scale(1.02); }
-  .project-detail-text h2 {
-    font-size: clamp(20px, 2.5vw, 32px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 16px;
-    line-height: 1.15;
-  }
-  .project-detail-text p {
-    font-family: var(--font-serif);
-    font-size: clamp(14px, 1.4vw, 17px);
-    font-style: italic;
-    line-height: 1.75;
-    opacity: 0.75;
-  }
-  .project-detail-closing {
-    padding: 100px 0 60px;
-    text-align: center;
-  }
-  .project-detail-closing-text {
-    font-family: var(--font-serif);
-    font-size: clamp(22px, 3vw, 38px);
-    font-style: italic;
-    line-height: 1.35;
-    opacity: 0.8;
-    max-width: 700px;
-    margin: 0 auto;
-  }
-  @media (max-width: 768px) {
-    .project-detail-hero { height: 50vh; min-height: 300px; }
-    .project-detail-hero-content { padding: 32px 20px; }
-    .project-detail-body { padding: 0 20px; }
-    .project-detail-row { grid-template-columns: 1fr; gap: 28px; }
-    .project-detail-row.reverse .project-detail-img { order: 0; }
-    .project-detail-row.reverse .project-detail-text { order: 0; }
-    .project-detail-section { padding: 48px 0; }
-    .project-detail-closing { padding: 60px 0 40px; }
   }
 
   /* Scrollbar */
@@ -1212,7 +1096,6 @@
     <button id="header-back" class="header-back" onclick="showPage('home')" style="display:none">← Back</button>
   </div>
   <div id="header-right">
-    <span id="header-lastname" class="header-lastname">AIENA</span>
   </div>
 </div>
 
@@ -1511,7 +1394,7 @@
     <h1 class="page-title">AI</h1>
     <div class="ai-grid">
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[0], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="100" cy="100" r="60" stroke="white" stroke-width="0.5" fill="none" opacity="0.15"/><circle cx="100" cy="100" r="30" stroke="white" stroke-width="0.5" fill="none" opacity="0.1"/><line x1="10" y1="100" x2="190" y2="100" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="10" x2="100" y2="190" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
@@ -1522,7 +1405,7 @@
         </div>
       </div>
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[1], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><polygon points="100,10 190,190 10,190" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><polygon points="100,40 160,170 40,170" stroke="white" stroke-width="0.4" fill="none" opacity="0.15"/><polygon points="100,70 130,150 70,150" stroke="white" stroke-width="0.3" fill="none" opacity="0.1"/></svg>
@@ -1533,7 +1416,7 @@
         </div>
       </div>
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[2], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1677442135968-6db3b0025e95?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><rect x="20" y="20" width="160" height="160" stroke="white" stroke-width="0.5" fill="none" opacity="0.25" rx="8"/><rect x="50" y="50" width="100" height="100" stroke="white" stroke-width="0.4" fill="none" opacity="0.15" rx="4"/><rect x="80" y="80" width="40" height="40" stroke="white" stroke-width="0.3" fill="none" opacity="0.1" rx="2"/></svg>
@@ -1544,7 +1427,7 @@
         </div>
       </div>
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[3], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="40" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="160" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="100" cy="160" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><line x1="40" y1="40" x2="160" y2="40" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="40" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="160" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
@@ -1555,7 +1438,7 @@
         </div>
       </div>
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[4], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><path d="M10 100 Q55 50 100 100 Q145 150 190 100" stroke="white" stroke-width="0.6" fill="none" opacity="0.25"/><path d="M10 80 Q55 30 100 80 Q145 130 190 80" stroke="white" stroke-width="0.4" fill="none" opacity="0.15"/><path d="M10 120 Q55 70 100 120 Q145 170 190 120" stroke="white" stroke-width="0.4" fill="none" opacity="0.1"/></svg>
@@ -1566,7 +1449,7 @@
         </div>
       </div>
 
-      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[5], 'ai')">
+      <div class="ai-card" style="background:#111;">
         <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=600&q=85&auto=format')"></div>
         <div class="ai-card-overlay"></div>
         <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="10" fill="white" opacity="0.35"/><circle cx="60" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="60" cy="140" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="140" r="6" fill="white" opacity="0.2"/><line x1="100" y1="100" x2="60" y2="60" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="140" y2="60" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="60" y2="140" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="140" y2="140" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
@@ -1728,13 +1611,6 @@
   </div>
 </div>
 
-<!-- =================== PROJECT DETAIL =================== -->
-<div id="project-detail-page" class="page">
-  <div class="inner-page" style="padding:0;">
-    <div id="project-detail-content"></div>
-  </div>
-</div>
-
 <!-- =================== CONTACT MODAL =================== -->
 <div id="contact-modal">
   <div class="contact-box">
@@ -1775,7 +1651,7 @@ document.addEventListener('mousemove', e => {
   cursor.style.top = my + 'px';
   movePupil(mx, my);
 });
-document.querySelectorAll('a, button, .nav-item, .video-card, .ai-card, .vfx-case').forEach(el => {
+document.querySelectorAll('a, button, .nav-item, .video-card, .ai-card, .motion-item').forEach(el => {
   el.addEventListener('mouseenter', () => cursor.classList.add('big'));
   el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
 });
@@ -1893,85 +1769,14 @@ function showPage(name) {
     }
   }
   const fn = document.getElementById('header-firstname');
-  const ln = document.getElementById('header-lastname');
   const hb = document.getElementById('header-back');
   if (name === 'home') {
     if (fn) fn.style.display = 'inline';
-    if (ln) ln.style.display = 'inline';
     if (hb) hb.style.display = 'none';
   } else {
     if (fn) fn.style.display = 'none';
-    if (ln) ln.style.display = 'none';
-    if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage('home'); }; }
+    if (hb) hb.style.display = 'flex';
   }
-}
-
-// ---- PROJECT DETAIL PAGE ----
-let previousSection = 'home';
-function showProjectDetail(projectData, fromSection) {
-  previousSection = fromSection;
-  const dp = document.getElementById('project-detail-page');
-  const container = document.getElementById('project-detail-content');
-
-  container.innerHTML = `
-    <div class="project-detail-hero" style="background-image:url('${projectData.heroImg}')">
-      <div class="project-detail-hero-overlay"></div>
-      <div class="project-detail-hero-content">
-        <span class="project-detail-cat">${projectData.category}</span>
-        <h1 class="project-detail-title">${projectData.title}</h1>
-        <span class="project-detail-client">${projectData.client}</span>
-      </div>
-    </div>
-
-    <div class="project-detail-body">
-      <div class="project-detail-section project-detail-row">
-        <div class="project-detail-img" style="background-image:url('${projectData.img1}')"></div>
-        <div class="project-detail-text">
-          <h2>${projectData.heading1}</h2>
-          <p>${projectData.text1}</p>
-        </div>
-      </div>
-
-      <div class="project-detail-section project-detail-row reverse">
-        <div class="project-detail-img" style="background-image:url('${projectData.img2}')"></div>
-        <div class="project-detail-text">
-          <h2>${projectData.heading2}</h2>
-          <p>${projectData.text2}</p>
-        </div>
-      </div>
-
-      <div class="project-detail-closing">
-        <p class="project-detail-closing-text">${projectData.closing}</p>
-      </div>
-    </div>
-
-    <div class="page-footer">
-      <div class="footer-inner">
-        <div class="footer-bottom">
-          <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
-          <span class="footer-tagline">Francesco Aiena</span>
-        </div>
-        <div class="footer-socials">
-          <a class="footer-social" href="#">YouTube</a>
-          <a class="footer-social" href="#">Instagram</a>
-          <a class="footer-social" href="#">LinkedIn</a>
-        </div>
-      </div>
-    </div>
-  `;
-
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  dp.classList.add('active');
-  dp.scrollTop = 0;
-  currentPage = 'project-detail';
-
-  const fn = document.getElementById('header-firstname');
-  const ln = document.getElementById('header-lastname');
-  const hb = document.getElementById('header-back');
-  if (fn) fn.style.display = 'none';
-  if (ln) ln.style.display = 'none';
-  if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage(previousSection); }; }
 }
 
 // ---- NAV TOGGLE ----
@@ -2010,162 +1815,19 @@ function setGreeting() {
 }
 setGreeting();
 
-// ---- AI PROJECT DETAILS ----
-const aiDetails = [
-  {
-    heroImg: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=1400&q=90&auto=format',
-    category: 'AI · Generative', title: 'Generative Art', client: 'Nike — Spring Collection',
-    img1: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&q=85&auto=format',
-    heading1: 'Style-Locked Consistency',
-    text1: 'Over 200 unique assets were generated using Midjourney v6, each locked to a custom style guide developed through extensive prompt engineering. The challenge: maintaining brand consistency across vastly different subjects — from product shots to lifestyle imagery — while preserving the spontaneity that makes AI art compelling.',
-    img2: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=85&auto=format',
-    heading2: 'From Prompt to Campaign',
-    text2: 'Each image went through a rigorous pipeline: initial generation, inpainting refinements, upscaling via Topaz, and final color correction in Lightroom. The result was a campaign that looked entirely hand-crafted despite being 90% AI-generated — delivered in half the time of a traditional photoshoot.',
-    closing: '"AI doesn\'t replace creativity — it multiplies it."',
-  },
-  {
-    heroImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=90&auto=format',
-    category: 'AI · Video', title: 'AI Video', client: 'Runway Gen-3 Production',
-    img1: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=85&auto=format',
-    heading1: 'Text to Motion',
-    text1: 'Runway Gen-3 was used to generate entire sequences from text descriptions, producing footage that was then seamlessly composited into live-action edits. The key innovation was developing a prompt vocabulary that consistently produced motion-matched output compatible with real camera movements.',
-    img2: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=85&auto=format',
-    heading2: 'Seamless Integration',
-    text2: 'Each AI-generated clip was processed through a custom After Effects pipeline: frame interpolation to match the project\'s frame rate, color space conversion, grain matching, and edge blending. The final viewer cannot distinguish AI footage from camera-captured material.',
-    closing: '"The camera of the future writes with light and language."',
-  },
-  {
-    heroImg: 'https://images.unsplash.com/photo-1677442135968-6db3b0025e95?w=1400&q=90&auto=format',
-    category: 'AI · Style Transfer', title: 'Neural Style', client: 'Stable Diffusion XL Pipeline',
-    img1: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=85&auto=format',
-    heading1: 'Custom LoRA Training',
-    text1: 'Fine-tuned LoRA models were trained on each brand\'s visual identity — logos, typography, color palettes, and photographic style. This allowed Stable Diffusion XL to generate new imagery that felt native to the brand, maintaining consistency that generic models cannot achieve.',
-    img2: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=85&auto=format',
-    heading2: 'Scale Without Compromise',
-    text2: 'The trained models were deployed in a ComfyUI batch pipeline, producing hundreds of on-brand variations per hour. Each output passed through automated quality checks before human review, creating an efficient hybrid workflow that maintained artistic standards at industrial scale.',
-    closing: '"Teaching a machine your brand\'s visual DNA — then watching it dream."',
-  },
-  {
-    heroImg: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1400&q=90&auto=format',
-    category: 'AI · Diffusion', title: 'Diffusion Video', client: 'Kling AI · Sora',
-    img1: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=85&auto=format',
-    heading1: 'Storyboard to Screen',
-    text1: 'Starting from rough pencil storyboards, Kling AI and Sora transformed sketches into photorealistic scenes. The director could iterate on camera angles, lighting, and composition in minutes rather than weeks — fundamentally changing the pre-production workflow.',
-    img2: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=85&auto=format',
-    heading2: 'The Compositing Layer',
-    text2: 'Raw AI outputs were never used as-is. Each frame went through manual compositing: depth passes were extracted, elements were re-lit to match on-set HDRI data, and camera imperfections (lens breathing, subtle shake) were added to sell the footage as real.',
-    closing: '"The sketch becomes the film — imagination is the only limit."',
-  },
-  {
-    heroImg: 'https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1400&q=90&auto=format',
-    category: 'AI · Post-Production', title: 'Motion AI', client: 'After Effects + AI Pipeline',
-    img1: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=800&q=85&auto=format',
-    heading1: 'Intelligent Automation',
-    text1: 'AI-powered tools within After Effects handle the repetitive work: motion tracking, rotoscoping, and frame interpolation. What once took an artist days now takes hours. But the key insight is knowing where to let the AI work and where human judgment is irreplaceable.',
-    img2: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=85&auto=format',
-    heading2: '60% Faster, 100% Quality',
-    text2: 'On a recent feature-length edit, AI-assisted rotoscoping reduced post-production time by 60%. The saved hours were reinvested in creative decisions — color grading, sound design, and editorial refinements that elevate the final product beyond what a rushed timeline would allow.',
-    closing: '"AI handles the labor — so the artist can focus on the art."',
-  },
-  {
-    heroImg: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=1400&q=90&auto=format',
-    category: 'AI · Automation', title: 'Custom Pipelines', client: 'ComfyUI Workflows',
-    img1: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=85&auto=format',
-    heading1: 'Node-Based Power',
-    text1: 'ComfyUI\'s node-based interface allows building complex image generation pipelines visually. Custom workflows chain together generation, controlnet guidance, upscaling, face restoration, and background removal — all running automatically with minimal human intervention.',
-    img2: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&q=85&auto=format',
-    heading2: 'Campaign at Scale',
-    text2: 'For a major e-commerce client, these pipelines produced 500+ product images per hour — each with consistent lighting, background, and brand styling. The cost savings compared to traditional product photography were substantial, enabling small brands to compete visually with industry giants.',
-    closing: '"Automation is not the enemy of craft — it\'s the foundation of scale."',
-  },
-];
-
 // ---- VIDEO GRID ----
 const videoData = [
-  { title: 'Brand Reel 2026', client: 'Nike × Francesco', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1400&q=90&auto=format',
-      category: 'Commercial', title: 'Brand Reel 2026', client: 'Nike × Francesco',
-      img1: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&q=85&auto=format',
-      heading1: 'The Vision',
-      text1: 'A high-energy brand reel capturing the essence of Nike\'s 2026 campaign. Shot across three continents over two weeks, every frame was designed to convey movement, power, and aspiration. The edit rhythm mirrors the athlete\'s heartbeat — starting slow, building to an explosive crescendo.',
-      img2: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=800&q=85&auto=format',
-      heading2: 'The Craft',
-      text2: 'Color grading in DaVinci Resolve with a custom LUT designed specifically for this project. Sound design layered 40+ tracks of ambient audio captured on location. The final mix was mastered in Dolby Atmos for a truly immersive experience across all platforms.',
-      closing: '"Every frame tells a story of ambition — this reel is the heartbeat of a brand that never stops moving."',
-    }
-  },
-  { title: 'Documentary Edit', client: 'Red Bull Media', dur: '18:42', cat: 'Documentary', thumb: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1400&q=90&auto=format',
-      category: 'Documentary', title: 'Documentary Edit', client: 'Red Bull Media',
-      img1: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=85&auto=format',
-      heading1: 'Into the Wild',
-      text1: 'An 18-minute documentary following extreme athletes through untouched wilderness. Over 120 hours of raw footage were distilled into a narrative arc that balances breathtaking visuals with deeply personal interviews. Every cut serves the emotional journey.',
-      img2: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=85&auto=format',
-      heading2: 'Post-Production',
-      text2: 'The offline edit took 6 weeks in Premiere Pro, followed by online finishing in DaVinci Resolve. Extensive sound design and an original score composed by a Berlin-based electronic musician give the film its visceral, immersive quality.',
-      closing: '"Nature doesn\'t wait for the perfect take — the editor\'s job is to find the truth hidden in chaos."',
-    }
-  },
-  { title: 'Music Video Cut', client: 'Universal Music', dur: '3:58', cat: 'Music Video', thumb: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1400&q=90&auto=format',
-      category: 'Music Video', title: 'Music Video Cut', client: 'Universal Music',
-      img1: 'https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=800&q=85&auto=format',
-      heading1: 'Rhythm & Edit',
-      text1: 'A visually explosive music video cut to the beat of every kick and snare. Shot on ARRI Alexa Mini with anamorphic lenses, the footage demanded an edit style that matched its cinematic quality — fast cuts during verses, long fluid takes during the chorus.',
-      img2: 'https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=800&q=85&auto=format',
-      heading2: 'Color & Mood',
-      text2: 'Heavy color grading pushed the imagery into a dreamlike space — desaturated shadows with hyper-vivid highlights. VFX overlays added lens flares, particle effects, and light leaks that were generated procedurally and synced to the audio waveform.',
-      closing: '"Music is time made audible — editing is time made visible."',
-    }
-  },
-  { title: 'Commercial 60"', client: 'Spotify Ads', dur: '1:00', cat: 'Advertising', thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&q=90&auto=format',
-      category: 'Advertising', title: 'Commercial 60"', client: 'Spotify Ads',
-      img1: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=800&q=85&auto=format',
-      heading1: 'Every Second Counts',
-      text1: 'A 60-second spot for Spotify\'s global ad campaign — where every single frame had to justify its existence. The brief demanded energy, diversity, and a seamless flow through 30+ scenes representing listeners around the world.',
-      img2: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=85&auto=format',
-      heading2: 'Seamless Transitions',
-      text2: 'Custom morph transitions built in After Effects connect disparate scenes into one continuous visual flow. Motion-tracked camera moves were stabilized and re-projected to create impossible camera paths between locations shot months apart.',
-      closing: '"Sixty seconds to capture the world — not a single frame wasted."',
-    }
-  },
-  { title: 'Event Highlights', client: 'Lamborghini', dur: '4:15', cat: 'Event', thumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1400&q=90&auto=format',
-      category: 'Event', title: 'Event Highlights', client: 'Lamborghini',
-      img1: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=85&auto=format',
-      heading1: 'The Reveal',
-      text1: 'Capturing Lamborghini\'s private unveiling event in Sant\'Agata Bolognese. Three camera operators, two drones, and a Steadicam rig delivered 8+ hours of footage that needed to become a 4-minute masterpiece by the next morning.',
-      img2: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=800&q=85&auto=format',
-      heading2: 'Overnight Edit',
-      text2: 'Turnaround was 14 hours from wrap to delivery. Proxy editing in Premiere Pro, followed by a rapid online conform and color pass. The result: a sleek highlights reel that was on Lamborghini\'s social channels before attendees had finished breakfast.',
-      closing: '"Luxury is in the details — and so is the edit."',
-    }
-  },
-  { title: 'Brand Film 3min', client: 'Ferrari Media', dur: '3:00', cat: 'Brand Film', thumb: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1400&q=90&auto=format',
-      category: 'Brand Film', title: 'Brand Film 3min', client: 'Ferrari Media',
-      img1: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=85&auto=format',
-      heading1: 'Heritage Meets Future',
-      text1: 'A three-minute brand film tracing Ferrari\'s evolution from the classic 250 GTO to the SF-24. The narrative interweaves archival footage with newly shot material, requiring precise color matching and grain emulation to create a seamless timeline.',
-      img2: 'https://images.unsplash.com/photo-1547245324-d777c6f05e80?w=800&q=85&auto=format',
-      heading2: 'Sound of Speed',
-      text2: 'The engine sound is as important as the visuals. A dedicated audio session at Maranello\'s test track captured engine notes at various RPMs. These were woven into the edit as rhythmic elements — the V12 becomes the film\'s percussion.',
-      closing: '"Speed is nothing without soul — and the edit is where the soul lives."',
-    }
-  },
+  { title: 'Brand Reel 2026', client: 'Nike × Francesco', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format' },
+  { title: 'Documentary Edit', client: 'Red Bull Media', dur: '18:42', cat: 'Documentary', thumb: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80&auto=format' },
+  { title: 'Music Video Cut', client: 'Universal Music', dur: '3:58', cat: 'Music Video', thumb: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format' },
+  { title: 'Commercial 60"', client: 'Spotify Ads', dur: '1:00', cat: 'Advertising', thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80&auto=format' },
+  { title: 'Event Highlights', client: 'Lamborghini', dur: '4:15', cat: 'Event', thumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80&auto=format' },
+  { title: 'Brand Film 3min', client: 'Ferrari Media', dur: '3:00', cat: 'Brand Film', thumb: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80&auto=format' },
 ];
 const vg = document.getElementById('video-grid');
 videoData.forEach((v, i) => {
   const c = document.createElement('div');
   c.className = 'video-card';
-  c.onclick = function(){ showProjectDetail(v.detail, 'video'); };
   c.innerHTML = `
     <div class="video-card-inner" style="background-image:url('${v.thumb}');background-size:cover;background-position:center">
       <div class="video-overlay"></div>
@@ -2190,17 +1852,6 @@ const vfxData = [
     tools: 'Houdini · Unreal Engine 5 · Nuke · After Effects',
     beforeThumb: 'https://images.unsplash.com/photo-1504707748692-419802cf939d?w=700&q=90&auto=format',
     afterThumb:  'https://images.unsplash.com/photo-1626379953822-baec19c3accd?w=700&q=90&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1626379953822-baec19c3accd?w=1400&q=90&auto=format',
-      category: 'VFX · Particles', title: 'Particle Storm', client: 'Red Bull — "Wings of Fire"',
-      img1: 'https://images.unsplash.com/photo-1504707748692-419802cf939d?w=800&q=85&auto=format',
-      heading1: 'Building the Storm',
-      text1: 'Over 50 million particles were simulated in Houdini across 12 render farms. Each particle carried velocity, temperature, and luminance data — creating a storm system that reacts realistically to wind forces and camera movement in the scene.',
-      img2: 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=85&auto=format',
-      heading2: 'Real-Time on Set',
-      text2: 'Using Unreal Engine 5\'s Nanite and Lumen systems, a simplified version of the particle storm was rendered in real-time on set, allowing the director to frame shots with the final VFX already visible in the viewfinder. This cut revision rounds by 70%.',
-      closing: '"When 50 million particles move as one — that\'s not simulation, that\'s choreography."',
-    }
   },
   {
     title: 'Face Replacement',
@@ -2210,17 +1861,6 @@ const vfxData = [
     tools: 'Nuke X · Flame · Mocha Pro · Mari',
     beforeThumb: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=700&q=90&auto=format',
     afterThumb:  'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=700&q=90&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1400&q=90&auto=format',
-      category: 'VFX · Compositing', title: 'Face Replacement', client: 'Netflix — "Speculum"',
-      img1: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800&q=85&auto=format',
-      heading1: 'Invisible Art',
-      text1: 'The best VFX is the kind you never notice. Across 340 frames, the actor\'s face was seamlessly replaced using a combination of 3D tracking in Mocha Pro and hand-painted texture work in Mari. HDRI lighting data captured on set ensured perfect integration.',
-      img2: 'https://images.unsplash.com/photo-1551818255-e6e10975bc17?w=800&q=85&auto=format',
-      heading2: 'Skin Deep',
-      text2: 'Subsurface scattering simulation was critical — human skin transmits and scatters light in complex ways. Custom shaders were written to match the exact skin tone and translucency of the replacement actor under varying lighting conditions throughout the scene.',
-      closing: '"The audience should never see the seam — only the performance."',
-    }
   },
   {
     title: 'City Destruction',
@@ -2230,17 +1870,6 @@ const vfxData = [
     tools: 'Houdini · After Effects · DaVinci Resolve',
     beforeThumb: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=700&q=90&auto=format',
     afterThumb:  'https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=700&q=90&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1519608487953-e999c86e7455?w=1400&q=90&auto=format',
-      category: 'VFX · Destruction', title: 'City Destruction', client: 'Activision — "Warzone"',
-      img1: 'https://images.unsplash.com/photo-1486325212027-8081e485255e?w=800&q=85&auto=format',
-      heading1: 'Controlled Chaos',
-      text1: 'A fully procedural destruction system built in Houdini generated over 600 rigid body objects — each with unique fracture patterns, material properties, and physics responses. The result is a sequence where no two frames feel repeated or artificial.',
-      img2: 'https://images.unsplash.com/photo-1478760329108-5c3ed9d495a0?w=800&q=85&auto=format',
-      heading2: 'The Final Grade',
-      text2: 'Framestore handled the final color grade, pushing the imagery into a hyper-real cinematic space. Dust volumes, atmospheric haze, and lens distortion were added in compositing to sell the destruction as real — captured by a camera operator in the midst of chaos.',
-      closing: '"Destruction is easy — making it beautiful is the hard part."',
-    }
   },
   {
     title: 'Fluid Simulation',
@@ -2250,26 +1879,12 @@ const vfxData = [
     tools: 'Houdini · Nuke · Cinema 4D · Redshift',
     beforeThumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=700&q=90&auto=format',
     afterThumb:  'https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?w=700&q=90&auto=format',
-    detail: {
-      heroImg: 'https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?w=1400&q=90&auto=format',
-      category: 'VFX · Simulation', title: 'Fluid Simulation', client: 'Lamborghini — Urus S',
-      img1: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800&q=85&auto=format',
-      heading1: 'Liquid Metal',
-      text1: 'Eight simultaneous FLIP solvers running in Houdini created the illusion of liquid paint flowing across every curve of the Urus S body. Each solver handled a different section of the car, with careful attention to viscosity, surface tension, and color blending at the seams.',
-      img2: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&q=85&auto=format',
-      heading2: 'Plate Integration',
-      text2: 'The original plate was shot on ARRI Alexa 65 in Turin. Camera tracking, HDRI capture, and chrome/grey ball references on set ensured the simulated fluid matched the real-world lighting perfectly. Final compositing in Nuke blended 200+ render layers.',
-      closing: '"When paint becomes poetry — that\'s when engineering meets art."',
-    }
   },
 ];
 const vc = document.getElementById('vfx-cases');
-vfxData.forEach((v, i) => {
-  const caseEl = document.createElement('div');
-  caseEl.className = 'vfx-case';
-  caseEl.style.cursor = 'none';
-  caseEl.onclick = function(){ showProjectDetail(vfxData[i].detail, 'vfx'); };
-  caseEl.innerHTML = `
+vfxData.forEach(v => {
+  vc.innerHTML += `
+  <div class="vfx-case">
     <div class="vfx-images">
       <div class="vfx-before-after" style="background-image:url('${v.beforeThumb}');background-size:cover;background-position:center">
         <span class="vfx-tag">BEFORE</span>
@@ -2291,8 +1906,8 @@ vfxData.forEach((v, i) => {
         <div class="vfx-metric"><strong>${v.likes}</strong><span>Likes</span></div>
         <div class="vfx-metric"><strong>${v.duration}</strong><span>Production</span></div>
       </div>
-    </div>`;
-  vc.appendChild(caseEl);
+    </div>
+  </div>`;
 });
 
 // ---- SKILL BARS on about page activation ----
@@ -2312,11 +1927,7 @@ skillObserver.observe(document.getElementById('about-page'), { attributes: true,
 
 // ---- KEYBOARD NAV ----
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    closeContact();
-    if (currentPage === 'project-detail') showPage(previousSection);
-    else if (currentPage !== 'home') showPage('home');
-  }
+  if (e.key === 'Escape') { closeContact(); if (currentPage !== 'home') showPage('home'); }
 });
 
 // ---- EYE CLICK → show reel ----
