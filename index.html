@@ -1095,6 +1095,12 @@
     z-index: 0;
     display: block;
     pointer-events: none;
+    /* Force the video to be visible to the browser media engine even when
+       the ancestor .page has opacity:0 during its fade-in transition.
+       Without this, Chrome/Firefox on desktop suspend playback because
+       they consider opacity:0 elements as "not intersecting the viewport". */
+    will-change: transform;
+    transform: translateZ(0);
   }
   .project-detail-hero-overlay {
     position: absolute;
@@ -2028,37 +2034,32 @@ function showProjectDetail(projectData, fromSection) {
   dp.scrollTop = 0;
   currentPage = 'project-detail';
 
-  // ── Play video after page is visible ──────────────────────────────────────
-  // Browsers refuse play() on opacity:0 elements. We wait for the CSS fade-in
-  // transition to finish (transitionend on 'opacity'), then play.
+  // ── Play video ────────────────────────────────────────────────────────────
+  // Strategy: start loading + playing BEFORE the page fade-in transition.
+  // The video element is already in the DOM and muted=true, so the browser
+  // allows autoplay immediately — no need to wait for opacity to reach 1.
+  // We call play() right now, then again at 50ms and 550ms as belt-and-suspenders.
   if (heroVidEl) {
-    var played = false;
     function tryPlay() {
-      if (played) return;
-      played = true;
-      heroVidEl.muted = true;
-      var promise = heroVidEl.play();
-      if (promise && typeof promise.catch === 'function') {
-        promise.catch(function() {
-          // Still blocked — play on first user interaction
-          dp.addEventListener('click', function resume() {
-            heroVidEl.play().catch(function(){});
-            dp.removeEventListener('click', resume);
-          });
+      heroVidEl.muted = true; // must be true for autoplay policy on desktop
+      var p = heroVidEl.play();
+      if (p && p.catch) p.catch(function() {
+        // Autoplay still blocked (rare: no user gesture yet on a fresh tab).
+        // Retry on first click anywhere on the detail page.
+        dp.addEventListener('click', function onFirstClick() {
+          dp.removeEventListener('click', onFirstClick);
+          heroVidEl.muted = true;
+          heroVidEl.play().catch(function(){});
         });
-      }
+      });
     }
 
-    // Primary trigger: after the opacity transition ends
-    dp.addEventListener('transitionend', function onFadeIn(e) {
-      if (e.target === dp && e.propertyName === 'opacity') {
-        dp.removeEventListener('transitionend', onFadeIn);
-        tryPlay();
-      }
-    });
-
-    // Fallback: 600ms timeout (covers reduced-motion / instant transitions)
-    setTimeout(tryPlay, 600);
+    // Fire immediately (before transition starts) — video is in DOM, muted, ready
+    tryPlay();
+    // Fire again at 50ms in case the browser needed a microtask cycle
+    setTimeout(tryPlay, 50);
+    // Fire again at 550ms as final fallback (after transition completes)
+    setTimeout(tryPlay, 550);
   }
 
   // ── Header state ──────────────────────────────────────────────────────────
@@ -2182,7 +2183,7 @@ const videoData = [
     detail: {
       heroVideo: 'media/video/Yugi_Carosello_copertina.mp4',
       heroImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1400&q=90&auto=format',
-      category: 'Commercial', title: 'PUSH IT', client: 'Nike × Francesco',
+      category: 'Music', title: 'PUSH IT', client: 'Kid Yugi x Anna',
       img1: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&q=85&auto=format',
       heading1: 'Il Concept',
       text1: 'PUSH IT è un progetto pensato per esaltare il ritmo, il movimento e l\'identità urbana. Il video nasce da una visione ibrida: la spontaneità della street culture fusa con l\'estetica pulita del brand. Ogni inquadratura è stata costruita per catturare l\'energia di chi non si ferma mai.',
