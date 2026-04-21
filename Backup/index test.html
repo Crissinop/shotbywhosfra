@@ -1,0 +1,2291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Francesco — Video Editor · AI · VFX · Motion</title>
+<meta name="description" content="Francesco — Video Editor, AI, VFX & Motion Expert. Let's work together.">
+<link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f441.png">
+<link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f441.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Disable text selection and drag everywhere */
+  * {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  :root {
+    --neon: #9ed730;
+    --neon-dark: #7aaa20;
+    --neon-light: #b5e84a;
+    --white: #ffffff;
+    --black: #0a0a0a;
+    --off-white: #f5f5f0;
+    --font-display: 'Syne', sans-serif;
+    --font-serif: 'DM Serif Display', serif;
+    --transition: cubic-bezier(0.76, 0, 0.24, 1);
+  }
+
+  html { font-size: 16px; overflow-x: hidden; }
+
+  body {
+    background: var(--neon);
+    color: var(--white);
+    font-family: var(--font-display);
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* CUSTOM CURSOR */
+  #cursor {
+    position: fixed;
+    width: 12px; height: 12px;
+    background: var(--white);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: width 0.2s var(--transition), height 0.2s var(--transition), background 0.2s;
+    mix-blend-mode: difference;
+  }
+  #cursor.big { width: 60px; height: 60px; }
+  #cursor.dark { background: var(--black); }
+
+  /* PAGE SYSTEM */
+  .page {
+    position: fixed;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s var(--transition), transform 0.5s var(--transition);
+    transform: translateY(30px);
+    overflow-y: auto;
+  }
+  .page.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+    z-index: 10;
+  }
+
+  /* HOME PAGE */
+  #home {
+    background: var(--neon);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+  }
+
+  /* HEADER */
+  .header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 28px 36px;
+    pointer-events: none;
+  }
+  /* Name shown on home (left=FRANCESCO, right=AIENA) and inner pages (right only) */
+  .header-firstname,
+  .header-lastname {
+    font-family: var(--font-display);
+    font-size: clamp(15px, 1.6vw, 20px);
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--white);
+    pointer-events: all;
+    cursor: none;
+    line-height: 1;
+  }
+  .header-back {
+    font-family: var(--font-display);
+    font-size: clamp(11px, 1.1vw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--white);
+    background: none;
+    border: none;
+    cursor: none;
+    pointer-events: all;
+    opacity: 0.65;
+    transition: opacity 0.2s, transform 0.2s var(--transition);
+    padding: 0;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .header-back:hover { opacity: 1; transform: translateX(-4px); }
+  #eye-container {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: clamp(300px, 46vw, 580px);
+    cursor: none;
+    transition: filter 0.4s ease;
+  }
+  #eye-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 0 30px rgba(255,255,255,0.08)) drop-shadow(0 0 80px rgba(158,215,48,0.12));
+  }
+  #eye-container:hover #eye-svg {
+    filter: drop-shadow(0 0 50px rgba(255,255,255,0.22)) drop-shadow(0 0 120px rgba(158,215,48,0.25));
+  }
+
+  /* Eye pupil glow */
+  #pupil-glow {
+    transform-origin: center;
+    transition: r 0.3s;
+  }
+
+  /* NAVIGATION - bottom left */
+  .nav-left {
+    position: fixed;
+    bottom: 36px; left: 36px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+  }
+  .nav-toggle {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: var(--white);
+    color: var(--neon-dark);
+    border: none;
+    font-size: 22px;
+    font-weight: 700;
+    cursor: none;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 0;
+    transition: transform 0.3s var(--transition), background 0.3s;
+  }
+  .nav-toggle:hover { transform: scale(1.12); }
+  .nav-toggle.open { transform: rotate(45deg); }
+
+  .nav-items { display: flex; flex-direction: column; gap: 0; }
+
+  .nav-item {
+    font-size: clamp(28px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--white);
+    cursor: none;
+    line-height: 1.05;
+    position: relative;
+    display: inline-block;
+    width: fit-content;
+    overflow: hidden;
+    transition: color 0.2s;
+  }
+  .nav-item::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: 2px;
+    width: 0; height: 3px;
+    background: var(--white);
+    transition: width 0.3s var(--transition);
+  }
+  .nav-item:hover::after { width: 100%; }
+  .nav-item:hover { color: var(--off-white); text-shadow: 0 0 20px rgba(255,255,255,0.4); }
+
+  /* BOTTOM RIGHT */
+  .bottom-right {
+    position: fixed;
+    bottom: 36px; right: 36px;
+    z-index: 100;
+    text-align: right;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .contact-btn {
+    font-family: var(--font-serif);
+    font-size: clamp(20px, 2.5vw, 32px);
+    font-style: italic;
+    color: var(--white);
+    cursor: none;
+    position: relative;
+    background: none;
+    border: none;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+  .contact-btn::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 100%; height: 2px;
+    background: var(--white);
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s var(--transition);
+  }
+  .contact-btn:hover::after { transform: scaleX(1); transform-origin: left; }
+
+  .cta-text {
+    font-family: var(--font-serif);
+    font-size: clamp(22px, 3vw, 42px);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--white);
+    cursor: none;
+    line-height: 1.1;
+  }
+
+  /* INNER PAGES */
+  .inner-page {
+    min-height: 100vh;
+    background: var(--neon);
+    padding: 120px 36px 80px;
+    position: relative;
+  }
+
+  /* ── SCROLL PROGRESS BAR ── */
+  #scroll-progress {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: rgba(255,255,255,0.85);
+    width: 0%;
+    z-index: 9998;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    opacity: 0;
+    box-shadow: 0 0 8px rgba(255,255,255,0.35);
+  }
+  #scroll-progress.visible { opacity: 1; }
+
+  /* ── INNER PAGE TITLE enhancements ── */
+  .page-title {
+    font-size: clamp(56px, 10vw, 130px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.9;
+    margin-bottom: 16px;
+    color: var(--white);
+  }
+  .page-title-sub {
+    font-size: clamp(12px, 1.2vw, 15px);
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.4;
+    margin-bottom: 52px;
+    display: block;
+  }
+
+  /* VIDEO PAGE GRID */
+  .video-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+    margin-bottom: 60px;
+  }
+  .video-card {
+    position: relative;
+    aspect-ratio: 16/9;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: none;
+    transition: transform 0.3s var(--transition), box-shadow 0.3s;
+  }
+  .video-card:hover { transform: scale(1.03); box-shadow: 0 20px 50px rgba(0,0,0,0.35); }
+  .video-card-inner {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    position: relative;
+  }
+  .video-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.15) 100%);
+    transition: background 0.3s;
+  }
+  .video-card:hover .video-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
+  }
+  .video-play {
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    backdrop-filter: blur(4px);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    transition: background 0.2s, transform 0.2s;
+    position: relative; z-index: 1;
+  }
+  .video-card:hover .video-play { background: rgba(255,255,255,0.35); transform: scale(1.15); }
+  .video-meta {
+    position: absolute;
+    top: 12px; right: 12px;
+    display: flex; gap: 6px;
+    z-index: 1;
+  }
+  .video-cat {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(158,215,48,0.85);
+    color: #0a0a0a;
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .video-dur {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px; border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+  .video-label {
+    position: absolute;
+    bottom: 28px; left: 14px; right: 14px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    z-index: 1;
+    line-height: 1.2;
+  }
+  .video-client {
+    position: absolute;
+    bottom: 12px; left: 14px;
+    font-size: 11px;
+    opacity: 0.55;
+    letter-spacing: 0.06em;
+    z-index: 1;
+    font-style: italic;
+  }
+
+  /* AI PAGE */
+  .ai-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .ai-card {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    display: flex;
+    align-items: flex-end;
+    padding: 22px;
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    transition: transform 0.3s var(--transition), box-shadow 0.3s;
+  }
+  .ai-card:hover { transform: translateY(-8px); box-shadow: 0 24px 50px rgba(0,0,0,0.3); }
+  .ai-card-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.3;
+    transition: opacity 0.3s;
+  }
+  .ai-card:hover .ai-card-bg { opacity: 0.45; }
+  .ai-card-content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ai-card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.55;
+    margin-bottom: 2px;
+  }
+  .ai-card-label {
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.1;
+  }
+  .ai-card-desc {
+    font-size: 11px;
+    opacity: 0;
+    line-height: 1.5;
+    margin-top: 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s, max-height 0.3s var(--transition);
+    font-weight: 400;
+  }
+  .ai-card:hover .ai-card-desc { opacity: 0.75; max-height: 80px; }
+  .ai-tool-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 40px;
+  }
+  .ai-tool-badge {
+    padding: 8px 18px;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: none;
+  }
+  .ai-tool-badge:hover { background: rgba(255,255,255,0.15); border-color: var(--white); }
+
+  /* VFX PAGE */
+  .vfx-case {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+    padding-bottom: 32px;
+  }
+  .vfx-images { display: flex; flex-direction: column; }
+  .vfx-before-after {
+    aspect-ratio: 16/9;
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 12px;
+    transition: transform 0.3s var(--transition);
+  }
+  .vfx-before-after:hover { transform: scale(1.02); }
+  .vfx-img-label {
+    font-size: 11px;
+    opacity: 0.5;
+    letter-spacing: 0.06em;
+  }
+  .vfx-tag {
+    position: absolute;
+    top: 12px; left: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.55);
+    padding: 4px 10px;
+    border-radius: 4px;
+    backdrop-filter: blur(4px);
+  }
+  .vfx-client {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.5;
+    margin-bottom: 8px;
+  }
+  .vfx-info h3 {
+    font-size: clamp(22px, 3vw, 36px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .vfx-info p {
+    font-size: 14px;
+    opacity: 0.7;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .vfx-tools {
+    font-size: 11px !important;
+    opacity: 0.45 !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+    text-transform: uppercase !important;
+    margin-bottom: 20px !important;
+  }
+  .vfx-metrics {
+    display: flex;
+    gap: 24px;
+  }
+  .vfx-metric { text-align: center; }
+  .vfx-metric strong { display: block; font-size: 22px; font-weight: 800; }
+  .vfx-metric span { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* MOTION PAGE */
+  .motion-showcase {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+  .motion-item {
+    border-radius: 16px;
+    padding: 40px;
+    background: rgba(0,0,0,0.12);
+    cursor: none;
+    transition: background 0.3s;
+    overflow: hidden;
+    position: relative;
+  }
+  .motion-item:hover { background: rgba(0,0,0,0.2); }
+  .motion-kinetic {
+    font-size: clamp(32px, 6vw, 80px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+    color: var(--white);
+  }
+  .motion-kinetic.outline { -webkit-text-stroke: 2px var(--white); color: transparent; }
+  .motion-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,0.2);
+  }
+  .motion-meta span { font-size: 12px; opacity: 0.6; text-transform: uppercase; letter-spacing: 0.1em; }
+  .motion-desc {
+    font-size: 13px;
+    opacity: 0;
+    line-height: 1.65;
+    margin-top: 16px;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.35s, max-height 0.4s var(--transition);
+  }
+  .motion-item:hover .motion-desc { opacity: 0.65; max-height: 120px; }
+
+  /* ABOUT PAGE */
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+  .about-bio {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 2.5vw, 26px);
+    line-height: 1.5;
+    font-style: italic;
+  }
+  .about-bio em { font-style: normal; font-family: var(--font-display); font-size: 0.85em; font-weight: 800; }
+  .skills-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .skill-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    gap: 20px;
+  }
+  .skill-name { font-size: 14px; font-weight: 700; letter-spacing: 0.04em; }
+  .skill-bar {
+    flex: 1;
+    height: 3px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .skill-fill {
+    height: 100%;
+    background: var(--white);
+    border-radius: 2px;
+    width: 0;
+    transition: width 1s var(--transition) 0.3s;
+  }
+  .about-page.active .skill-fill { width: var(--w); }
+  .skill-pct { font-size: 12px; opacity: 0.5; min-width: 32px; text-align: right; }
+
+  .clients-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 48px;
+  }
+  .client-tag {
+    padding: 10px 20px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  .cv-download {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 40px;
+    padding: 16px 32px;
+    border: 2px solid var(--white);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--white);
+    text-decoration: none;
+    cursor: none;
+    transition: background 0.2s, color 0.2s;
+  }
+  .cv-download:hover { background: var(--white); color: var(--neon-dark); }
+
+  /* CONTACT MODAL */
+  #contact-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(100,155,20,0.6);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s var(--transition);
+  }
+  #contact-modal.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .contact-box {
+    background: var(--neon-dark);
+    border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: 20px;
+    padding: 52px;
+    width: min(560px, 90vw);
+    position: relative;
+    transform: translateY(30px);
+    transition: transform 0.4s var(--transition);
+  }
+  #contact-modal.open .contact-box { transform: translateY(0); }
+  .contact-close {
+    position: absolute;
+    top: 24px; right: 24px;
+    width: 36px; height: 36px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    border-radius: 50%;
+    color: var(--white);
+    font-size: 16px;
+    cursor: none;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.2s;
+  }
+  .contact-close:hover { background: rgba(255,255,255,0.3); }
+  .contact-box h2 {
+    font-family: var(--font-serif);
+    font-size: 36px;
+    font-style: italic;
+    margin-bottom: 32px;
+  }
+  .contact-field {
+    margin-bottom: 20px;
+  }
+  .contact-field label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+  .contact-field input,
+  .contact-field textarea {
+    width: 100%;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 10px;
+    padding: 14px 18px;
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s, background 0.2s;
+    resize: none;
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    user-select: text;
+  }
+  .contact-field input:focus,
+  .contact-field textarea:focus {
+    border-color: rgba(255,255,255,0.6);
+    background: rgba(255,255,255,0.15);
+  }
+  .contact-field input::placeholder,
+  .contact-field textarea::placeholder { color: rgba(255,255,255,0.35); }
+  .contact-submit {
+    width: 100%;
+    padding: 16px;
+    background: var(--white);
+    color: var(--neon-dark);
+    border: none;
+    border-radius: 10px;
+    font-family: var(--font-display);
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    cursor: none;
+    margin-top: 8px;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .contact-submit:hover { background: var(--off-white); }
+  .contact-submit:active { transform: scale(0.98); }
+
+  /* ── FOOTER MASTERPIECE ── */
+  .page-footer {
+    margin-top: 80px;
+    border-top: 1px solid rgba(255,255,255,0.18);
+    padding: 0 36px 40px;
+  }
+  .footer-inner {
+    padding-top: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+  }
+  /* Socials — stacked vertically */
+  .footer-socials {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .footer-social {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--white);
+    opacity: 0.45;
+    text-decoration: none;
+    cursor: none;
+    position: relative;
+    transition: opacity 0.2s;
+  }
+  .footer-social::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 0; height: 1px;
+    background: var(--white);
+    transition: width 0.3s var(--transition);
+  }
+  .footer-social:hover { opacity: 1; }
+  .footer-social:hover::after { width: 100%; }
+  /* Bottom left: year + name + tagline */
+  .footer-bottom {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .footer-copy {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--white);
+    opacity: 0.35;
+    white-space: nowrap;
+  }
+  .footer-sep {
+    width: 1px;
+    height: 10px;
+    background: rgba(255,255,255,0.25);
+    flex-shrink: 0;
+  }
+  .footer-tagline {
+    font-family: var(--font-serif);
+    font-size: 11px;
+    font-style: italic;
+    color: var(--white);
+    opacity: 0.35;
+    white-space: nowrap;
+  }
+
+  /* Mobile footer */
+  @media (max-width: 768px) {
+    .page-footer { padding: 0 20px 36px; }
+    .footer-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 24px;
+    }
+    .footer-socials {
+      flex-direction: row;
+      align-items: flex-start;
+      gap: 20px;
+    }
+  }
+
+  /* BLINK ANIMATION */
+  @keyframes blink {
+    0%, 88%, 100% { transform: scaleY(1); }
+    93% { transform: scaleY(0.06); }
+    96% { transform: scaleY(1); }
+    98% { transform: scaleY(0.04); }
+  }
+  #eye-lids { animation: blink 6s ease-in-out infinite; transform-origin: 200px 92px; }
+
+  /* Subtle iris pulse */
+  @keyframes irisPulse {
+    0%, 100% { r: 44; }
+    50% { r: 42; }
+  }
+  #iris-disc { animation: irisPulse 4s ease-in-out infinite; }
+
+  /* SCAN LINE subtle bg effect */
+  #home::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.015) 3px,
+      rgba(0,0,0,0.015) 4px
+    );
+    pointer-events: none;
+  }
+
+  /* GREETING BADGE */
+  #greeting {
+    position: fixed;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    background: rgba(0,0,0,0.2);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.2);
+    padding: 8px 20px;
+    border-radius: 999px;
+    color: var(--white);
+    opacity: 0;
+    transition: opacity 0.6s 1.2s;
+    pointer-events: none;
+  }
+  #greeting.visible { opacity: 1; }
+
+  /* ENTRY ANIMATION */
+  .fade-up {
+    opacity: 0;
+    transform: translateY(20px);
+    animation: fadeUp 0.7s var(--transition) forwards;
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .nav-item:nth-child(1) { animation-delay: 0.3s; }
+  .nav-item:nth-child(2) { animation-delay: 0.38s; }
+  .nav-item:nth-child(3) { animation-delay: 0.46s; }
+  .nav-item:nth-child(4) { animation-delay: 0.54s; }
+  .nav-item:nth-child(5) { animation-delay: 0.62s; }
+
+  /* PARTICLE CANVAS */
+  #particles { position: fixed; inset: 0; pointer-events: none; opacity: 0.35; z-index: 1; }
+
+  /* COPYRIGHT HOME */
+  .copyright-home {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-top: 4px;
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .header { padding: 18px 20px; }
+
+    /* HOME: switch from fixed to relative layout so content is reachable */
+    #home {
+      height: auto;
+      min-height: 100vh;
+      overflow-y: auto;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding-bottom: 24px;
+    }
+    #eye-container {
+      position: relative;
+      top: auto; left: auto;
+      transform: none;
+      width: 90vw;
+      margin: 100px auto 0;
+    }
+    .nav-left {
+      position: relative;
+      bottom: auto; left: auto;
+      padding: 24px 20px 0;
+    }
+    .bottom-right {
+      position: relative;
+      bottom: auto; right: auto;
+      text-align: right;
+      padding: 16px 20px 0;
+      align-self: flex-end;
+    }
+    .nav-item { font-size: clamp(28px, 9vw, 44px); }
+    .nav-toggle { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
+
+    .about-grid { grid-template-columns: 1fr; }
+    .vfx-case { grid-template-columns: 1fr; }
+    .ai-grid { grid-template-columns: repeat(2, 1fr); }
+    .inner-page { padding: 90px 20px 60px; }
+    body { cursor: auto; }
+    #cursor { display: none; }
+    #particles { display: none; }
+
+    /* New elements */
+    .reel-hero { aspect-ratio: 4/3; }
+    .reel-stats { display: none; }
+    .reel-hero-content { padding: 24px; }
+    .ai-process { gap: 6px; }
+    .ai-process-arrow { display: none; }
+    .ai-process-step { min-width: unset; flex: 1; padding: 12px 14px; }
+    .about-stats { flex-wrap: wrap; }
+    .about-stat { min-width: 50%; }
+    .timeline::before { left: 36px; }
+    .tl-item::before { left: 30px; }
+    .page-title-sub { margin-bottom: 28px; }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--neon-dark); }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 2px; }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.45;
+    margin-bottom: 20px;
+    margin-top: 16px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+  }
+
+  /* ── PAGE INTRO ── */
+  .page-intro {
+    max-width: 680px;
+    margin-bottom: 48px;
+  }
+  .page-intro-text {
+    font-family: var(--font-serif);
+    font-size: clamp(16px, 1.8vw, 22px);
+    font-style: italic;
+    line-height: 1.6;
+    opacity: 0.85;
+  }
+  .page-intro-text em {
+    font-style: normal;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 0.9em;
+  }
+
+  /* ── REEL HERO ── */
+  .reel-hero {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    aspect-ratio: 21/8;
+    margin-bottom: 48px;
+    cursor: none;
+    transition: transform 0.4s var(--transition);
+  }
+  .reel-hero:hover { transform: scale(1.008); }
+  .reel-hero-bg {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s var(--transition);
+  }
+  .reel-hero:hover .reel-hero-bg { transform: scale(1.04); }
+  .reel-hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.1) 100%);
+  }
+  .reel-hero-content {
+    position: relative;
+    z-index: 1;
+    padding: 44px 48px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .reel-hero-tag {
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.7;
+    background: rgba(255,255,255,0.12);
+    padding: 6px 14px;
+    border-radius: 6px;
+    backdrop-filter: blur(4px);
+    width: fit-content;
+  }
+  .reel-hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(28px, 4vw, 56px);
+    font-style: italic;
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .reel-hero-play {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .reel-play-btn {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: white;
+    color: var(--neon-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transition: transform 0.2s, background 0.2s;
+  }
+  .reel-hero:hover .reel-play-btn { transform: scale(1.15); }
+  .reel-stats {
+    position: absolute;
+    bottom: 0; right: 0;
+    z-index: 1;
+    display: flex;
+    gap: 0;
+    background: rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+    border-radius: 20px 0 20px 0;
+    overflow: hidden;
+  }
+  .reel-stat {
+    padding: 18px 28px;
+    text-align: center;
+    border-left: 1px solid rgba(255,255,255,0.1);
+  }
+  .reel-stat:first-child { border-left: none; }
+  .reel-stat strong { display: block; font-size: 22px; font-weight: 800; }
+  .reel-stat span { font-size: 10px; opacity: 0.55; text-transform: uppercase; letter-spacing: 0.1em; }
+
+  /* ── AI PROCESS ── */
+  .ai-process {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+    row-gap: 12px;
+  }
+  .ai-process-step {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 22px;
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    min-width: 140px;
+  }
+  .ai-step-num {
+    font-size: 11px;
+    font-weight: 800;
+    opacity: 0.4;
+    letter-spacing: 0.1em;
+  }
+  .ai-step-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  .ai-process-arrow {
+    font-size: 20px;
+    opacity: 0.3;
+    padding: 0 10px;
+    flex-shrink: 0;
+  }
+
+  /* ── ABOUT PAGE ADDITIONS ── */
+  .about-stats {
+    display: flex;
+    gap: 0;
+    margin-top: 36px;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .about-stat {
+    flex: 1;
+    padding: 18px 16px;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .about-stat:last-child { border-right: none; }
+  .about-stat strong { display: block; font-size: clamp(20px, 2.5vw, 28px); font-weight: 800; }
+  .about-stat span { font-size: 10px; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 2px; display: block; }
+
+  .awards-list { display: flex; flex-direction: column; gap: 0; }
+  .award-row {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    transition: background 0.2s;
+  }
+  .award-row:last-child { border-bottom: none; }
+  .award-year {
+    font-size: 11px; font-weight: 800; opacity: 0.4;
+    letter-spacing: 0.06em; min-width: 36px; padding-top: 2px;
+  }
+  .award-info { display: flex; flex-direction: column; gap: 3px; }
+  .award-name { font-size: 14px; font-weight: 800; }
+  .award-cat { font-size: 12px; opacity: 0.55; font-style: italic; font-family: var(--font-serif); }
+
+  /* ── TIMELINE ── */
+  .timeline { display: flex; flex-direction: column; gap: 0; position: relative; }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 46px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: rgba(255,255,255,0.15);
+  }
+  .tl-item {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    padding: 12px 0;
+    position: relative;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: 40px; top: 18px;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--white);
+    opacity: 0.6;
+    z-index: 1;
+  }
+  .tl-year {
+    font-size: 11px; font-weight: 800; opacity: 0.4;
+    letter-spacing: 0.06em; min-width: 36px; padding-top: 2px;
+    flex-shrink: 0;
+  }
+  .tl-body { margin-left: 16px; display: flex; flex-direction: column; gap: 3px; }
+  .tl-role { font-size: 14px; font-weight: 800; }
+  .tl-place { font-size: 12px; opacity: 0.5; font-style: italic; font-family: var(--font-serif); }
+
+</style>
+</head>
+<body>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor"></div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
+
+<!-- GREETING BADGE -->
+<div id="greeting"></div>
+
+<!-- PARTICLE CANVAS -->
+<canvas id="particles"></canvas>
+
+<!-- HEADER (visible on all pages) -->
+<div class="header">
+  <div id="header-left">
+    <!-- on home: FRANCESCO  |  on inner pages: ← Back -->
+    <span id="header-firstname" class="header-firstname" onclick="showPage('home')" style="cursor:none">FRANCESCO</span>
+    <button id="header-back" class="header-back" onclick="showPage('home')" style="display:none">← Back</button>
+  </div>
+  <div id="header-right">
+    <!-- always: AIENA -->
+    <span class="header-lastname">AIENA</span>
+  </div>
+</div>
+
+<!-- =================== HOME =================== -->
+<div id="home" class="page active">
+  <div id="eye-container">
+    <svg id="eye-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <!-- Iris gradient: rich green with depth -->
+        <radialGradient id="irisGlow" cx="42%" cy="40%" r="58%">
+          <stop offset="0%"   stop-color="#88ff44"/>
+          <stop offset="30%"  stop-color="#44cc11"/>
+          <stop offset="70%"  stop-color="#1a8800"/>
+          <stop offset="100%" stop-color="#0a4400"/>
+        </radialGradient>
+        <!-- Sclera gradient: warm off-white with subtle pink at corners -->
+        <radialGradient id="scleraGrad" cx="50%" cy="50%" r="60%">
+          <stop offset="0%"   stop-color="#f8f4ee"/>
+          <stop offset="70%"  stop-color="#ede6d8"/>
+          <stop offset="100%" stop-color="#d4c8b8"/>
+        </radialGradient>
+        <!-- Inner corner pink flush -->
+        <radialGradient id="caruncleGrad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#ffcccc"/>
+          <stop offset="100%" stop-color="#ffaaaa" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Pupil depth gradient -->
+        <radialGradient id="pupilGrad" cx="38%" cy="36%" r="62%">
+          <stop offset="0%"  stop-color="#2a2a2a"/>
+          <stop offset="100%" stop-color="#050505"/>
+        </radialGradient>
+        <!-- Cornea wet sheen -->
+        <radialGradient id="corneaSheen" cx="35%" cy="28%" r="55%">
+          <stop offset="0%"  stop-color="white" stop-opacity="0.22"/>
+          <stop offset="60%" stop-color="white" stop-opacity="0.04"/>
+          <stop offset="100%" stop-color="white" stop-opacity="0"/>
+        </radialGradient>
+        <!-- Eyelid skin gradient -->
+        <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%"  stop-color="#9ed730" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#9ed730" stop-opacity="0"/>
+        </linearGradient>
+
+        <!-- Eye shape clip -->
+        <clipPath id="eyeClip">
+          <path d="M 40 100
+                   C 55 78, 92 50, 142 42
+                   C 177 36, 212 36, 245 43
+                   C 278 50, 325 68, 360 100
+                   C 325 124, 278 138, 245 143
+                   C 212 148, 177 148, 142 143
+                   C 92 136, 55 120, 40 100 Z"/>
+        </clipPath>
+
+        <!-- Subtle blur for sclera veins -->
+        <filter id="veinBlur">
+          <feGaussianBlur stdDeviation="0.7"/>
+        </filter>
+        <!-- Soft shadow under upper lid -->
+        <filter id="lidShadow" x="-10%" y="-10%" width="120%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
+          <feOffset dy="2"/>
+          <feComposite in2="SourceGraphic"/>
+        </filter>
+        <!-- Iris texture filter -->
+        <filter id="irisTexture">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+        </filter>
+      </defs>
+
+      <!-- ═══ EYEBALL GROUP — moves slightly with background ═══ -->
+      <g id="eye-bg-group">
+        <!-- SCLERA (white of eye) — warm, realistic tone -->
+        <path d="M 40 100
+                 C 55 78, 92 50, 142 42
+                 C 177 36, 212 36, 245 43
+                 C 278 50, 325 68, 360 100
+                 C 325 124, 278 138, 245 143
+                 C 212 148, 177 148, 142 143
+                 C 92 136, 55 120, 40 100 Z"
+              fill="url(#scleraGrad)" opacity="0.92"/>
+
+        <!-- Subtle blood vessels / veins — inner corner -->
+        <g clip-path="url(#eyeClip)" filter="url(#veinBlur)" opacity="0.18">
+          <path d="M 60 98 C 80 90, 95 85, 115 88" stroke="#cc4444" stroke-width="0.9" fill="none"/>
+          <path d="M 62 103 C 78 108, 90 112, 108 108" stroke="#cc4444" stroke-width="0.7" fill="none"/>
+          <path d="M 70 96 C 88 88, 102 84, 118 87" stroke="#cc4444" stroke-width="0.5" fill="none"/>
+          <!-- Outer corner veins -->
+          <path d="M 340 98 C 320 92, 305 88, 288 90" stroke="#cc4444" stroke-width="0.8" fill="none"/>
+          <path d="M 338 104 C 318 110, 303 113, 285 109" stroke="#cc4444" stroke-width="0.6" fill="none"/>
+        </g>
+
+        <!-- Inner corner pink (caruncle) -->
+        <ellipse cx="52" cy="100" rx="14" ry="10" fill="url(#caruncleGrad)" opacity="0.5"/>
+      </g>
+
+      <!-- ═══ IRIS + PUPIL GROUP — follows mouse closely ═══ -->
+      <g clip-path="url(#eyeClip)">
+        <g id="iris-group">
+          <!-- Iris base -->
+          <circle id="iris-disc" cx="200" cy="96" r="44" fill="url(#irisGlow)" opacity="0.92"/>
+
+          <!-- Iris fiber texture — radial lines -->
+          <g id="iris-fibers" opacity="0.25">
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(0,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(22,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(44,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(66,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(88,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(110,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(132,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(154,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(176,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(198,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(220,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(242,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(264,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(286,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(308,200,96)"/>
+            <line x1="200" y1="52" x2="200" y2="62" stroke="white" stroke-width="1" transform="rotate(330,200,96)"/>
+          </g>
+          <!-- Iris outer ring (limbal) -->
+          <circle cx="200" cy="96" r="44" fill="none" stroke="#003300" stroke-width="4" opacity="0.6"/>
+          <!-- Iris inner ring detail -->
+          <circle cx="200" cy="96" r="36" fill="none" stroke="#226600" stroke-width="1.2" opacity="0.35"/>
+          <!-- Crypts / subtle texture spots -->
+          <circle cx="186" cy="80" r="3" fill="#005500" opacity="0.25"/>
+          <circle cx="214" cy="78" r="2.5" fill="#005500" opacity="0.2"/>
+          <circle cx="222" cy="105" r="2" fill="#005500" opacity="0.18"/>
+          <circle cx="180" cy="108" r="2.5" fill="#005500" opacity="0.22"/>
+
+          <!-- PUPIL -->
+          <circle id="pupil-inner" cx="200" cy="96" r="22" fill="url(#pupilGrad)"/>
+          <!-- Pupil edge softening ring -->
+          <circle id="pupil-ring" cx="200" cy="96" r="22" fill="none" stroke="#1a1a1a" stroke-width="2.5" opacity="0.55"/>
+          <!-- Pupil micro-gradient shadow (upper half dark) -->
+          <path id="pupil-shadow" d="M 178 96 A 22 22 0 0 1 222 96 Z" fill="rgba(0,0,0,0.35)"/>
+
+          <!-- PRIMARY CATCHLIGHT — large, diffuse, upper-left -->
+          <ellipse id="pupil-glow" cx="190" cy="82" rx="8" ry="10" fill="white" opacity="0.90"/>
+          <!-- Catchlight soft halo -->
+          <ellipse cx="190" cy="82" rx="12" ry="14" fill="white" opacity="0.07"/>
+          <!-- Secondary catchlight — small, lower-right (window reflection) -->
+          <ellipse id="catchlight-2" cx="210" cy="109" rx="3.5" ry="2.5" fill="white" opacity="0.25" transform="rotate(-20,210,109)"/>
+          <!-- Tertiary micro-catchlight — left of primary -->
+          <circle id="catchlight-3" cx="195" cy="88" r="1.8" fill="white" opacity="0.50"/>
+
+          <!-- Cornea wet-look overlay (on top of everything inside) -->
+          <circle cx="200" cy="96" r="44" fill="url(#corneaSheen)"/>
+        </g>
+      </g>
+
+      <!-- ═══ EYELIDS — drawn on top ═══ -->
+      <g id="eye-lids">
+        <!-- Upper lid shadow (depth under lid) -->
+        <path d="M 40 100
+                 C 55 78, 92 50, 142 42
+                 C 177 36, 212 36, 245 43
+                 C 278 50, 325 68, 360 100"
+              stroke="rgba(0,30,0,0.3)" stroke-width="8" stroke-linecap="round" fill="none"/>
+
+        <!-- UPPER EYELID main line -->
+        <path d="M 40 100
+                 C 55 78, 92 50, 142 42
+                 C 177 36, 212 36, 245 43
+                 C 278 50, 325 68, 360 100"
+              stroke="white" stroke-width="2.8" stroke-linecap="round" fill="none" opacity="0.96"/>
+
+        <!-- Upper lash line (thicker at center-outer) -->
+        <path d="M 80 72
+                 C 120 56, 170 44, 220 42
+                 C 260 41, 300 52, 330 70"
+              stroke="white" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.18"/>
+
+        <!-- EYELASHES — upper, fan out naturally -->
+        <g id="lashes-upper" stroke="white" stroke-linecap="round" opacity="0.55">
+          <!-- Medial lashes (shorter, more vertical) -->
+          <line x1="80" y1="80" x2="75" y2="66" stroke-width="1.2"/>
+          <line x1="96" y1="70" x2="93" y2="55" stroke-width="1.3"/>
+          <line x1="112" y1="60" x2="111" y2="44" stroke-width="1.4"/>
+          <!-- Central lashes (longest, most curved) -->
+          <line x1="132" y1="51" x2="133" y2="34" stroke-width="1.5"/>
+          <line x1="152" y1="44" x2="155" y2="27" stroke-width="1.6"/>
+          <line x1="172" y1="40" x2="177" y2="23" stroke-width="1.7"/>
+          <line x1="192" y1="38" x2="198" y2="21" stroke-width="1.7"/>
+          <line x1="212" y1="38" x2="218" y2="21" stroke-width="1.7"/>
+          <line x1="230" y1="40" x2="238" y2="24" stroke-width="1.6"/>
+          <!-- Lateral lashes (angle outward) -->
+          <line x1="248" y1="44" x2="258" y2="30" stroke-width="1.5"/>
+          <line x1="266" y1="50" x2="278" y2="38" stroke-width="1.4"/>
+          <line x1="284" y1="58" x2="298" y2="48" stroke-width="1.3"/>
+          <line x1="300" y1="68" x2="316" y2="60" stroke-width="1.2"/>
+          <line x1="316" y1="78" x2="332" y2="73" stroke-width="1.1"/>
+        </g>
+
+        <!-- LOWER EYELID — flatter, barely curves -->
+        <path d="M 40 100
+                 C 55 120, 92 136, 142 143
+                 C 177 148, 212 148, 245 143
+                 C 278 138, 325 124, 360 100"
+              stroke="white" stroke-width="1.8" stroke-linecap="round" fill="none" opacity="0.75"/>
+
+        <!-- Lower lash line subtle -->
+        <path d="M 80 128
+                 C 120 140, 170 148, 220 148
+                 C 260 148, 300 142, 330 130"
+              stroke="white" stroke-width="0.8" stroke-linecap="round" fill="none" opacity="0.12"/>
+
+        <!-- Lower lashes — shorter, sparse -->
+        <g id="lashes-lower" stroke="white" stroke-linecap="round" opacity="0.30">
+          <line x1="110" y1="138" x2="108" y2="150" stroke-width="1"/>
+          <line x1="140" y1="144" x2="140" y2="157" stroke-width="1"/>
+          <line x1="172" y1="148" x2="173" y2="161" stroke-width="1"/>
+          <line x1="204" y1="149" x2="205" y2="162" stroke-width="1"/>
+          <line x1="236" y1="147" x2="238" y2="160" stroke-width="1"/>
+          <line x1="266" y1="140" x2="270" y2="152" stroke-width="1"/>
+          <line x1="294" y1="129" x2="300" y2="140" stroke-width="1"/>
+        </g>
+
+        <!-- Eyelid crease — subtle fold above upper lid -->
+        <path d="M 85 86
+                 C 118 64, 165 50, 205 50
+                 C 245 50, 292 58, 330 78"
+              stroke="white" stroke-width="1" stroke-linecap="round" fill="none" opacity="0.11"/>
+
+        <!-- Sketch double-line on upper lid for hand-drawn softness -->
+        <path d="M 42 97
+                 C 58 75, 94 48, 144 40
+                 C 179 34, 214 34, 247 41
+                 C 280 48, 327 66, 360 100"
+              stroke="white" stroke-width="0.9" stroke-linecap="round" fill="none" opacity="0.17"/>
+      </g>
+
+      <!-- Outer eye glow (limbal glow) — very subtle -->
+      <path d="M 40 100
+               C 55 78, 92 50, 142 42
+               C 177 36, 212 36, 245 43
+               C 278 50, 325 68, 360 100
+               C 325 124, 278 138, 245 143
+               C 212 148, 177 148, 142 143
+               C 92 136, 55 120, 40 100 Z"
+            fill="none" stroke="rgba(158,215,48,0.15)" stroke-width="12"/>
+
+    </svg>
+  </div>
+
+  <!-- NAV LEFT -->
+  <nav class="nav-left">
+    <button class="nav-toggle" id="nav-toggle" onclick="toggleNav()" style="display:none">+</button>
+    <div class="nav-items" id="nav-items">
+      <a class="nav-item fade-up" onclick="showPage('video')">VIDEO</a>
+      <a class="nav-item fade-up" onclick="showPage('ai')">AI</a>
+      <a class="nav-item fade-up" onclick="showPage('vfx')">VFX</a>
+      <a class="nav-item fade-up" onclick="showPage('motion')">MOTION</a>
+      <a class="nav-item fade-up" onclick="showPage('about')">ABOUT</a>
+    </div>
+  </nav>
+
+  <!-- BOTTOM RIGHT -->
+  <div class="bottom-right">
+    <a class="contact-btn" onclick="openContact()">Contact!</a>
+    <div class="cta-text">Let's work together!</div>
+    <div class="copyright-home">© 2026</div>
+  </div>
+</div>
+
+<!-- =================== VIDEO =================== -->
+<div id="video-page" class="page">
+  <div class="inner-page">
+    <h1 class="page-title">VIDEO</h1>
+    <span class="page-title-sub">Editing · Color · Storytelling</span>
+
+    <!-- Hero reel card -->
+    <div class="reel-hero" onclick="openContact()">
+      <div class="reel-hero-bg" style="background-image:url('https://images.unsplash.com/photo-1536240478700-b869ad10e128?w=1400&q=85&auto=format')"></div>
+      <div class="reel-hero-overlay"></div>
+      <div class="reel-hero-content">
+        <span class="reel-hero-tag">↗ SHOWREEL 2026</span>
+        <h2 class="reel-hero-title">2 minutes.<br>Every frame counts.</h2>
+        <div class="reel-hero-play">
+          <span class="reel-play-btn">▶</span>
+          <span>Watch Full Reel</span>
+        </div>
+      </div>
+      <div class="reel-stats">
+        <div class="reel-stat"><strong>12+</strong><span>Years exp.</span></div>
+        <div class="reel-stat"><strong>340+</strong><span>Projects</span></div>
+        <div class="reel-stat"><strong>80M+</strong><span>Total views</span></div>
+        <div class="reel-stat"><strong>6</strong><span>Major clients</span></div>
+      </div>
+    </div>
+
+    <div class="section-label">SELECTED WORKS</div>
+    <div class="video-grid" id="video-grid"></div>
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-bottom">
+          <span class="footer-copy">© 2026</span>
+          <span class="footer-sep"></span>
+          <span class="footer-tagline">Francesco Aiena</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#">YouTube</a>
+          <a class="footer-social" href="#">Instagram</a>
+          <a class="footer-social" href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== AI =================== -->
+<div id="ai-page" class="page">
+  <div class="inner-page">
+    <h1 class="page-title">AI</h1>
+    <span class="page-title-sub">Generative · Diffusion · Neural</span>
+
+    <div class="page-intro">
+      <p class="page-intro-text">AI isn't a replacement for craft — it's an amplifier. I use generative tools to move faster, iterate wider, and push further than traditional workflows allow. Every pixel still goes through a human eye.</p>
+    </div>
+
+    <div class="ai-process">
+      <div class="ai-process-step"><span class="ai-step-num">01</span><span class="ai-step-label">Prompt Engineering</span></div>
+      <div class="ai-process-arrow">→</div>
+      <div class="ai-process-step"><span class="ai-step-num">02</span><span class="ai-step-label">Generation &amp; Curation</span></div>
+      <div class="ai-process-arrow">→</div>
+      <div class="ai-process-step"><span class="ai-step-num">03</span><span class="ai-step-label">Compositing &amp; Finishing</span></div>
+      <div class="ai-process-arrow">→</div>
+      <div class="ai-process-step"><span class="ai-step-num">04</span><span class="ai-step-label">Delivery</span></div>
+    </div>
+
+    <div class="section-label" style="margin-top:48px">CAPABILITIES</div>
+    <div class="ai-grid">
+      <div class="ai-card" style="background: rgba(0,0,0,0.28);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="100" cy="100" r="60" stroke="white" stroke-width="0.5" fill="none" opacity="0.2"/><circle cx="100" cy="100" r="30" stroke="white" stroke-width="0.5" fill="none" opacity="0.15"/><line x1="10" y1="100" x2="190" y2="100" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="100" y1="10" x2="100" y2="190" stroke="white" stroke-width="0.4" opacity="0.2"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Midjourney v6</div>
+          <span class="ai-card-label">Generative Art</span>
+          <p class="ai-card-desc">Hyper-detailed AI imagery for campaigns — style-locked consistency across 200+ assets for Nike's Spring collection.</p>
+        </div>
+      </div>
+      <div class="ai-card" style="background: rgba(0,0,0,0.22);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><polygon points="100,10 190,190 10,190" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/><polygon points="100,40 160,170 40,170" stroke="white" stroke-width="0.4" fill="none" opacity="0.2"/><polygon points="100,70 130,150 70,150" stroke="white" stroke-width="0.3" fill="none" opacity="0.15"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Runway Gen-3</div>
+          <span class="ai-card-label">AI Video</span>
+          <p class="ai-card-desc">Text-to-video sequences integrated seamlessly into live-action edits. 4K output, motion-matched to real footage.</p>
+        </div>
+      </div>
+      <div class="ai-card" style="background: rgba(0,0,0,0.32);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><rect x="20" y="20" width="160" height="160" stroke="white" stroke-width="0.5" fill="none" opacity="0.3" rx="8"/><rect x="50" y="50" width="100" height="100" stroke="white" stroke-width="0.4" fill="none" opacity="0.2" rx="4"/><rect x="80" y="80" width="40" height="40" stroke="white" stroke-width="0.3" fill="none" opacity="0.15" rx="2"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Stable Diffusion XL</div>
+          <span class="ai-card-label">Neural Style</span>
+          <p class="ai-card-desc">Fine-tuned LoRA models trained on brand identity assets — pixel-perfect style transfer at scale.</p>
+        </div>
+      </div>
+      <div class="ai-card" style="background: rgba(0,0,0,0.20);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="40" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="160" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/><circle cx="100" cy="160" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.3"/><line x1="40" y1="40" x2="160" y2="40" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="40" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="160" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.2"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Kling AI · Sora</div>
+          <span class="ai-card-label">Diffusion Video</span>
+          <p class="ai-card-desc">Photorealistic scene generation from storyboard sketches. Full commercial spots built from prompts + compositing.</p>
+        </div>
+      </div>
+      <div class="ai-card" style="background: rgba(0,0,0,0.18);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><path d="M10 100 Q55 50 100 100 Q145 150 190 100" stroke="white" stroke-width="0.6" fill="none" opacity="0.3"/><path d="M10 80 Q55 30 100 80 Q145 130 190 80" stroke="white" stroke-width="0.4" fill="none" opacity="0.2"/><path d="M10 120 Q55 70 100 120 Q145 170 190 120" stroke="white" stroke-width="0.4" fill="none" opacity="0.15"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">After Effects + AI</div>
+          <span class="ai-card-label">Motion AI</span>
+          <p class="ai-card-desc">AI-powered motion tracking, rotoscoping, and frame interpolation cutting post time by 60% on feature edits.</p>
+        </div>
+      </div>
+      <div class="ai-card" style="background: rgba(0,0,0,0.26);">
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="10" fill="white" opacity="0.4"/><circle cx="60" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="60" cy="140" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="140" r="6" fill="white" opacity="0.2"/><line x1="100" y1="100" x2="60" y2="60" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="100" y1="100" x2="140" y2="60" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="100" y1="100" x2="60" y2="140" stroke="white" stroke-width="0.4" opacity="0.2"/><line x1="100" y1="100" x2="140" y2="140" stroke="white" stroke-width="0.4" opacity="0.2"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">ComfyUI Workflows</div>
+          <span class="ai-card-label">Custom Pipelines</span>
+          <p class="ai-card-desc">End-to-end automated workflows: prompt → image → upscale → export. 500+ images per hour for large campaigns.</p>
+        </div>
+      </div>
+    </div>
+    <div class="ai-tool-row">
+      <span class="ai-tool-badge">Midjourney</span>
+      <span class="ai-tool-badge">RunwayML</span>
+      <span class="ai-tool-badge">Stable Diffusion</span>
+      <span class="ai-tool-badge">ComfyUI</span>
+      <span class="ai-tool-badge">Kling AI</span>
+      <span class="ai-tool-badge">Sora</span>
+      <span class="ai-tool-badge">ElevenLabs</span>
+      <span class="ai-tool-badge">Topaz</span>
+    </div>
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-bottom">
+          <span class="footer-copy">© 2026</span>
+          <span class="footer-sep"></span>
+          <span class="footer-tagline">Francesco Aiena</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#">YouTube</a>
+          <a class="footer-social" href="#">Instagram</a>
+          <a class="footer-social" href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== VFX =================== -->
+<div id="vfx-page" class="page">
+  <div class="inner-page">
+    <h1 class="page-title">VFX</h1>
+    <span class="page-title-sub">Compositing · Simulation · CGI</span>
+    <div class="page-intro">
+      <p class="page-intro-text">From invisible compositing work to full-scale destruction simulations — VFX is where technical mastery meets creative vision. Every shot is designed to be undetectable or undeniable.</p>
+    </div>
+    <div class="section-label">CASE STUDIES</div>
+    <div id="vfx-cases"></div>
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-bottom">
+          <span class="footer-copy">© 2026</span>
+          <span class="footer-sep"></span>
+          <span class="footer-tagline">Francesco Aiena</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#">YouTube</a>
+          <a class="footer-social" href="#">Instagram</a>
+          <a class="footer-social" href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== MOTION =================== -->
+<div id="motion-page" class="page">
+  <div class="inner-page">
+    <h1 class="page-title">MOTION</h1>
+    <span class="page-title-sub">Kinetic Type · Brand Systems · Generative</span>
+    <div class="page-intro">
+      <p class="page-intro-text">Motion design is the language between still and moving image. Kinetic type, generative systems, brand identities — each project starts with a single question: <em>what should this feel like?</em></p>
+    </div>
+    <div class="section-label">PROJECTS</div>
+    <div class="motion-showcase">
+      <div class="motion-item">
+        <div class="motion-kinetic">FRAME<br>BY<br>FRAME</div>
+        <p class="motion-desc">Kinetic typography sequence for Nike's "Never Done" global campaign. 120fps export, Oscars-screened. Each letter hand-animated over 3 weeks.</p>
+        <div class="motion-meta"><span>Kinetic Type · 2025</span><span>After Effects · Cinema 4D</span></div>
+      </div>
+      <div class="motion-item">
+        <div style="display:flex;gap:20px;align-items:baseline">
+          <div class="motion-kinetic">MOVE</div>
+          <div class="motion-kinetic outline">MENT</div>
+        </div>
+        <p class="motion-desc">Brand identity system for Lamborghini Urus. Full motion language: logo reveal, lower thirds, endcard — 40+ deliverables across broadcast, social, OOH.</p>
+        <div class="motion-meta"><span>Brand Identity · 2025</span><span>Cinema 4D + AE + Premiere</span></div>
+      </div>
+      <div class="motion-item">
+        <div class="motion-kinetic" style="font-style:italic;">∞ Loop</div>
+        <p class="motion-desc">Generative looping animation for a Spotify ambient playlist cover. Fully procedural — infinite variation, zero keyframes. Seeded from audio waveform data.</p>
+        <div class="motion-meta"><span>Generative Motion · 2026</span><span>TouchDesigner · GLSL</span></div>
+      </div>
+      <div class="motion-item">
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px">
+          <div class="motion-kinetic" style="font-size:clamp(16px,2.5vw,32px)">TYPE</div>
+          <div class="motion-kinetic outline" style="font-size:clamp(16px,2.5vw,32px)">FLOW</div>
+          <div class="motion-kinetic" style="font-size:clamp(16px,2.5vw,32px)">FORM</div>
+          <div class="motion-kinetic outline" style="font-size:clamp(16px,2.5vw,32px)">SPACE</div>
+        </div>
+        <p class="motion-desc">Netflix documentary title sequence — "The Human Code". Emmy-nominated. 4-word theme animates through 90-second cold open using variable font morphing.</p>
+        <div class="motion-meta"><span>Title Sequence · 2024</span><span>Premiere Pro · AE · Variable Fonts</span></div>
+      </div>
+      <div class="motion-item">
+        <div class="motion-kinetic" style="letter-spacing:0.1em; font-size:clamp(28px,4vw,60px);">FLUID<br><span style="-webkit-text-stroke:2px white;color:transparent">DYNAMICS</span></div>
+        <p class="motion-desc">Fluid simulation motion graphics for a pharmaceutical brand. Complex Houdini simulations rendered and composited into live-action medical footage. FDA-cleared campaign.</p>
+        <div class="motion-meta"><span>Data Viz Motion · 2025</span><span>Houdini · Nuke · After Effects</span></div>
+      </div>
+    </div>
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-bottom">
+          <span class="footer-copy">© 2026</span>
+          <span class="footer-sep"></span>
+          <span class="footer-tagline">Francesco Aiena</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#">YouTube</a>
+          <a class="footer-social" href="#">Instagram</a>
+          <a class="footer-social" href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== ABOUT =================== -->
+<div id="about-page" class="page about-page">
+  <div class="inner-page">
+    <h1 class="page-title">ABOUT</h1>
+    <span class="page-title-sub">Based in Italy · Working Globally</span>
+
+    <div class="about-grid">
+      <!-- LEFT COL: bio + clients + CV -->
+      <div>
+        <p class="about-bio">
+          Francesco Aiena is a <em>video editor</em> and <em>creative director</em> specializing in AI-augmented storytelling,
+          explosive VFX, and motion design that stops the scroll. Based in Italy, working globally.
+          <br><br>
+          From cutting a 10-second Instagram reel to directing a full-scale branded documentary —
+          every frame is crafted with <em>intention</em>.
+          <br><br>
+          12+ years in post-production across advertising, narrative film, music, and brand content.
+          Fluent in Italian, English, and the language of <em>deadlines</em>.
+        </p>
+
+        <!-- Quick stats row -->
+        <div class="about-stats">
+          <div class="about-stat"><strong>340+</strong><span>Projects delivered</span></div>
+          <div class="about-stat"><strong>80M+</strong><span>Total views</span></div>
+          <div class="about-stat"><strong>12</strong><span>Years exp.</span></div>
+          <div class="about-stat"><strong>3</strong><span>Emmy noms.</span></div>
+        </div>
+
+        <div class="section-label" style="margin-top:40px">CLIENTS</div>
+        <div class="clients-row">
+          <span class="client-tag">Nike</span>
+          <span class="client-tag">Spotify</span>
+          <span class="client-tag">Universal</span>
+          <span class="client-tag">Red Bull</span>
+          <span class="client-tag">Adobe</span>
+          <span class="client-tag">Netflix</span>
+          <span class="client-tag">Lamborghini</span>
+          <span class="client-tag">Ferrari</span>
+          <span class="client-tag">Amazon</span>
+          <span class="client-tag">Valentino</span>
+        </div>
+
+        <div class="section-label" style="margin-top:40px">RECOGNITION</div>
+        <div class="awards-list">
+          <div class="award-row">
+            <span class="award-year">2025</span>
+            <div class="award-info">
+              <span class="award-name">Emmy Nomination</span>
+              <span class="award-cat">Outstanding Title Design — "The Human Code"</span>
+            </div>
+          </div>
+          <div class="award-row">
+            <span class="award-year">2025</span>
+            <div class="award-info">
+              <span class="award-name">Cannes Lions Bronze</span>
+              <span class="award-cat">Film Craft · Editing — Nike "Never Done"</span>
+            </div>
+          </div>
+          <div class="award-row">
+            <span class="award-year">2024</span>
+            <div class="award-info">
+              <span class="award-name">D&AD Pencil</span>
+              <span class="award-cat">Motion Graphics — Lamborghini Urus Identity</span>
+            </div>
+          </div>
+          <div class="award-row">
+            <span class="award-year">2024</span>
+            <div class="award-info">
+              <span class="award-name">Vimeo Staff Pick</span>
+              <span class="award-cat">Experimental · Generative — "∞ Loop"</span>
+            </div>
+          </div>
+        </div>
+
+        <a href="#" class="cv-download">Download CV ↓</a>
+      </div>
+
+      <!-- RIGHT COL: skills + timeline -->
+      <div>
+        <div class="section-label">SKILLS</div>
+        <div class="skills-list">
+          <div class="skill-row"><span class="skill-name">Video Editing</span><div class="skill-bar"><div class="skill-fill" style="--w:97%"></div></div><span class="skill-pct">97%</span></div>
+          <div class="skill-row"><span class="skill-name">After Effects</span><div class="skill-bar"><div class="skill-fill" style="--w:92%"></div></div><span class="skill-pct">92%</span></div>
+          <div class="skill-row"><span class="skill-name">Motion Design</span><div class="skill-bar"><div class="skill-fill" style="--w:90%"></div></div><span class="skill-pct">90%</span></div>
+          <div class="skill-row"><span class="skill-name">AI / Generative</span><div class="skill-bar"><div class="skill-fill" style="--w:88%"></div></div><span class="skill-pct">88%</span></div>
+          <div class="skill-row"><span class="skill-name">VFX / Compositing</span><div class="skill-bar"><div class="skill-fill" style="--w:85%"></div></div><span class="skill-pct">85%</span></div>
+          <div class="skill-row"><span class="skill-name">Color Grading</span><div class="skill-bar"><div class="skill-fill" style="--w:83%"></div></div><span class="skill-pct">83%</span></div>
+          <div class="skill-row"><span class="skill-name">Houdini / 3D Sim</span><div class="skill-bar"><div class="skill-fill" style="--w:78%"></div></div><span class="skill-pct">78%</span></div>
+          <div class="skill-row"><span class="skill-name">Cinema 4D</span><div class="skill-bar"><div class="skill-fill" style="--w:72%"></div></div><span class="skill-pct">72%</span></div>
+          <div class="skill-row"><span class="skill-name">TouchDesigner</span><div class="skill-bar"><div class="skill-fill" style="--w:68%"></div></div><span class="skill-pct">68%</span></div>
+        </div>
+
+        <div class="section-label" style="margin-top:40px">TIMELINE</div>
+        <div class="timeline">
+          <div class="tl-item">
+            <span class="tl-year">2026</span>
+            <div class="tl-body">
+              <span class="tl-role">Senior Creative Director</span>
+              <span class="tl-place">Freelance — Global clients</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-year">2023</span>
+            <div class="tl-body">
+              <span class="tl-role">VFX Supervisor + Editor</span>
+              <span class="tl-place">Framestore Rome</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-year">2020</span>
+            <div class="tl-body">
+              <span class="tl-role">Motion Designer</span>
+              <span class="tl-place">MPC Milan</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-year">2017</span>
+            <div class="tl-body">
+              <span class="tl-role">Junior Editor</span>
+              <span class="tl-place">Cattleya Productions, Rome</span>
+            </div>
+          </div>
+          <div class="tl-item">
+            <span class="tl-year">2014</span>
+            <div class="tl-body">
+              <span class="tl-role">BA Film &amp; Media</span>
+              <span class="tl-place">DAMS — Università di Bologna</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-label" style="margin-top:40px">TOOLS</div>
+        <div class="ai-tool-row" style="margin-top:0">
+          <span class="ai-tool-badge">Premiere Pro</span>
+          <span class="ai-tool-badge">After Effects</span>
+          <span class="ai-tool-badge">DaVinci Resolve</span>
+          <span class="ai-tool-badge">Houdini</span>
+          <span class="ai-tool-badge">Nuke</span>
+          <span class="ai-tool-badge">Cinema 4D</span>
+          <span class="ai-tool-badge">TouchDesigner</span>
+          <span class="ai-tool-badge">Unreal Engine</span>
+          <span class="ai-tool-badge">Midjourney</span>
+          <span class="ai-tool-badge">ComfyUI</span>
+          <span class="ai-tool-badge">RunwayML</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-footer">
+      <div class="footer-inner">
+        <div class="footer-bottom">
+          <span class="footer-copy">© 2026</span>
+          <span class="footer-sep"></span>
+          <span class="footer-tagline">Francesco Aiena</span>
+        </div>
+        <div class="footer-socials">
+          <a class="footer-social" href="#">YouTube</a>
+          <a class="footer-social" href="#">Instagram</a>
+          <a class="footer-social" href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== CONTACT MODAL =================== -->
+<div id="contact-modal">
+  <div class="contact-box">
+    <button class="contact-close" onclick="closeContact()">✕</button>
+    <h2>Let's talk.</h2>
+    <div class="contact-field">
+      <label>Your Name</label>
+      <input type="text" placeholder="Mario Rossi">
+    </div>
+    <div class="contact-field">
+      <label>Email</label>
+      <input type="email" placeholder="mario@studio.com">
+    </div>
+    <div class="contact-field">
+      <label>Message</label>
+      <textarea rows="4" placeholder="Tell me about your project..."></textarea>
+    </div>
+    <button class="contact-submit">Send Message →</button>
+  </div>
+</div>
+
+<script>
+// ---- DISABLE RIGHT CLICK & SELECTION ----
+document.addEventListener('contextmenu', e => e.preventDefault());
+document.addEventListener('selectstart', e => e.preventDefault());
+document.addEventListener('dragstart', e => e.preventDefault());
+
+// ---- CURSOR ----
+const cursor = document.getElementById('cursor');
+let mx = 0, my = 0;
+document.addEventListener('mousemove', e => {
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+  movePupil(mx, my);
+});
+document.querySelectorAll('a, button, .nav-item, .video-card, .ai-card, .motion-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+});
+
+// ---- EYE PUPIL FOLLOW (smooth lerp + micro-saccades + idle drift) ----
+let targetPX = 200, targetPY = 96;
+let currentPX = 200, currentPY = 96;
+let targetBGX = 0, targetBGY = 0;
+let currentBGX = 0, currentBGY = 0;
+
+// Micro-saccade system: tiny random jerks like a real eye
+let saccadeX = 0, saccadeY = 0;
+let saccadeTimer = 0;
+let idleTimer = 0;
+
+function movePupil(px, py) {
+  const eye = document.getElementById('eye-container');
+  if (!eye) return;
+  const rect = eye.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2;
+  const cy = rect.top + rect.height / 2;
+
+  const nx = (px - cx) / window.innerWidth;
+  const ny = (py - cy) / window.innerHeight;
+
+  const maxX = 13, maxY = 7;
+  targetPX = 200 + Math.max(-maxX, Math.min(maxX, nx * maxX * 2.4));
+  targetPY = 96  + Math.max(-maxY, Math.min(maxY, ny * maxY * 2.4));
+
+  targetBGX = nx * 2.8;
+  targetBGY = ny * 1.6;
+
+  idleTimer = 0; // reset idle when mouse moves
+}
+
+function eyeAnimLoop() {
+  const now = performance.now();
+
+  // Micro-saccade: every 2–6 seconds, apply a tiny sudden jerk
+  saccadeTimer++;
+  if (saccadeTimer > (120 + Math.random() * 180)) {
+    saccadeX = (Math.random() - 0.5) * 1.8;
+    saccadeY = (Math.random() - 0.5) * 1.0;
+    saccadeTimer = 0;
+    // Saccade decays fast
+    setTimeout(() => { saccadeX = 0; saccadeY = 0; }, 80);
+  }
+
+  // Idle drift: gentle sine wave when mouse hasn't moved
+  idleTimer++;
+  const idleDX = Math.sin(idleTimer * 0.008) * 1.2;
+  const idleDY = Math.sin(idleTimer * 0.013) * 0.7;
+
+  const ease = 0.058;
+  currentPX += (targetPX - currentPX) * ease;
+  currentPY += (targetPY - currentPY) * ease;
+  currentBGX += (targetBGX - currentBGX) * 0.032;
+  currentBGY += (targetBGY - currentBGY) * 0.032;
+
+  const finalPX = currentPX + saccadeX + (idleTimer > 90 ? idleDX : 0);
+  const finalPY = currentPY + saccadeY + (idleTimer > 90 ? idleDY : 0);
+
+  const ig = document.getElementById('iris-group');
+  const bgG = document.getElementById('eye-bg-group');
+  const pg = document.getElementById('pupil-glow');
+
+  if (ig) {
+    ig.setAttribute('transform', `translate(${(finalPX - 200).toFixed(3)}, ${(finalPY - 96).toFixed(3)})`);
+  }
+  if (bgG) {
+    bgG.setAttribute('transform', `translate(${currentBGX.toFixed(3)}, ${currentBGY.toFixed(3)})`);
+  }
+  // Catchlight drifts even less — anchored to the light source, not the iris
+  if (pg) {
+    pg.setAttribute('cx', (190 + (finalPX - 200) * 0.10).toFixed(2));
+    pg.setAttribute('cy', (82  + (finalPY - 96)  * 0.10).toFixed(2));
+  }
+
+  requestAnimationFrame(eyeAnimLoop);
+}
+eyeAnimLoop();
+
+// ---- PARTICLES ----
+const canvas = document.getElementById('particles');
+const ctx = canvas.getContext('2d');
+let W, H, particles = [];
+function initCanvas() {
+  W = canvas.width = window.innerWidth;
+  H = canvas.height = window.innerHeight;
+}
+function Particle() {
+  this.x = Math.random() * W;
+  this.y = Math.random() * H;
+  this.r = Math.random() * 1.5 + 0.3;
+  this.vx = (Math.random() - 0.5) * 0.3;
+  this.vy = (Math.random() - 0.5) * 0.3;
+  this.alpha = Math.random() * 0.4 + 0.1;
+}
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < 80; i++) particles.push(new Particle());
+}
+function drawParticles() {
+  ctx.clearRect(0, 0, W, H);
+  particles.forEach(p => {
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(255,255,255,${p.alpha})`;
+    ctx.fill();
+  });
+  requestAnimationFrame(drawParticles);
+}
+initCanvas(); initParticles(); drawParticles();
+window.addEventListener('resize', () => { initCanvas(); initParticles(); });
+
+// ---- PAGE ROUTING ----
+let currentPage = 'home';
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(name === 'home' ? 'home' : name + '-page');
+  if (target) {
+    target.classList.add('active');
+    currentPage = name;
+    if (name !== 'home') target.scrollTop = 0;
+    if (name === 'about') {
+      setTimeout(() => {
+        document.querySelectorAll('.about-page .skill-fill').forEach(f => {
+          f.style.width = f.style.getPropertyValue('--w') || getComputedStyle(f).getPropertyValue('--w');
+        });
+      }, 100);
+    }
+  }
+  const fn = document.getElementById('header-firstname');
+  const hb = document.getElementById('header-back');
+  if (name === 'home') {
+    if (fn) fn.style.display = 'inline';
+    if (hb) hb.style.display = 'none';
+  } else {
+    if (fn) fn.style.display = 'none';
+    if (hb) hb.style.display = 'flex';
+  }
+}
+
+// ---- NAV TOGGLE ----
+let navOpen = true;
+function toggleNav() {
+  const btn = document.getElementById('nav-toggle');
+  navOpen = !navOpen;
+  btn.classList.toggle('open', !navOpen);
+  btn.textContent = navOpen ? '+' : '×';
+}
+
+// ---- CONTACT MODAL ----
+function openContact() {
+  document.getElementById('contact-modal').classList.add('open');
+}
+function closeContact() {
+  document.getElementById('contact-modal').classList.remove('open');
+}
+document.getElementById('contact-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeContact();
+});
+
+// ---- GREETING (localStorage) ----
+function setGreeting() {
+  const hour = new Date().getHours();
+  const visits = parseInt(localStorage.getItem('fran_visits') || '0') + 1;
+  localStorage.setItem('fran_visits', visits);
+  let msg;
+  if (visits === 1) msg = hour < 12 ? 'Good morning, newcomer!' : hour < 18 ? 'Good afternoon, newcomer!' : 'Good evening, newcomer!';
+  else if (visits < 5) msg = 'Welcome back! Glad to see you again.';
+  else msg = 'Hey again! You really like what you see 👀';
+  const g = document.getElementById('greeting');
+  g.textContent = msg;
+  setTimeout(() => g.classList.add('visible'), 200);
+  setTimeout(() => g.classList.remove('visible'), 4000);
+}
+setGreeting();
+
+// ---- VIDEO GRID ----
+const videoData = [
+  { title: 'Brand Reel 2026', client: 'Nike × Francesco', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format' },
+  { title: 'Documentary Edit', client: 'Red Bull Media', dur: '18:42', cat: 'Documentary', thumb: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80&auto=format' },
+  { title: 'Music Video Cut', client: 'Universal Music', dur: '3:58', cat: 'Music Video', thumb: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format' },
+  { title: 'Commercial 60"', client: 'Spotify Ads', dur: '1:00', cat: 'Advertising', thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80&auto=format' },
+  { title: 'Social Content Pack', client: 'Adobe Systems', dur: '0:30', cat: 'Social', thumb: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?w=600&q=80&auto=format' },
+  { title: 'Event Highlights', client: 'Lamborghini', dur: '4:15', cat: 'Event', thumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80&auto=format' },
+  { title: 'Narrative Short', client: 'Netflix Original', dur: '12:08', cat: 'Short Film', thumb: 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=600&q=80&auto=format' },
+  { title: 'AI-Assisted Edit', client: 'Personal Project', dur: '5:22', cat: 'AI', thumb: 'https://images.unsplash.com/photo-1677442135968-6db3b0025e95?w=600&q=80&auto=format' },
+  { title: 'Brand Film 3min', client: 'Ferrari Media', dur: '3:00', cat: 'Brand Film', thumb: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80&auto=format' },
+  { title: 'Instagram Reel', client: 'Valentino', dur: '0:29', cat: 'Fashion', thumb: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&auto=format' },
+  { title: 'YouTube Long-form', client: 'YouTube Originals', dur: '28:41', cat: 'Long-form', thumb: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=600&q=80&auto=format' },
+  { title: 'Promo Trailer', client: 'Amazon Prime', dur: '1:45', cat: 'Trailer', thumb: 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=600&q=80&auto=format' },
+];
+const vg = document.getElementById('video-grid');
+videoData.forEach((v, i) => {
+  const c = document.createElement('div');
+  c.className = 'video-card';
+  c.innerHTML = `
+    <div class="video-card-inner" style="background-image:url('${v.thumb}');background-size:cover;background-position:center">
+      <div class="video-overlay"></div>
+      <div class="video-play">▶</div>
+      <div class="video-meta">
+        <span class="video-cat">${v.cat}</span>
+        <span class="video-dur">${v.dur}</span>
+      </div>
+      <div class="video-label">${v.title}</div>
+      <div class="video-client">${v.client}</div>
+    </div>`;
+  vg.appendChild(c);
+});
+
+// ---- VFX CASES ----
+const vfxData = [
+  {
+    title: 'Particle Storm',
+    client: 'Red Bull — "Wings of Fire" Campaign',
+    desc: 'Full CGI environment with 50M particle simulation. Real-time preview on set using Unreal Engine 5. Final comp delivered 4K HDR for broadcast.',
+    year: '2025',
+    views: '2.4M', likes: '18K', duration: '3 weeks',
+    tools: 'Houdini · Unreal Engine 5 · Nuke · After Effects',
+    beforeThumb: 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=600&q=80&auto=format',
+    afterThumb: 'https://images.unsplash.com/photo-1621501103258-d5ce39e10f78?w=600&q=80&auto=format',
+  },
+  {
+    title: 'Face Replacement',
+    client: 'Netflix — Feature Film "Speculum"',
+    desc: 'Deep composite shot — seamless actor face replacement across 340 frames. DMP painted backgrounds, HDRI-matched lighting, and subsurface scattering for skin realism.',
+    year: '2024',
+    views: '850K', likes: '6K', duration: '5 weeks',
+    tools: 'Nuke X · Flame · Mocha Pro · Mari',
+    beforeThumb: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&auto=format',
+    afterThumb: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&auto=format',
+  },
+  {
+    title: 'City Destruction',
+    client: 'Activision — "Warzone" Launch Spot',
+    desc: 'Explosive city destruction sequence for a major brand campaign. Fully procedural RBD debris system. 600+ rigid body objects, custom shatter network, final grade by Framestore.',
+    year: '2025',
+    views: '5.1M', likes: '42K', duration: '6 weeks',
+    tools: 'Houdini · After Effects · DaVinci Resolve',
+    beforeThumb: 'https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80&auto=format',
+    afterThumb: 'https://images.unsplash.com/photo-1470434767159-ac7bf1b43351?w=600&q=80&auto=format',
+  },
+  {
+    title: 'Fluid Simulation',
+    client: 'Lamborghini — Urus S Reveal',
+    desc: 'Paint fluid simulation wrapping the car body in real-time-rendered Neon Green. 8 simultaneous FLIP solvers composited in Nuke, matched to ARRI plate from Turin shoot.',
+    year: '2026',
+    views: '3.8M', likes: '31K', duration: '4 weeks',
+    tools: 'Houdini · Nuke · Cinema 4D · Redshift',
+    beforeThumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80&auto=format',
+    afterThumb: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80&auto=format',
+  },
+];
+const vc = document.getElementById('vfx-cases');
+vfxData.forEach(v => {
+  vc.innerHTML += `
+  <div class="vfx-case">
+    <div class="vfx-images">
+      <div class="vfx-before-after" style="background-image:url('${v.beforeThumb}');background-size:cover;background-position:center">
+        <span class="vfx-tag">BEFORE</span>
+        <span class="vfx-img-label">Reference plate</span>
+      </div>
+      <div style="height:10px"></div>
+      <div class="vfx-before-after" style="background:rgba(0,0,0,0.3);background-image:url('${v.afterThumb}');background-size:cover;background-position:center">
+        <span class="vfx-tag">AFTER</span>
+        <span class="vfx-img-label">Final composite</span>
+      </div>
+    </div>
+    <div class="vfx-info">
+      <div class="vfx-client">${v.client}</div>
+      <h3>${v.title}</h3>
+      <p>${v.desc}</p>
+      <p class="vfx-tools">${v.tools}</p>
+      <div class="vfx-metrics">
+        <div class="vfx-metric"><strong>${v.views}</strong><span>Views</span></div>
+        <div class="vfx-metric"><strong>${v.likes}</strong><span>Likes</span></div>
+        <div class="vfx-metric"><strong>${v.duration}</strong><span>Production</span></div>
+      </div>
+    </div>
+  </div>`;
+});
+
+// ---- SKILL BARS on about page activation ----
+const skillObserver = new MutationObserver(mutations => {
+  mutations.forEach(m => {
+    if (m.target.id === 'about-page' && m.target.classList.contains('active')) {
+      setTimeout(() => {
+        document.querySelectorAll('.skill-fill').forEach(f => {
+          const w = getComputedStyle(f).getPropertyValue('--w').trim();
+          f.style.width = w;
+        });
+      }, 200);
+    }
+  });
+});
+skillObserver.observe(document.getElementById('about-page'), { attributes: true, attributeFilter: ['class'] });
+
+// ---- SCROLL PROGRESS BAR ----
+const progressBar = document.getElementById('scroll-progress');
+document.querySelectorAll('.page').forEach(page => {
+  page.addEventListener('scroll', () => {
+    if (currentPage === 'home') return;
+    const el = document.getElementById(currentPage === 'home' ? 'home' : currentPage + '-page');
+    if (!el) return;
+    const scrolled = el.scrollTop;
+    const total = el.scrollHeight - el.clientHeight;
+    const pct = total > 0 ? (scrolled / total) * 100 : 0;
+    progressBar.style.width = pct + '%';
+    progressBar.classList.toggle('visible', pct > 1 && pct < 99);
+  });
+});
+
+// ---- CURSOR: extend to new interactive elements ----
+document.querySelectorAll('.reel-hero, .vfx-case, .award-row, .tl-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
+});
+
+// ---- KEYBOARD NAV ----
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeContact(); if (currentPage !== 'home') showPage('home'); }
+});
+
+// ---- EYE CLICK → show reel ----
+document.getElementById('eye-container').addEventListener('click', openContact);
+</script>
+</body>
+</html>
