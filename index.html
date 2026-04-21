@@ -63,6 +63,7 @@
     position: fixed;
     inset: 0;
     opacity: 0;
+<<<<<<< HEAD
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.5s var(--transition), transform 0.5s var(--transition), visibility 0s 0.5s;
@@ -83,6 +84,18 @@
     transform: translateY(0);
     z-index: 10;
     transition: opacity 0.5s var(--transition), transform 0.5s var(--transition), visibility 0s 0s;
+=======
+    pointer-events: none;
+    transition: opacity 0.5s var(--transition), transform 0.5s var(--transition);
+    transform: translateY(30px);
+    overflow-y: auto;
+  }
+  .page.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(0);
+    z-index: 10;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   }
 
   /* HOME PAGE */
@@ -282,7 +295,11 @@
   /* VIDEO PAGE GRID */
   .video-grid {
     display: grid;
+<<<<<<< HEAD
     grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
+=======
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     gap: 16px;
     margin-bottom: 60px;
   }
@@ -315,11 +332,19 @@
     background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
   }
   .video-play {
+<<<<<<< HEAD
     width: 60px; height: 60px;
     border-radius: 50%;
     background: rgba(255,255,255,0.2);
     display: flex; align-items: center; justify-content: center;
     font-size: 20px;
+=======
+    width: 52px; height: 52px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     backdrop-filter: blur(4px);
     border: 1.5px solid rgba(255,255,255,0.3);
     transition: background 0.2s, transform 0.2s;
@@ -328,11 +353,16 @@
   .video-card:hover .video-play { background: rgba(255,255,255,0.35); transform: scale(1.15); }
   .video-meta {
     position: absolute;
+<<<<<<< HEAD
     top: 14px; right: 14px;
+=======
+    top: 12px; right: 12px;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     display: flex; gap: 6px;
     z-index: 1;
   }
   .video-cat {
+<<<<<<< HEAD
     font-size: 11px; font-weight: 700;
     letter-spacing: 0.1em; text-transform: uppercase;
     background: rgba(158,215,48,0.85);
@@ -344,12 +374,30 @@
     letter-spacing: 0.05em;
     background: rgba(0,0,0,0.5);
     padding: 4px 10px; border-radius: 4px;
+=======
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    background: rgba(158,215,48,0.85);
+    color: #0a0a0a;
+    padding: 3px 8px; border-radius: 4px;
+  }
+  .video-dur {
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 0.05em;
+    background: rgba(0,0,0,0.5);
+    padding: 3px 8px; border-radius: 4px;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     backdrop-filter: blur(4px);
   }
   .video-label {
     position: absolute;
+<<<<<<< HEAD
     bottom: 32px; left: 16px; right: 16px;
     font-size: 16px;
+=======
+    bottom: 28px; left: 14px; right: 14px;
+    font-size: 13px;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
@@ -358,8 +406,13 @@
   }
   .video-client {
     position: absolute;
+<<<<<<< HEAD
     bottom: 14px; left: 16px;
     font-size: 12px;
+=======
+    bottom: 12px; left: 14px;
+    font-size: 11px;
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     opacity: 0.55;
     letter-spacing: 0.06em;
     z-index: 1;
@@ -1105,6 +1158,7 @@
     z-index: 0;
     display: block;
     pointer-events: none;
+<<<<<<< HEAD
     /* Promote to own compositing layer — prevents desktop browsers from
        suspending playback due to ancestor opacity:0 during page fade-in */
     will-change: transform;
@@ -1113,6 +1167,14 @@
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+=======
+    /* Force the video to be visible to the browser media engine even when
+       the ancestor .page has opacity:0 during its fade-in transition.
+       Without this, Chrome/Firefox on desktop suspend playback because
+       they consider opacity:0 elements as "not intersecting the viewport". */
+    will-change: transform;
+    transform: translateZ(0);
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   }
   .project-detail-hero-overlay {
     position: absolute;
@@ -1518,7 +1580,10 @@
 
 <!-- =================== VIDEO =================== -->
 <div id="video-page" class="page">
+<<<<<<< HEAD
   <div class="page-scroll-wrapper">
+=======
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   <div class="inner-page">
     <h1 class="page-title">VIDEO</h1>
     <div class="video-grid" id="video-grid"></div>
@@ -1537,10 +1602,17 @@
       </div>
     </div>
   </div>
+<<<<<<< HEAD
   </div>
 </div><!-- =================== AI =================== -->
 <div id="ai-page" class="page">
   <div class="page-scroll-wrapper">
+=======
+</div>
+
+<!-- =================== AI =================== -->
+<div id="ai-page" class="page">
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   <div class="inner-page">
     <h1 class="page-title">AI</h1>
     <div class="ai-grid">
@@ -1637,10 +1709,17 @@
       </div>
     </div>
   </div>
+<<<<<<< HEAD
   </div>
 </div><!-- =================== VFX =================== -->
 <div id="vfx-page" class="page">
   <div class="page-scroll-wrapper">
+=======
+</div>
+
+<!-- =================== VFX =================== -->
+<div id="vfx-page" class="page">
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   <div class="inner-page">
     <h1 class="page-title">VFX</h1>
     <div id="vfx-cases"></div>
@@ -1659,10 +1738,18 @@
       </div>
     </div>
   </div>
+<<<<<<< HEAD
   </div>
 </div><!-- =================== ABOUT =================== -->
 <div id="about-page" class="page about-page">
   <div class="page-scroll-wrapper">
+=======
+</div>
+
+
+<!-- =================== ABOUT =================== -->
+<div id="about-page" class="page about-page">
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   <div class="inner-page">
     <h1 class="page-title">ABOUT</h1>
 
@@ -1759,10 +1846,18 @@
       </div>
     </div>
   </div>
+<<<<<<< HEAD
   </div>
 </div><!-- =================== PROJECT DETAIL =================== -->
 <div id="project-detail-page" class="page">
   <div class="page-scroll-wrapper" id="project-detail-scroll">
+=======
+</div>
+
+<!-- =================== PROJECT DETAIL =================== -->
+<div id="project-detail-page" class="page">
+  <div class="inner-page" style="padding:0;">
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
     <div id="project-detail-content"></div>
   </div>
 </div>
@@ -2042,6 +2137,7 @@ function showProjectDetail(projectData, fromSection) {
   // ── Activate page ─────────────────────────────────────────────────────────
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   dp.classList.add('active');
+<<<<<<< HEAD
   var scrollWrap = document.getElementById('project-detail-scroll') || dp;
   scrollWrap.scrollTop = 0;
   currentPage = 'project-detail';
@@ -2092,6 +2188,37 @@ function showProjectDetail(projectData, fromSection) {
     setTimeout(tryPlay, 600);
     setTimeout(tryPlay, 1200);
     setTimeout(tryPlay, 2500);
+=======
+  dp.scrollTop = 0;
+  currentPage = 'project-detail';
+
+  // ── Play video ────────────────────────────────────────────────────────────
+  // Strategy: start loading + playing BEFORE the page fade-in transition.
+  // The video element is already in the DOM and muted=true, so the browser
+  // allows autoplay immediately — no need to wait for opacity to reach 1.
+  // We call play() right now, then again at 50ms and 550ms as belt-and-suspenders.
+  if (heroVidEl) {
+    function tryPlay() {
+      heroVidEl.muted = true; // must be true for autoplay policy on desktop
+      var p = heroVidEl.play();
+      if (p && p.catch) p.catch(function() {
+        // Autoplay still blocked (rare: no user gesture yet on a fresh tab).
+        // Retry on first click anywhere on the detail page.
+        dp.addEventListener('click', function onFirstClick() {
+          dp.removeEventListener('click', onFirstClick);
+          heroVidEl.muted = true;
+          heroVidEl.play().catch(function(){});
+        });
+      });
+    }
+
+    // Fire immediately (before transition starts) — video is in DOM, muted, ready
+    tryPlay();
+    // Fire again at 50ms in case the browser needed a microtask cycle
+    setTimeout(tryPlay, 50);
+    // Fire again at 550ms as final fallback (after transition completes)
+    setTimeout(tryPlay, 550);
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
   }
 
   // ── Header state ──────────────────────────────────────────────────────────
@@ -2211,9 +2338,15 @@ const aiDetails = [
 
 // ---- VIDEO GRID ----
 const videoData = [
+<<<<<<< HEAD
   { title: 'PUSH IT', client: 'Kid Yugi x Anna', dur: '2:34', cat: 'Music', thumb: 'media/VIDEOS/PUSH_IT.png',
     detail: {
       heroVideo: 'media/VIDEOS/Yugi_Carosello_copertina.mp4',
+=======
+  { title: 'Kid Yugi', client: 'PUSH IT', dur: '2:34', cat: 'Commercial', thumb: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80&auto=format',
+    detail: {
+      heroVideo: 'media/video/Yugi_Carosello_copertina.mp4',
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
       heroImg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=1400&q=90&auto=format',
       category: 'Music', title: 'PUSH IT', client: 'Kid Yugi x Anna',
       img1: 'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&q=85&auto=format',
@@ -2225,6 +2358,7 @@ const videoData = [
       closing: '"PUSH IT non è solo un commercial — è un manifesto visivo per chi corre verso qualcosa di più grande."',
     }
   },
+<<<<<<< HEAD
   { title: 'FI FEST', client: 'FI Fest Massafra', dur: '5:20', cat: 'Festival', thumb: 'media/VIDEOS/FI_FEST_1.png',
     detail: {
       heroVideo: 'media/VIDEOS/whosfra_Fifest_final.mp4',
@@ -2244,6 +2378,25 @@ const videoData = [
       heroVideo: 'media/VIDEOS/CANVAS_AGEM_BOSSOLI_HORIZONTAL.mov',
       heroImg: 'media/VIDEOS/SPYRAL_FEST.jpg',
       category: 'Event', title: 'SPYRAL FEST', client: 'Spyral',
+=======
+  { title: 'Documentary Edit', client: 'Red Bull Media', dur: '18:42', cat: 'Documentary', thumb: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=600&q=80&auto=format',
+    detail: {
+      heroImg: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=1400&q=90&auto=format',
+      category: 'Documentary', title: 'Documentary Edit', client: 'Red Bull Media',
+      img1: 'https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?w=800&q=85&auto=format',
+      heading1: 'Into the Wild',
+      text1: 'An 18-minute documentary following extreme athletes through untouched wilderness. Over 120 hours of raw footage were distilled into a narrative arc that balances breathtaking visuals with deeply personal interviews. Every cut serves the emotional journey.',
+      img2: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=800&q=85&auto=format',
+      heading2: 'Post-Production',
+      text2: 'The offline edit took 6 weeks in Premiere Pro, followed by online finishing in DaVinci Resolve. Extensive sound design and an original score composed by a Berlin-based electronic musician give the film its visceral, immersive quality.',
+      closing: '"Nature doesn\'t wait for the perfect take — the editor\'s job is to find the truth hidden in chaos."',
+    }
+  },
+  { title: 'Music Video Cut', client: 'Universal Music', dur: '3:58', cat: 'Music Video', thumb: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&q=80&auto=format',
+    detail: {
+      heroImg: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1400&q=90&auto=format',
+      category: 'Music Video', title: 'Music Video Cut', client: 'Universal Music',
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
       img1: 'https://images.unsplash.com/photo-1598387993441-a364f854c3e1?w=800&q=85&auto=format',
       heading1: 'Rhythm & Edit',
       text1: 'A visually explosive music video cut to the beat of every kick and snare. Shot on ARRI Alexa Mini with anamorphic lenses, the footage demanded an edit style that matched its cinematic quality — fast cuts during verses, long fluid takes during the chorus.',
@@ -2253,6 +2406,7 @@ const videoData = [
       closing: '"Music is time made audible — editing is time made visible."',
     }
   },
+<<<<<<< HEAD
   { title: 'EUROSOCIALGVNG', client: 'EuroSocialGvng', dur: '1:00', cat: 'Commercial', thumb: 'media/VIDEOS/EUROSOCIALGVNG.jpeg',
     detail: {
       heroVideo: 'media/VIDEOS/whosfra_Fifest_final.mp4',
@@ -2272,6 +2426,25 @@ const videoData = [
       heroVideo: 'media/VIDEOS/CANVAS_AGEM_BOSSOLI_HORIZONTAL.mov',
       heroImg: 'media/VIDEOS/Jolly.png',
       category: 'Video', title: 'Anche Gli Eroi Muoiono', client: 'Kid Yugi',
+=======
+  { title: 'Commercial 60"', client: 'Spotify Ads', dur: '1:00', cat: 'Advertising', thumb: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600&q=80&auto=format',
+    detail: {
+      heroImg: 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=1400&q=90&auto=format',
+      category: 'Advertising', title: 'Commercial 60"', client: 'Spotify Ads',
+      img1: 'https://images.unsplash.com/photo-1614680376593-902f74cf0d41?w=800&q=85&auto=format',
+      heading1: 'Every Second Counts',
+      text1: 'A 60-second spot for Spotify\'s global ad campaign — where every single frame had to justify its existence. The brief demanded energy, diversity, and a seamless flow through 30+ scenes representing listeners around the world.',
+      img2: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&q=85&auto=format',
+      heading2: 'Seamless Transitions',
+      text2: 'Custom morph transitions built in After Effects connect disparate scenes into one continuous visual flow. Motion-tracked camera moves were stabilized and re-projected to create impossible camera paths between locations shot months apart.',
+      closing: '"Sixty seconds to capture the world — not a single frame wasted."',
+    }
+  },
+  { title: 'Event Highlights', client: 'Lamborghini', dur: '4:15', cat: 'Event', thumb: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600&q=80&auto=format',
+    detail: {
+      heroImg: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1400&q=90&auto=format',
+      category: 'Event', title: 'Event Highlights', client: 'Lamborghini',
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
       img1: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=800&q=85&auto=format',
       heading1: 'The Reveal',
       text1: 'Capturing Lamborghini\'s private unveiling event in Sant\'Agata Bolognese. Three camera operators, two drones, and a Steadicam rig delivered 8+ hours of footage that needed to become a 4-minute masterpiece by the next morning.',
@@ -2281,6 +2454,22 @@ const videoData = [
       closing: '"Luxury is in the details — and so is the edit."',
     }
   },
+<<<<<<< HEAD
+=======
+  { title: 'Brand Film 3min', client: 'Ferrari Media', dur: '3:00', cat: 'Brand Film', thumb: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=600&q=80&auto=format',
+    detail: {
+      heroImg: 'https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=1400&q=90&auto=format',
+      category: 'Brand Film', title: 'Brand Film 3min', client: 'Ferrari Media',
+      img1: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=800&q=85&auto=format',
+      heading1: 'Heritage Meets Future',
+      text1: 'A three-minute brand film tracing Ferrari\'s evolution from the classic 250 GTO to the SF-24. The narrative interweaves archival footage with newly shot material, requiring precise color matching and grain emulation to create a seamless timeline.',
+      img2: 'https://images.unsplash.com/photo-1547245324-d777c6f05e80?w=800&q=85&auto=format',
+      heading2: 'Sound of Speed',
+      text2: 'The engine sound is as important as the visuals. A dedicated audio session at Maranello\'s test track captured engine notes at various RPMs. These were woven into the edit as rhythmic elements — the V12 becomes the film\'s percussion.',
+      closing: '"Speed is nothing without soul — and the edit is where the soul lives."',
+    }
+  },
+>>>>>>> 044f3be63a64e8e0e78a1c8e8b39ad19cea8690c
 ];
 const vg = document.getElementById('video-grid');
 videoData.forEach((v, i) => {
