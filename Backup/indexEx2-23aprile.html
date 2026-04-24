@@ -43,46 +43,20 @@
     overflow-x: hidden;
   }
 
-  /* CUSTOM CURSOR — dual-layer, GPU-accelerated, sub-pixel smooth */
-  #cursor-dot, #cursor-ring {
+  /* CUSTOM CURSOR */
+  #cursor {
     position: fixed;
-    top: 0; left: 0;
+    width: 12px; height: 12px;
+    background: var(--black);
+    border: 2px solid var(--white);
+    border-radius: 50%;
     pointer-events: none;
     z-index: 99999;
-    will-change: transform;
-    transform: translate3d(-100px, -100px, 0);
+    transform: translate(-50%, -50%);
+    transition: width 0.2s var(--transition), height 0.2s var(--transition), background 0.2s;
   }
-  #cursor-dot {
-    width: 6px; height: 6px;
-    margin: -3px 0 0 -3px;
-    background: var(--white);
-    border-radius: 50%;
-    transition: opacity 0.2s ease, background 0.2s ease;
-  }
-  #cursor-ring {
-    width: 36px; height: 36px;
-    margin: -18px 0 0 -18px;
-    border: 1.5px solid rgba(255,255,255,0.75);
-    border-radius: 50%;
-    transition:
-      width 0.32s var(--transition),
-      height 0.32s var(--transition),
-      margin 0.32s var(--transition),
-      border-color 0.3s ease,
-      background 0.3s ease,
-      opacity 0.25s ease;
-  }
-  #cursor-ring.hover {
-    width: 64px; height: 64px;
-    margin: -32px 0 0 -32px;
-    background: rgba(255,255,255,0.12);
-    border-color: rgba(255,255,255,0.95);
-  }
-  #cursor-dot.hover { opacity: 0; }
-  #cursor-ring.down {
-    width: 28px; height: 28px;
-    margin: -14px 0 0 -14px;
-  }
+  #cursor.big { width: 60px; height: 60px; background: rgba(255,255,255,0.15); border-color: var(--white); }
+  #cursor.dark { background: var(--black); border-color: var(--white); }
 
   /* PAGE SYSTEM */
   .page {
@@ -393,345 +367,107 @@
   }
 
   /* AI PAGE */
-  /* ============================================
-     AI PAGE — "Living Index" editoriale
-     ============================================ */
-
-  /* Hero statement sotto il page-title */
-  .ai-hero {
+  .ai-grid {
     display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 60px;
-    align-items: end;
-    padding-bottom: 40px;
-    margin-bottom: 100px;
-    border-bottom: 1px solid rgba(255,255,255,0.18);
-  }
-  .ai-hero-statement {
-    font-family: var(--font-display);
-    font-size: clamp(30px, 3.6vw, 52px);
-    font-weight: 800;
-    letter-spacing: -0.035em;
-    line-height: 1.02;
-    color: var(--white);
-  }
-  .ai-hero-statement em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.015em;
-    opacity: 0.92;
-  }
-  .ai-hero-aside {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding-bottom: 6px;
-  }
-  .ai-hero-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.55;
-  }
-  .ai-hero-sub {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: 17px;
-    line-height: 1.45;
-    opacity: 0.85;
-    max-width: 380px;
-  }
-
-  /* Container: sticky side-index + rows */
-  .ai-layout {
-    display: grid;
-    grid-template-columns: 140px 1fr;
-    gap: 60px;
-    align-items: start;
-    position: relative;
-  }
-
-  /* Sticky side index (numbers 01-06) */
-  .ai-sidebar {
-    position: sticky;
-    top: 120px;
-    align-self: start;
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-  }
-  .ai-idx-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.5;
-    margin-bottom: 8px;
-  }
-  .ai-idx-item {
-    display: flex;
-    align-items: baseline;
-    gap: 12px;
-    cursor: none;
-    position: relative;
-    padding: 4px 0;
-    transition: opacity 0.4s var(--transition);
-    opacity: 0.35;
-  }
-  .ai-idx-item::before {
-    content: '';
-    position: absolute;
-    left: -18px; top: 50%;
-    width: 0;
-    height: 1px;
-    background: var(--white);
-    transition: width 0.5s var(--transition);
-  }
-  .ai-idx-num {
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    line-height: 1;
-  }
-  .ai-idx-title {
-    font-family: var(--font-display);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    line-height: 1;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .ai-idx-item.active {
-    opacity: 1;
-  }
-  .ai-idx-item.active::before {
-    width: 14px;
-  }
-  .ai-idx-item:hover { opacity: 0.85; }
-
-  /* Rows container */
-  .ai-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 140px;
-  }
-
-  /* Base row */
-  .ai-row {
-    cursor: none;
-    position: relative;
-    padding: 8px 0;
-  }
-  .ai-row-meta {
-    display: flex;
-    align-items: center;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
-    margin-bottom: 22px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.7;
   }
-  .ai-row-meta-sep {
-    width: 28px;
-    height: 1px;
-    background: rgba(255,255,255,0.5);
-  }
-
-  /* ── VARIANT A — typographic + oversized image ── */
-  .ai-row.variant-a { display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center; }
-  .ai-row.variant-a .ai-row-text { order: 0; }
-  .ai-row.variant-a .ai-row-media {
-    order: 1;
-    aspect-ratio: 4/5;
+  .ai-card {
+    aspect-ratio: 1;
+    border-radius: 16px;
+    display: flex;
+    align-items: flex-end;
+    padding: 22px;
     position: relative;
     overflow: hidden;
-    border-radius: 4px;
+    cursor: none;
+    transition: transform 0.3s var(--transition), box-shadow 0.3s;
   }
-  .ai-row.variant-a.flip .ai-row-text { order: 1; }
-  .ai-row.variant-a.flip .ai-row-media { order: 0; }
-  .ai-row.variant-a .ai-row-img {
+  .ai-card:hover { transform: translateY(-8px); box-shadow: 0 24px 50px rgba(0,0,0,0.3); }
+  /* Photo layer */
+  .ai-card-img {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-    transform: scale(1.08) translateY(var(--parallax, 0px));
-    transition: transform 1s var(--transition), filter 0.7s var(--transition);
-    filter: saturate(0.95) contrast(1.03);
-    will-change: transform;
+    transition: transform 0.5s var(--transition);
   }
-  .ai-row.variant-a:hover .ai-row-img {
-    transform: scale(1.14) translateY(var(--parallax, 0px));
-    filter: saturate(1.1) contrast(1.05);
+  .ai-card:hover .ai-card-img { transform: scale(1.06); }
+  /* Dark gradient overlay so text stays readable */
+  .ai-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.1) 100%);
+    transition: background 0.3s;
   }
-  .ai-row-title {
-    font-family: var(--font-display);
-    font-size: clamp(44px, 6.5vw, 96px);
-    font-weight: 800;
-    letter-spacing: -0.04em;
-    line-height: 0.92;
-    color: var(--white);
-    margin: 0 0 20px;
+  .ai-card:hover .ai-card-overlay {
+    background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 55%, rgba(0,0,0,0.15) 100%);
   }
-  .ai-row-title em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.02em;
+  .ai-card-bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    transition: opacity 0.3s;
+    z-index: 1;
   }
-  .ai-row-desc {
-    font-size: 15px;
-    line-height: 1.65;
-    opacity: 0.82;
-    max-width: 480px;
-    margin-bottom: 24px;
-  }
-  .ai-row-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 14px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.9;
-    transition: gap 0.35s var(--transition);
-  }
-  .ai-row-cta::after {
-    content: '';
-    width: 36px; height: 1px;
-    background: var(--white);
-    transition: width 0.35s var(--transition);
-  }
-  .ai-row:hover .ai-row-cta { gap: 22px; }
-  .ai-row:hover .ai-row-cta::after { width: 52px; }
-
-  /* ── VARIANT B — contact sheet (3 frames) + technical text ── */
-  .ai-row.variant-b { display: grid; grid-template-columns: 1fr 1.1fr; gap: 60px; align-items: center; }
-  .ai-row.variant-b .ai-row-sheet {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-template-rows: repeat(2, 140px);
-    gap: 10px;
-  }
-  .ai-row.variant-b .ai-row-sheet-cell {
-    background-size: cover;
-    background-position: center;
-    border-radius: 3px;
-    overflow: hidden;
+  .ai-card:hover .ai-card-bg { opacity: 0.30; }
+  .ai-card-content {
     position: relative;
-    transition: transform 0.5s var(--transition), filter 0.5s var(--transition);
-    filter: saturate(0.9);
-    will-change: transform;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
   }
-  /* Crafted spans for editorial rhythm */
-  .ai-row.variant-b .ai-row-sheet-cell:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-  .ai-row.variant-b .ai-row-sheet-cell:nth-child(2) { grid-column: span 1; grid-row: span 1; }
-  .ai-row.variant-b .ai-row-sheet-cell:nth-child(3) { grid-column: span 1; grid-row: span 1; }
-  .ai-row.variant-b:hover .ai-row-sheet-cell { filter: saturate(1.1); }
-  .ai-row.variant-b:hover .ai-row-sheet-cell:nth-child(1) { transform: translateY(-4px); }
-  .ai-row.variant-b:hover .ai-row-sheet-cell:nth-child(2) { transform: translateY(-6px); }
-  .ai-row.variant-b:hover .ai-row-sheet-cell:nth-child(3) { transform: translateY(-8px); }
-
-  /* ── VARIANT C — typography-only (no images, title IS the statement) ── */
-  .ai-row.variant-c {
-    text-align: left;
-    padding: 40px 0;
-    border-top: 1px solid rgba(255,255,255,0.15);
-    border-bottom: 1px solid rgba(255,255,255,0.15);
+  .ai-card-tag {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.6;
+    margin-bottom: 2px;
   }
-  .ai-row.variant-c .ai-row-bigtitle {
-    font-family: var(--font-display);
-    font-size: clamp(56px, 10vw, 150px);
+  .ai-card-label {
+    font-size: 16px;
     font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 0.9;
-    margin: 0 0 28px;
-    color: var(--white);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    line-height: 1.1;
   }
-  .ai-row.variant-c .ai-row-bigtitle em {
-    font-family: var(--font-serif);
-    font-style: italic;
+  .ai-card-desc {
+    font-size: 11px;
+    opacity: 0;
+    line-height: 1.5;
+    margin-top: 6px;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s, max-height 0.3s var(--transition);
     font-weight: 400;
-    letter-spacing: -0.03em;
   }
-  .ai-row.variant-c .ai-row-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: start;
-    margin-top: 20px;
-  }
-  .ai-row.variant-c .ai-row-desc { margin: 0; }
-  .ai-row.variant-c .ai-row-stack {
+  .ai-card:hover .ai-card-desc { opacity: 0.85; max-height: 80px; }
+  .ai-tool-row {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: 10px;
+    margin-top: 40px;
   }
-  .ai-row.variant-c .ai-row-stack-item {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 7px 14px;
-    border: 1px solid rgba(255,255,255,0.4);
+  .ai-tool-badge {
+    padding: 8px 18px;
+    border: 1.5px solid rgba(255,255,255,0.5);
     border-radius: 999px;
-    transition: background 0.25s, border-color 0.25s, color 0.25s;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: none;
   }
-  .ai-row.variant-c:hover .ai-row-stack-item { border-color: var(--white); }
-
-  /* ── Scroll reveal (applied once row enters viewport) ── */
-  .ai-row {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 1s var(--transition), transform 1s var(--transition);
-  }
-  .ai-row.in-view { opacity: 1; transform: translateY(0); }
-  .ai-row.in-view { transition-delay: var(--reveal-delay, 0s); }
+  .ai-tool-badge:hover { background: rgba(255,255,255,0.15); border-color: var(--white); }
 
   /* ============================================
-     PROJECT-DETAIL — module reveal + accent system
+     VFX PAGE — minimal, editorial, modern
      ============================================ */
-  #project-detail-page { --accent: var(--white); }
-  .pd-module {
-    opacity: 0;
-    transform: translateY(28px);
-    transition:
-      opacity 0.9s var(--transition) var(--pd-delay, 0s),
-      transform 0.9s var(--transition) var(--pd-delay, 0s);
-    will-change: opacity, transform;
-  }
-  .pd-module.pd-visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  /* Hero modules should be visible immediately (no reveal delay) */
-  .project-detail-hero.pd-module,
-  .pd-hero-typo.pd-module {
-    opacity: 1;
-    transform: none;
-  }
-  /* Accent threading — subtle, used where the eye is anchored */
-  .pd-pullquote-text::before,
-  .pd-lyrics-label::before,
-  .pd-director-name::before {
-    background: var(--accent);
-  }
-  /* Tag dim line inside lyrics (rendered via raw HTML) */
-  .pd-dim { opacity: 0.45; }
-  /* Featuring separator between artists in hero-typographic */
-  .pd-feat-sep { display: inline-block; margin: 0 10px; opacity: 0.5; }
 
-  /* ============================================
-     VFX PAGE — editorial asymmetric
-     ============================================ */
+  /* Intro strip: sits under the page title */
   .vfx-intro {
     display: flex;
     justify-content: space-between;
@@ -758,11 +494,15 @@
     white-space: nowrap;
     padding-bottom: 6px;
   }
+
+  /* Project list */
   #vfx-cases {
     display: flex;
     flex-direction: column;
     gap: 120px;
   }
+
+  /* Single project row */
   .vfx-project {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -773,12 +513,15 @@
   }
   .vfx-project.reverse { direction: rtl; }
   .vfx-project.reverse > * { direction: ltr; }
+
+  /* Visual column (asymmetric dual-image composition) */
   .vfx-visual {
     position: relative;
     aspect-ratio: 4/5;
     transition: transform 0.6s var(--transition);
   }
   .vfx-project:hover .vfx-visual { transform: translateY(-6px); }
+
   .vfx-frame {
     position: absolute;
     overflow: hidden;
@@ -795,22 +538,31 @@
     background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.35));
     pointer-events: none;
   }
+
+  /* Primary frame: large, anchored */
   .vfx-frame-main {
     top: 0; left: 0;
-    width: 78%; height: 82%;
+    width: 78%;
+    height: 82%;
     z-index: 1;
     filter: saturate(1.05) contrast(1.02);
   }
+  /* Secondary frame: smaller, offset, overlapping */
   .vfx-frame-sub {
     bottom: 0; right: 0;
-    width: 46%; height: 42%;
+    width: 46%;
+    height: 42%;
     z-index: 2;
     box-shadow: 0 20px 50px rgba(0,0,0,0.35);
   }
   .vfx-project:hover .vfx-frame-main { transform: translate(-4px, -4px); }
   .vfx-project:hover .vfx-frame-sub  { transform: translate(6px, 6px); filter: brightness(1.05); }
+
+  /* If only 1 image: main takes full space */
   .vfx-visual.single .vfx-frame-main { width: 100%; height: 100%; }
   .vfx-visual.single .vfx-frame-sub  { display: none; }
+
+  /* Info column */
   .vfx-info {
     display: flex;
     flex-direction: column;
@@ -867,7 +619,8 @@
   }
   .vfx-cta::after {
     content: '';
-    width: 32px; height: 1px;
+    width: 32px;
+    height: 1px;
     background: var(--white);
     transition: width 0.3s var(--transition);
   }
@@ -1105,14 +858,6 @@
     .about-grid { grid-template-columns: 1fr; gap: 48px; }
     .about-intro-strip { flex-direction: column; align-items: flex-start; gap: 28px; }
     .about-numbers { gap: 28px; }
-  }
-
-  /* Tablet: AI sidebar narrower + hero statement single-column */
-  @media (max-width: 1100px) and (min-width: 769px) {
-    .ai-hero { grid-template-columns: 1fr; gap: 24px; }
-    .ai-layout { grid-template-columns: 100px 1fr; gap: 36px; }
-    .ai-idx-title { display: none; }
-    .ai-rows { gap: 110px; }
   }
 
   /* CONTACT MODAL */
@@ -1419,6 +1164,7 @@
     .nav-toggle { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
 
     .about-grid { grid-template-columns: 1fr; }
+    .ai-grid { grid-template-columns: repeat(2, 1fr); }
 
     /* VFX mobile */
     .vfx-intro {
@@ -1437,54 +1183,9 @@
     .vfx-visual { aspect-ratio: 4/5; max-width: 520px; }
     .vfx-title { font-size: clamp(42px, 12vw, 64px); }
     .vfx-desc { font-size: 14px; }
-
-    /* AI mobile — Living Index collapses to stacked rows, sidebar hidden */
-    .ai-hero { grid-template-columns: 1fr; gap: 24px; margin-bottom: 60px; }
-    .ai-layout { grid-template-columns: 1fr; gap: 0; }
-    .ai-sidebar { display: none; }
-    .ai-rows { gap: 96px; }
-    .ai-row.variant-a,
-    .ai-row.variant-b,
-    .ai-row.variant-c .ai-row-split {
-      grid-template-columns: 1fr;
-      gap: 28px;
-    }
-    .ai-row.variant-a .ai-row-text { order: 0 !important; }
-    .ai-row.variant-a .ai-row-media { order: 1 !important; aspect-ratio: 16/10; }
-    .ai-row.variant-b .ai-row-sheet {
-      grid-template-columns: repeat(3, 1fr);
-      grid-template-rows: repeat(2, 100px);
-    }
-    .ai-row.variant-c { padding: 32px 0; }
-    .ai-row.variant-c .ai-row-bigtitle { font-size: clamp(48px, 13vw, 72px); }
-    .ai-row-title { font-size: clamp(44px, 12vw, 68px); }
-
-    /* Project-detail modules mobile */
-    .pd-hero-typo { padding: 100px 20px 56px; }
-    .pd-lyrics { padding: 60px 20px; grid-template-columns: 1fr; gap: 20px; }
-    .pd-director { padding: 48px 20px; grid-template-columns: 1fr; gap: 20px; }
-    .pd-sheet { padding: 48px 20px; }
-    .pd-sheet-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 100px; }
-    .pd-sheet-cell:nth-child(1),
-    .pd-sheet-cell:nth-child(2) { grid-column: span 3; grid-row: span 1; height: 180px; }
-    .pd-sheet-cell:nth-child(3),
-    .pd-sheet-cell:nth-child(4),
-    .pd-sheet-cell:nth-child(5) { grid-column: span 1; }
-    .pd-sheet-cell:nth-child(6) { grid-column: span 3; height: 180px; }
-    .pd-stats { padding: 48px 20px; grid-template-columns: repeat(2, 1fr); gap: 28px; }
-    .pd-compare { padding: 56px 20px; }
-    .pd-compare-split { grid-template-columns: 1fr; aspect-ratio: auto; }
-    .pd-compare-half { aspect-ratio: 16/10; }
-    .pd-pipeline { padding: 56px 20px; }
-    .pd-stack { padding: 40px 20px 56px; }
-    .pd-split { padding: 48px 20px; grid-template-columns: 1fr; gap: 24px; }
-    .pd-split.flip .pd-split-media,
-    .pd-split.flip .pd-split-text { order: 0; }
-    .pd-credits { padding: 48px 20px; }
-    .pd-pullquote { padding: 72px 20px 48px; }
     .inner-page { padding: 90px 20px 60px; }
     body { cursor: auto; }
-    #cursor-dot, #cursor-ring { display: none; }
+    #cursor { display: none; }
     #particles { display: none; }
   }
 
@@ -1613,406 +1314,6 @@
     max-width: 700px;
     margin: 0 auto;
   }
-
-  /* ============================================
-     PROJECT DETAIL — MODULAR ARCHETYPES
-     Each project declares a `modules:[]` array.
-     Four archetypes: music-video, aftermovie, vfx-case, commercial
-     ============================================ */
-
-  /* Typographic hero (music-video): title-led, no full-bleed image */
-  .pd-hero-typo {
-    padding: 140px 60px 80px;
-    border-bottom: 1px solid rgba(255,255,255,0.18);
-  }
-  .pd-hero-typo-meta {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.7;
-    margin-bottom: 32px;
-  }
-  .pd-hero-typo-meta .sep { width: 32px; height: 1px; background: rgba(255,255,255,0.5); }
-  .pd-hero-typo-title {
-    font-family: var(--font-display);
-    font-size: clamp(60px, 11vw, 180px);
-    font-weight: 800;
-    letter-spacing: -0.05em;
-    line-height: 0.88;
-    color: var(--white);
-    margin: 0;
-  }
-  .pd-hero-typo-title em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.03em;
-  }
-  .pd-hero-typo-feat {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(18px, 2vw, 26px);
-    opacity: 0.75;
-    margin-top: 24px;
-    display: block;
-  }
-
-  /* Lyrics block (music-video): big serif quote with side notation */
-  .pd-lyrics {
-    padding: 100px 60px;
-    display: grid;
-    grid-template-columns: 1fr 3fr;
-    gap: 40px;
-    align-items: start;
-  }
-  .pd-lyrics-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.55;
-    padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.3);
-  }
-  .pd-lyrics-text {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(28px, 4vw, 52px);
-    line-height: 1.25;
-    color: var(--white);
-    margin: 0;
-  }
-  .pd-lyrics-text span { display: block; opacity: 0.55; }
-
-  /* Director's note (music-video): signed block */
-  .pd-director {
-    padding: 80px 60px;
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 60px;
-    align-items: start;
-    border-top: 1px solid rgba(255,255,255,0.18);
-  }
-  .pd-director-name {
-    font-family: var(--font-display);
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.7;
-  }
-  .pd-director-name::before {
-    content: '—  ';
-    opacity: 0.6;
-  }
-  .pd-director-body {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(18px, 2vw, 24px);
-    line-height: 1.5;
-    color: var(--white);
-    opacity: 0.9;
-  }
-
-  /* Contact sheet (aftermovie): grid of 6 frames */
-  .pd-sheet {
-    padding: 80px 60px;
-  }
-  .pd-sheet-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.55;
-    margin-bottom: 24px;
-  }
-  .pd-sheet-grid {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-auto-rows: 160px;
-    gap: 8px;
-  }
-  .pd-sheet-cell {
-    background-size: cover;
-    background-position: center;
-    background-color: rgba(0,0,0,0.25);
-    transition: transform 0.5s var(--transition), filter 0.5s;
-    filter: saturate(0.92);
-    position: relative;
-    overflow: hidden;
-  }
-  .pd-sheet-cell::after {
-    content: attr(data-num);
-    position: absolute;
-    top: 8px; left: 10px;
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    opacity: 0.8;
-    color: var(--white);
-    text-shadow: 0 1px 2px rgba(0,0,0,0.6);
-  }
-  .pd-sheet-cell:hover { filter: saturate(1.1) brightness(1.05); transform: scale(1.015); }
-  .pd-sheet-cell:nth-child(1) { grid-column: span 3; grid-row: span 2; }
-  .pd-sheet-cell:nth-child(2) { grid-column: span 3; grid-row: span 1; }
-  .pd-sheet-cell:nth-child(3) { grid-column: span 1; grid-row: span 1; }
-  .pd-sheet-cell:nth-child(4) { grid-column: span 1; grid-row: span 1; }
-  .pd-sheet-cell:nth-child(5) { grid-column: span 1; grid-row: span 1; }
-  .pd-sheet-cell:nth-child(6) { grid-column: span 6; grid-row: span 1; height: 240px; }
-
-  /* Stats strip (aftermovie + commercial): 4 KPI */
-  .pd-stats {
-    padding: 80px 60px;
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
-    border-top: 1px solid rgba(255,255,255,0.18);
-    border-bottom: 1px solid rgba(255,255,255,0.18);
-  }
-  .pd-stat {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .pd-stat-val {
-    font-family: var(--font-display);
-    font-size: clamp(36px, 5vw, 64px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    color: var(--white);
-  }
-  .pd-stat-val em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-  }
-  .pd-stat-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.6;
-  }
-
-  /* Before/After (vfx-case): split view */
-  .pd-compare {
-    padding: 100px 60px;
-  }
-  .pd-compare-title {
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 44px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1;
-    margin-bottom: 40px;
-  }
-  .pd-compare-split {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 4px;
-    aspect-ratio: 16/9;
-    border-radius: 4px;
-    overflow: hidden;
-  }
-  .pd-compare-half {
-    background-size: cover;
-    background-position: center;
-    position: relative;
-  }
-  .pd-compare-half::after {
-    content: attr(data-label);
-    position: absolute;
-    top: 18px; left: 18px;
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    padding: 6px 12px;
-    background: rgba(0,0,0,0.65);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    color: var(--white);
-  }
-
-  /* Pipeline steps (vfx-case + commercial): numbered phases */
-  .pd-pipeline {
-    padding: 100px 60px;
-  }
-  .pd-pipeline-title {
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 44px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    margin-bottom: 48px;
-  }
-  .pd-pipeline-steps {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 32px;
-    counter-reset: step;
-  }
-  .pd-pipeline-step {
-    padding-top: 20px;
-    border-top: 1px solid rgba(255,255,255,0.35);
-    counter-increment: step;
-    position: relative;
-  }
-  .pd-pipeline-step::before {
-    content: counter(step, decimal-leading-zero);
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    opacity: 0.6;
-    display: block;
-    margin-bottom: 14px;
-  }
-  .pd-pipeline-step h4 {
-    font-family: var(--font-display);
-    font-size: 18px;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    margin-bottom: 10px;
-  }
-  .pd-pipeline-step p {
-    font-size: 14px;
-    line-height: 1.55;
-    opacity: 0.78;
-  }
-
-  /* Tool stack (vfx-case + commercial): organized badges */
-  .pd-stack {
-    padding: 60px 60px 80px;
-  }
-  .pd-stack-label {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.24em;
-    text-transform: uppercase;
-    opacity: 0.55;
-    margin-bottom: 20px;
-  }
-  .pd-stack-items {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-  .pd-stack-item {
-    padding: 9px 16px;
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 999px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    transition: background 0.25s, border-color 0.25s, color 0.25s;
-  }
-  .pd-stack-item:hover { background: var(--white); color: var(--neon-dark); border-color: var(--white); }
-
-  /* Split feature (universal): img + text */
-  .pd-split {
-    padding: 80px 60px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
-  }
-  .pd-split.flip .pd-split-media { order: 1; }
-  .pd-split.flip .pd-split-text  { order: 0; }
-  .pd-split-media {
-    aspect-ratio: 4/5;
-    background-size: cover;
-    background-position: center;
-    background-color: rgba(0,0,0,0.2);
-    border-radius: 4px;
-  }
-  .pd-split-text h3 {
-    font-family: var(--font-display);
-    font-size: clamp(28px, 3.4vw, 44px);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.05;
-    margin-bottom: 20px;
-  }
-  .pd-split-text h3 em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-  }
-  .pd-split-text p {
-    font-size: 15px;
-    line-height: 1.65;
-    opacity: 0.82;
-    max-width: 520px;
-  }
-
-  /* Credits strip (music-video + aftermovie) */
-  .pd-credits {
-    padding: 80px 60px;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 28px 40px;
-    border-top: 1px solid rgba(255,255,255,0.18);
-  }
-  .pd-credit {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .pd-credit-role {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.55;
-  }
-  .pd-credit-name {
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: -0.01em;
-  }
-
-  /* Pull-quote (closing for any archetype) */
-  .pd-pullquote {
-    padding: 120px 60px 80px;
-    text-align: center;
-    border-top: 1px solid rgba(255,255,255,0.18);
-  }
-  .pd-pullquote-text {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-size: clamp(26px, 3.6vw, 48px);
-    line-height: 1.3;
-    opacity: 0.88;
-    max-width: 900px;
-    margin: 0 auto;
-    color: var(--white);
-  }
-  .pd-pullquote-attr {
-    display: block;
-    margin-top: 24px;
-    font-family: var(--font-display);
-    font-style: normal;
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    opacity: 0.5;
-  }
-
-  /* Full-bleed image (aftermovie + commercial): breaks the rhythm */
-  .pd-fullbleed {
-    width: 100%;
-    aspect-ratio: 21/9;
-    background-size: cover;
-    background-position: center;
-  }
   @media (max-width: 768px) {
     .project-detail-hero { height: 50vh; min-height: 300px; }
     .project-detail-hero-content { padding: 32px 20px; }
@@ -2033,8 +1334,7 @@
 <body>
 
 <!-- CUSTOM CURSOR -->
-<div id="cursor-ring"></div>
-<div id="cursor-dot"></div>
+<div id="cursor"></div>
 
 <!-- GREETING BADGE -->
 <div id="greeting"></div>
@@ -2345,31 +1645,87 @@
   </div>
 </div><!-- =================== AI =================== -->
 <div id="ai-page" class="page">
-  <div class="page-scroll-wrapper" id="ai-scroll-wrapper">
+  <div class="page-scroll-wrapper">
   <div class="inner-page">
     <h1 class="page-title">AI</h1>
+    <div class="ai-grid">
 
-    <!-- Editorial hero -->
-    <div class="ai-hero">
-      <h2 class="ai-hero-statement">
-        Machine <em>intuition</em>,<br>
-        human <em>direction</em>.
-      </h2>
-      <div class="ai-hero-aside">
-        <span class="ai-hero-label">06 &mdash; Practices</span>
-        <p class="ai-hero-sub">A living toolkit of generative imagery, diffusion video and AI-augmented post &mdash; where algorithms meet craft.</p>
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[0], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="90" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="100" cy="100" r="60" stroke="white" stroke-width="0.5" fill="none" opacity="0.15"/><circle cx="100" cy="100" r="30" stroke="white" stroke-width="0.5" fill="none" opacity="0.1"/><line x1="10" y1="100" x2="190" y2="100" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="10" x2="100" y2="190" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Midjourney v6</div>
+          <span class="ai-card-label">Generative Art</span>
+          <p class="ai-card-desc">Hyper-detailed AI imagery for campaigns — style-locked consistency across 200+ assets for Nike's Spring collection.</p>
+        </div>
       </div>
+
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[1], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><polygon points="100,10 190,190 10,190" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><polygon points="100,40 160,170 40,170" stroke="white" stroke-width="0.4" fill="none" opacity="0.15"/><polygon points="100,70 130,150 70,150" stroke="white" stroke-width="0.3" fill="none" opacity="0.1"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Runway Gen-3</div>
+          <span class="ai-card-label">AI Video</span>
+          <p class="ai-card-desc">Text-to-video sequences integrated seamlessly into live-action edits. 4K output, motion-matched to real footage.</p>
+        </div>
+      </div>
+
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[2], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1677442135968-6db3b0025e95?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><rect x="20" y="20" width="160" height="160" stroke="white" stroke-width="0.5" fill="none" opacity="0.25" rx="8"/><rect x="50" y="50" width="100" height="100" stroke="white" stroke-width="0.4" fill="none" opacity="0.15" rx="4"/><rect x="80" y="80" width="40" height="40" stroke="white" stroke-width="0.3" fill="none" opacity="0.1" rx="2"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Stable Diffusion XL</div>
+          <span class="ai-card-label">Neural Style</span>
+          <p class="ai-card-desc">Fine-tuned LoRA models trained on brand identity assets — pixel-perfect style transfer at scale.</p>
+        </div>
+      </div>
+
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[3], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="40" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="160" cy="40" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><circle cx="100" cy="160" r="20" stroke="white" stroke-width="0.5" fill="none" opacity="0.25"/><line x1="40" y1="40" x2="160" y2="40" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="40" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="160" y1="40" x2="100" y2="160" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">Kling AI · Sora</div>
+          <span class="ai-card-label">Diffusion Video</span>
+          <p class="ai-card-desc">Photorealistic scene generation from storyboard sketches. Full commercial spots built from prompts + compositing.</p>
+        </div>
+      </div>
+
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[4], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><path d="M10 100 Q55 50 100 100 Q145 150 190 100" stroke="white" stroke-width="0.6" fill="none" opacity="0.25"/><path d="M10 80 Q55 30 100 80 Q145 130 190 80" stroke="white" stroke-width="0.4" fill="none" opacity="0.15"/><path d="M10 120 Q55 70 100 120 Q145 170 190 120" stroke="white" stroke-width="0.4" fill="none" opacity="0.1"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">After Effects + AI</div>
+          <span class="ai-card-label">Motion AI</span>
+          <p class="ai-card-desc">AI-powered motion tracking, rotoscoping, and frame interpolation cutting post time by 60% on feature edits.</p>
+        </div>
+      </div>
+
+      <div class="ai-card" style="background:#111;" onclick="showProjectDetail(aiDetails[5], 'ai')">
+        <div class="ai-card-img" style="background-image:url('https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=600&q=85&auto=format')"></div>
+        <div class="ai-card-overlay"></div>
+        <svg class="ai-card-bg" viewBox="0 0 200 200"><circle cx="100" cy="100" r="10" fill="white" opacity="0.35"/><circle cx="60" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="60" r="6" fill="white" opacity="0.2"/><circle cx="60" cy="140" r="6" fill="white" opacity="0.2"/><circle cx="140" cy="140" r="6" fill="white" opacity="0.2"/><line x1="100" y1="100" x2="60" y2="60" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="140" y2="60" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="60" y2="140" stroke="white" stroke-width="0.4" opacity="0.15"/><line x1="100" y1="100" x2="140" y2="140" stroke="white" stroke-width="0.4" opacity="0.15"/></svg>
+        <div class="ai-card-content">
+          <div class="ai-card-tag">ComfyUI Workflows</div>
+          <span class="ai-card-label">Custom Pipelines</span>
+          <p class="ai-card-desc">End-to-end automated workflows: prompt → image → upscale → export. 500+ images per hour for large campaigns.</p>
+        </div>
+      </div>
+
     </div>
-
-    <!-- Sticky index + rows -->
-    <div class="ai-layout">
-      <aside class="ai-sidebar" id="ai-sidebar">
-        <span class="ai-idx-label">Index</span>
-        <!-- populated by JS -->
-      </aside>
-      <div class="ai-rows" id="ai-rows">
-        <!-- populated by JS -->
-      </div>
+    <div class="ai-tool-row">
+      <span class="ai-tool-badge">Midjourney</span>
+      <span class="ai-tool-badge">RunwayML</span>
+      <span class="ai-tool-badge">Stable Diffusion</span>
+      <span class="ai-tool-badge">ComfyUI</span>
+      <span class="ai-tool-badge">Kling AI</span>
+      <span class="ai-tool-badge">Sora</span>
+      <span class="ai-tool-badge">ElevenLabs</span>
+      <span class="ai-tool-badge">Topaz</span>
     </div>
     <div class="page-footer">
       <div class="footer-inner">
@@ -2551,59 +1907,19 @@ document.addEventListener('contextmenu', e => e.preventDefault());
 document.addEventListener('selectstart', e => e.preventDefault());
 document.addEventListener('dragstart', e => e.preventDefault());
 
-// ---- CURSOR (RAF lerp, GPU-accelerated, sub-pixel smooth) ----
-const cursorDot  = document.getElementById('cursor-dot');
-const cursorRing = document.getElementById('cursor-ring');
-let tx = -100, ty = -100;
-let rx = -100, ry = -100;
-let dx = -100, dy = -100;
+// ---- CURSOR ----
+const cursor = document.getElementById('cursor');
 let mx = 0, my = 0;
-let rafRunning = false;
-
 document.addEventListener('mousemove', e => {
-  tx = e.clientX; ty = e.clientY;
-  mx = tx; my = ty;
+  mx = e.clientX; my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
   movePupil(mx, my);
-  if (!rafRunning) { rafRunning = true; requestAnimationFrame(tick); }
-}, { passive: true });
-
-document.addEventListener('mousedown', () => cursorRing.classList.add('down'),  { passive: true });
-document.addEventListener('mouseup',   () => cursorRing.classList.remove('down'), { passive: true });
-document.addEventListener('mouseleave', () => {
-  cursorDot.style.opacity = '0';
-  cursorRing.style.opacity = '0';
 });
-document.addEventListener('mouseenter', () => {
-  cursorDot.style.opacity = '';
-  cursorRing.style.opacity = '';
+document.querySelectorAll('a, button, .nav-item, .video-card, .ai-card, .vfx-project').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('big'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('big'));
 });
-
-const DOT_EASE = 0.55, RING_EASE = 0.18;
-function tick() {
-  dx += (tx - dx) * DOT_EASE;
-  dy += (ty - dy) * DOT_EASE;
-  rx += (tx - rx) * RING_EASE;
-  ry += (ty - ry) * RING_EASE;
-  cursorDot.style.transform  = 'translate3d(' + dx + 'px,' + dy + 'px,0)';
-  cursorRing.style.transform = 'translate3d(' + rx + 'px,' + ry + 'px,0)';
-  if (Math.abs(tx - rx) < 0.1 && Math.abs(ty - ry) < 0.1) { rafRunning = false; return; }
-  requestAnimationFrame(tick);
-}
-
-function wireHover(el) {
-  el.addEventListener('mouseenter', () => {
-    cursorRing.classList.add('hover');
-    cursorDot.classList.add('hover');
-  });
-  el.addEventListener('mouseleave', () => {
-    cursorRing.classList.remove('hover');
-    cursorDot.classList.remove('hover');
-  });
-}
-const HOVER_SELECTOR = 'a, button, .nav-item, .video-card, .ai-row, .ai-idx-item, .vfx-project, .pd-stack-item, .pd-sheet-cell, #eye-container';
-document.querySelectorAll(HOVER_SELECTOR).forEach(wireHover);
-// Expose for dynamically-added elements (AI/VFX builders)
-window.__wireCursorHover = wireHover;
 
 // ---- EYE PUPIL FOLLOW (smooth lerp with natural limits) ----
 let targetPX = 200, targetPY = 96;
@@ -2733,274 +2049,91 @@ function showPage(name) {
 
 // ---- PROJECT DETAIL PAGE ----
 let previousSection = 'home';
-// ============================================
-// PROJECT DETAIL — MODULAR RENDERER
-// Each project can declare: archetype, modules:[ {type, ...} ]
-// If modules[] is absent, legacy rendering kicks in (img1/img2 pattern).
-// ============================================
-
-function pdEl(tag, cls, html) {
-  var el = document.createElement(tag);
-  if (cls) el.className = cls;
-  if (html != null) el.innerHTML = html;
-  return el;
-}
-function escapeHTML(s) {
-  return (s == null ? '' : String(s))
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-// Module renderers — each returns a DOM node (or null to skip)
-const PD_MODULES = {
-  // HERO — mode:'quiet' uses typographic; mode:'loud' uses full-bleed. Default: full-bleed.
-  'hero': function(m, project) {
-    if (m.mode === 'quiet') return PD_MODULES['hero-typographic'](m, project);
-    return PD_MODULES['hero-fullbleed'](m, project);
-  },
-
-  'hero-fullbleed': function(m, project) {
-    var hero = pdEl('div', 'project-detail-hero');
-    var vid = null;
-    if (m.video || project.heroVideo) {
-      vid = document.createElement('video');
-      vid.className = 'project-detail-hero-video';
-      vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
-      vid.setAttribute('muted', ''); vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', '');
-      vid.src = m.video || project.heroVideo;
-      hero.appendChild(vid);
-      project.__heroVideoEl = vid;
-    } else {
-      hero.style.backgroundImage = "url('" + (m.image || project.heroImg) + "')";
-    }
-    hero.appendChild(pdEl('div', 'project-detail-hero-overlay'));
-    var content = pdEl('div', 'project-detail-hero-content');
-    content.innerHTML =
-      '<span class="project-detail-cat">' + escapeHTML(m.category || project.category) + '</span>' +
-      '<h1 class="project-detail-title">' + (project.titleHtml || escapeHTML(m.title || project.title)) + '</h1>' +
-      '<span class="project-detail-client">' + escapeHTML(m.client || project.client) + '</span>';
-    hero.appendChild(content);
-    return hero;
-  },
-
-  'hero-typographic': function(m, project) {
-    var hero = pdEl('div', 'pd-hero-typo');
-    var meta = pdEl('div', 'pd-hero-typo-meta');
-    meta.innerHTML =
-      '<span>' + escapeHTML(m.category || project.category) + '</span>' +
-      '<span class="sep"></span>' +
-      '<span>' + escapeHTML(m.year || project.year || '2025') + '</span>';
-    hero.appendChild(meta);
-    var title = pdEl('h1', 'pd-hero-typo-title');
-    title.innerHTML = project.titleHtml || escapeHTML(m.title || project.title);
-    hero.appendChild(title);
-    if (project.client) {
-      var feat = pdEl('span', 'pd-hero-typo-feat');
-      feat.innerHTML = escapeHTML(project.client);
-      hero.appendChild(feat);
-    }
-    return hero;
-  },
-
-  // Meta strip — 4 key/value pairs across the top
-  'meta-strip': function(m) {
-    var el = pdEl('div', 'pd-stats');
-    (m.items || []).forEach(function(s) {
-      var stat = pdEl('div', 'pd-stat');
-      var val = pdEl('span', 'pd-stat-val');
-      val.innerHTML = s.valueHtml || escapeHTML(s.value);
-      stat.appendChild(val);
-      stat.appendChild(pdEl('span', 'pd-stat-label', escapeHTML(s.label)));
-      el.appendChild(stat);
-    });
-    return el;
-  },
-
-  // Stat grid (aftermovie) — bigger numerical accent
-  'stat-grid': function(m) {
-    var el = pdEl('div', 'pd-stats');
-    (m.items || []).forEach(function(s) {
-      var stat = pdEl('div', 'pd-stat');
-      var val = pdEl('span', 'pd-stat-val');
-      val.innerHTML = s.numHtml || escapeHTML(s.num);
-      stat.appendChild(val);
-      stat.appendChild(pdEl('span', 'pd-stat-label', escapeHTML(s.label)));
-      el.appendChild(stat);
-    });
-    return el;
-  },
-
-  // Alias for legacy name
-  'stats-strip': function(m) { return PD_MODULES['meta-strip'](m); },
-
-  // Lyrics block (music-video)
-  'lyrics': function(m) {
-    var el = pdEl('div', 'pd-lyrics');
-    el.appendChild(pdEl('span', 'pd-lyrics-label', escapeHTML(m.caption || 'Lyrics')));
-    var text = pdEl('p', 'pd-lyrics-text');
-    text.innerHTML = m.quote || m.text || '';
-    el.appendChild(text);
-    return el;
-  },
-
-  // Director's note
-  'director-note': function(m) {
-    var el = pdEl('div', 'pd-director');
-    el.appendChild(pdEl('span', 'pd-director-name', escapeHTML(m.name || "Director's note")));
-    var body = pdEl('p', 'pd-director-body');
-    body.innerHTML = m.text;
-    el.appendChild(body);
-    return el;
-  },
-
-  // Split image — accepts position: 'left' (img left) or 'right' (img right, default)
-  'split-image': function(m) {
-    var el = pdEl('div', 'pd-split' + (m.position === 'left' ? ' flip' : ''));
-    var media = pdEl('div', 'pd-split-media');
-    media.style.backgroundImage = "url('" + m.image + "')";
-    el.appendChild(media);
-    var text = pdEl('div', 'pd-split-text');
-    text.innerHTML =
-      '<h3>' + (m.headingHtml || escapeHTML(m.heading || '')) + '</h3>' +
-      '<p>' + (m.textHtml || escapeHTML(m.text || '')) + '</p>';
-    el.appendChild(text);
-    return el;
-  },
-
-  'split-feature': function(m) { return PD_MODULES['split-image'](m); },
-
-  // Full-bleed image
-  'full-bleed': function(m) {
-    var el = pdEl('div', 'pd-fullbleed');
-    el.style.backgroundImage = "url('" + m.image + "')";
-    return el;
-  },
-
-  // Contact sheet — grid of 6 thumbnails
-  'contact-sheet': function(m) {
-    var el = pdEl('div', 'pd-sheet');
-    el.appendChild(pdEl('span', 'pd-sheet-label', escapeHTML(m.label || 'Selected frames')));
-    var grid = pdEl('div', 'pd-sheet-grid');
-    (m.images || m.frames || []).forEach(function(src, i) {
-      var cell = pdEl('div', 'pd-sheet-cell');
-      cell.style.backgroundImage = "url('" + src + "')";
-      cell.setAttribute('data-num', String(i + 1).padStart(2, '0'));
-      grid.appendChild(cell);
-    });
-    el.appendChild(grid);
-    return el;
-  },
-
-  // Before/After — VFX case
-  'before-after': function(m) {
-    var el = pdEl('div', 'pd-compare');
-    el.appendChild(pdEl('h3', 'pd-compare-title', escapeHTML(m.title || 'Before / After')));
-    var split = pdEl('div', 'pd-compare-split');
-    var before = pdEl('div', 'pd-compare-half');
-    before.style.backgroundImage = "url('" + m.before + "')";
-    before.setAttribute('data-label', 'BEFORE');
-    var after = pdEl('div', 'pd-compare-half');
-    after.style.backgroundImage = "url('" + m.after + "')";
-    after.setAttribute('data-label', 'AFTER');
-    split.appendChild(before); split.appendChild(after);
-    el.appendChild(split);
-    return el;
-  },
-
-  // Pipeline steps (VFX/AI)
-  'pipeline': function(m) {
-    var el = pdEl('div', 'pd-pipeline');
-    el.appendChild(pdEl('h3', 'pd-pipeline-title', escapeHTML(m.title || 'Pipeline')));
-    var steps = pdEl('div', 'pd-pipeline-steps');
-    (m.steps || []).forEach(function(s) {
-      var step = pdEl('div', 'pd-pipeline-step');
-      step.appendChild(pdEl('h4', null, escapeHTML(s.title)));
-      step.appendChild(pdEl('p', null, escapeHTML(s.text)));
-      steps.appendChild(step);
-    });
-    el.appendChild(steps);
-    return el;
-  },
-
-  // Tool stack (VFX/AI)
-  'tool-stack': function(m) {
-    var el = pdEl('div', 'pd-stack');
-    el.appendChild(pdEl('span', 'pd-stack-label', escapeHTML(m.label || 'Tool Stack')));
-    var items = pdEl('div', 'pd-stack-items');
-    (m.items || []).forEach(function(name) {
-      items.appendChild(pdEl('span', 'pd-stack-item', escapeHTML(name)));
-    });
-    el.appendChild(items);
-    return el;
-  },
-
-  // Credits — accepts rows:[[role, name], ...] OR items:[{role,name}, ...]
-  'credits': function(m) {
-    var el = pdEl('div', 'pd-credits');
-    var list = m.items || (m.rows || []).map(function(r) { return { role: r[0], name: r[1] }; });
-    list.forEach(function(c) {
-      var credit = pdEl('div', 'pd-credit');
-      credit.appendChild(pdEl('span', 'pd-credit-role', escapeHTML(c.role)));
-      credit.appendChild(pdEl('span', 'pd-credit-name', escapeHTML(c.name)));
-      el.appendChild(credit);
-    });
-    return el;
-  },
-
-  // Pull-quote / closing
-  'pull-quote': function(m) {
-    var el = pdEl('div', 'pd-pullquote');
-    var text = pdEl('p', 'pd-pullquote-text');
-    text.innerHTML = m.text;
-    if (m.attr) {
-      var attr = pdEl('span', 'pd-pullquote-attr', escapeHTML(m.attr));
-      text.appendChild(attr);
-    }
-    el.appendChild(text);
-    return el;
-  },
-  'closing': function(m) { return PD_MODULES['pull-quote'](m); },
-};
-
 function showProjectDetail(projectData, fromSection) {
   previousSection = fromSection;
   const dp = document.getElementById('project-detail-page');
   const container = document.getElementById('project-detail-content');
+
+  // ── Build hero via DOM API (not innerHTML) so browser treats video as native ──
+  const heroDiv = document.createElement('div');
+  heroDiv.className = 'project-detail-hero';
+
+  let heroVidEl = null;
+  if (projectData.heroVideo) {
+    // createElement is the ONLY reliable way to get autoplay working on dynamic video
+    heroVidEl = document.createElement('video');
+    heroVidEl.className = 'project-detail-hero-video';
+    heroVidEl.muted = true;          // property (not attribute) is what browsers check
+    heroVidEl.loop = true;
+    heroVidEl.playsInline = true;
+    heroVidEl.preload = 'auto';
+    heroVidEl.setAttribute('muted', '');           // Safari belt-and-suspenders
+    heroVidEl.setAttribute('playsinline', '');
+    heroVidEl.setAttribute('webkit-playsinline', '');
+    heroVidEl.src = projectData.heroVideo;         // set src AFTER properties
+    heroDiv.appendChild(heroVidEl);
+  } else {
+    heroDiv.style.backgroundImage = "url('" + projectData.heroImg + "')";
+  }
+
+  // Overlay + text (safe: no video element here)
+  const heroOverlay = document.createElement('div');
+  heroOverlay.className = 'project-detail-hero-overlay';
+  heroDiv.appendChild(heroOverlay);
+
+  const heroContent = document.createElement('div');
+  heroContent.className = 'project-detail-hero-content';
+  heroContent.innerHTML =
+    '<span class="project-detail-cat">' + projectData.category + '</span>' +
+    '<h1 class="project-detail-title">' + projectData.title + '</h1>' +
+    '<span class="project-detail-client">' + projectData.client + '</span>';
+  heroDiv.appendChild(heroContent);
+
+  // ── Inject all content ────────────────────────────────────────────────────
   container.innerHTML = '';
-  projectData.__heroVideoEl = null;
+  container.appendChild(heroDiv);
 
-  /* Accent color (per-project) */
-  if (projectData.accent) {
-    dp.style.setProperty('--accent', projectData.accent);
-  } else {
-    dp.style.removeProperty('--accent');
+  // Build body with createElement — zero string-quoting issues
+  function makeEl(tag, cls, style) {
+    var el = document.createElement(tag);
+    if (cls) el.className = cls;
+    if (style) el.style.cssText = style;
+    return el;
   }
-  /* Archetype as a class hook */
-  dp.className = 'page';
-  if (projectData.archetype) dp.classList.add('archetype-' + projectData.archetype);
 
-  // Modular path: project declares layout:[] (or legacy modules:[])
-  var modList = projectData.layout || projectData.modules;
-  if (Array.isArray(modList) && modList.length) {
-    modList.forEach(function(m, idx) {
-      var renderer = PD_MODULES[m.type];
-      if (!renderer) {
-        console.warn('[project-detail] unknown module:', m.type);
-        return;
-      }
-      var node = renderer(m, projectData);
-      if (node) {
-        node.classList.add('pd-module');
-        node.style.setProperty('--pd-delay', (idx * 0.06) + 's');
-        container.appendChild(node);
-      }
-    });
-  } else {
-    // LEGACY path: keep back-compat with old projects (img1/img2 pattern)
-    renderLegacyDetail(projectData, container);
-  }
+  var body = makeEl('div', 'project-detail-body');
+
+  // Section 1
+  var sec1 = makeEl('div', 'project-detail-section project-detail-row');
+  var img1el = makeEl('div', 'project-detail-img');
+  img1el.style.backgroundImage = 'url(' + projectData.img1 + ')';
+  var txt1el = makeEl('div', 'project-detail-text');
+  txt1el.innerHTML = '<h2>' + projectData.heading1 + '</h2><p>' + projectData.text1 + '</p>';
+  sec1.appendChild(img1el);
+  sec1.appendChild(txt1el);
+  body.appendChild(sec1);
+
+  // Section 2
+  var sec2 = makeEl('div', 'project-detail-section project-detail-row reverse');
+  var img2el = makeEl('div', 'project-detail-img');
+  img2el.style.backgroundImage = 'url(' + projectData.img2 + ')';
+  var txt2el = makeEl('div', 'project-detail-text');
+  txt2el.innerHTML = '<h2>' + projectData.heading2 + '</h2><p>' + projectData.text2 + '</p>';
+  sec2.appendChild(img2el);
+  sec2.appendChild(txt2el);
+  body.appendChild(sec2);
+
+  // Closing quote
+  var closing = makeEl('div', 'project-detail-closing');
+  var closingP = makeEl('p', 'project-detail-closing-text');
+  closingP.textContent = projectData.closing;
+  closing.appendChild(closingP);
+  body.appendChild(closing);
+
+  container.appendChild(body);
 
   // Footer
-  var footer = pdEl('div', 'page-footer');
+  var footer = makeEl('div', 'page-footer');
   footer.innerHTML =
     '<div class="footer-inner">' +
       '<div class="footer-bottom">' +
@@ -3015,21 +2148,18 @@ function showProjectDetail(projectData, fromSection) {
       '</div>' +
     '</div>';
   container.appendChild(footer);
-
-  // Wire newly-added interactive elements to the custom cursor
-  if (window.__wireCursorHover) {
-    container.querySelectorAll('.pd-stack-item, .pd-sheet-cell, a, button').forEach(window.__wireCursorHover);
-  }
-
-  // Activate page
+  // ── Activate page ─────────────────────────────────────────────────────────
   document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('active'); });
   dp.classList.add('active');
   var scrollWrap = document.getElementById('project-detail-scroll') || dp;
   scrollWrap.scrollTop = 0;
   currentPage = 'project-detail';
 
-  // Play hero video (if any) — same aggressive retry strategy as before
-  var heroVidEl = projectData.__heroVideoEl;
+  // ── Play video ────────────────────────────────────────────────────────────
+  // The video is appended to the DOM and muted BEFORE the page becomes active.
+  // Since it's muted, autoplay policy allows play() without user gesture.
+  // Desktop browsers can defer play when the element lives under an opacity:0
+  // ancestor, so we retry aggressively across multiple timing strategies.
   if (heroVidEl) {
     function tryPlay() {
       heroVidEl.muted = true;
@@ -3037,6 +2167,7 @@ function showProjectDetail(projectData, fromSection) {
       var p = heroVidEl.play();
       if (p && p.catch) {
         p.catch(function() {
+          // Last resort: resume on first click anywhere in the page
           dp.addEventListener('click', function onFirstClick() {
             dp.removeEventListener('click', onFirstClick);
             heroVidEl.muted = true;
@@ -3045,69 +2176,40 @@ function showProjectDetail(projectData, fromSection) {
         });
       }
     }
+
+    // Strategy 1: immediate call (before opacity transition)
     tryPlay();
+
+    // Strategy 2: after one paint cycle
     setTimeout(tryPlay, 50);
+
+    // Strategy 3: once opacity transition completes (desktop key moment)
     dp.addEventListener('transitionend', function onTransEnd(e) {
       if (e.propertyName === 'opacity') {
         dp.removeEventListener('transitionend', onTransEnd);
         tryPlay();
       }
     });
+
+    // Strategy 4: once the video has enough data to play
     heroVidEl.addEventListener('canplay', function onCanPlay() {
       heroVidEl.removeEventListener('canplay', onCanPlay);
       tryPlay();
     });
+
+    // Strategy 5: delayed fallbacks for stubborn desktop browsers
     setTimeout(tryPlay, 600);
     setTimeout(tryPlay, 1200);
     setTimeout(tryPlay, 2500);
   }
 
-  // Header state
+  // ── Header state ──────────────────────────────────────────────────────────
   var fn = document.getElementById('header-firstname');
   var ln = document.getElementById('header-lastname');
   var hb = document.getElementById('header-back');
   if (fn) fn.style.display = 'none';
   if (ln) ln.style.display = 'none';
   if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage(previousSection); }; }
-
-  // Reveal modules on enter — double-RAF guarantees the transition fires
-  requestAnimationFrame(function() {
-    requestAnimationFrame(function() {
-      container.querySelectorAll('.pd-module').forEach(function(el) {
-        el.classList.add('pd-visible');
-      });
-    });
-  });
-}
-
-// Legacy renderer — used when a project has no modules[] declared
-function renderLegacyDetail(projectData, container) {
-  // Hero
-  var hero = PD_MODULES['hero-fullbleed']({}, projectData);
-  container.appendChild(hero);
-
-  var body = pdEl('div', 'project-detail-body');
-  var sec1 = pdEl('div', 'project-detail-section project-detail-row');
-  var img1 = pdEl('div', 'project-detail-img');
-  img1.style.backgroundImage = 'url(' + projectData.img1 + ')';
-  var txt1 = pdEl('div', 'project-detail-text',
-    '<h2>' + escapeHTML(projectData.heading1) + '</h2><p>' + escapeHTML(projectData.text1) + '</p>');
-  sec1.appendChild(img1); sec1.appendChild(txt1); body.appendChild(sec1);
-
-  var sec2 = pdEl('div', 'project-detail-section project-detail-row reverse');
-  var img2 = pdEl('div', 'project-detail-img');
-  img2.style.backgroundImage = 'url(' + projectData.img2 + ')';
-  var txt2 = pdEl('div', 'project-detail-text',
-    '<h2>' + escapeHTML(projectData.heading2) + '</h2><p>' + escapeHTML(projectData.text2) + '</p>');
-  sec2.appendChild(img2); sec2.appendChild(txt2); body.appendChild(sec2);
-
-  var closing = pdEl('div', 'project-detail-closing');
-  var closingP = pdEl('p', 'project-detail-closing-text');
-  closingP.textContent = projectData.closing;
-  closing.appendChild(closingP);
-  body.appendChild(closing);
-
-  container.appendChild(body);
 }
 
 // ---- NAV TOGGLE ----
@@ -3146,392 +2248,75 @@ function setGreeting() {
 }
 setGreeting();
 
-// ---- AI PROJECT DETAILS (modular, archetype: ai-case) ----
+// ---- AI PROJECT DETAILS ----
 const aiDetails = [
   {
-    archetype: 'ai-case',
-    category: 'AI · Generative',
-    title: 'Generative Art',
-    client: 'Nike — Spring Collection',
     heroImg: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-fullbleed' },
-      { type: 'stats-strip', items: [
-        { value: '200+',       label: 'Assets' },
-        { value: 'Midjourney', label: 'Primary tool' },
-        { value: '½',          label: 'vs. traditional' },
-        { value: '2025',       label: 'Year' }
-      ]},
-      { type: 'pipeline', title: 'Generation Pipeline', steps: [
-        { title: '01 · Style lock',   text: 'A reference style was codified into a prompt vocabulary — locked across every generation to keep the campaign visually unified.' },
-        { title: '02 · Generation',   text: 'Midjourney v6 produced 1,000+ candidates. Promptchaining narrowed the field; inpainting refined anatomy and composition.' },
-        { title: '03 · Finishing',    text: 'Topaz upscale to 6K, manual colour pass in Lightroom, brand-spec export. Every hero was human-graded before delivery.' }
-      ]},
-      { type: 'split-feature',
-        image: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=1200&q=85&auto=format',
-        heading: 'Style-locked across 200+ assets',
-        text: 'From product macros to lifestyle scenes, every generation shared the same light, palette and atmosphere. Preserving the spontaneity of AI imagery while hitting brand spec took more craft, not less.' },
-      { type: 'tool-stack', label: 'Stack',
-        items: ['Midjourney v6', 'Photoshop', 'Topaz', 'Lightroom', 'ComfyUI'] },
-      { type: 'pull-quote', text: 'AI doesn\u2019t replace creativity — it multiplies it.' }
-    ]
+    category: 'AI · Generative', title: 'Generative Art', client: 'Nike — Spring Collection',
+    img1: 'https://images.unsplash.com/photo-1547826039-bfc35e0f1ea8?w=800&q=85&auto=format',
+    heading1: 'Style-Locked Consistency',
+    text1: 'Over 200 unique assets were generated using Midjourney v6, each locked to a custom style guide developed through extensive prompt engineering. The challenge: maintaining brand consistency across vastly different subjects — from product shots to lifestyle imagery — while preserving the spontaneity that makes AI art compelling.',
+    img2: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&q=85&auto=format',
+    heading2: 'From Prompt to Campaign',
+    text2: 'Each image went through a rigorous pipeline: initial generation, inpainting refinements, upscaling via Topaz, and final color correction in Lightroom. The result was a campaign that looked entirely hand-crafted despite being 90% AI-generated — delivered in half the time of a traditional photoshoot.',
+    closing: '"AI doesn\'t replace creativity — it multiplies it."',
   },
   {
-    archetype: 'ai-case',
-    category: 'AI · Video',
-    title: 'AI Video',
-    client: 'Runway Gen-3 Production',
     heroImg: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-fullbleed' },
-      { type: 'stats-strip', items: [
-        { value: 'Gen-3',  label: 'Engine' },
-        { value: '4K',     label: 'Delivery' },
-        { value: '24fps',  label: 'Motion-matched' },
-        { value: '2025',   label: 'Year' }
-      ]},
-      { type: 'pull-quote', text: 'The camera of the future writes with light — and language.' },
-      { type: 'split-feature',
-        image: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=1200&q=85&auto=format',
-        heading: 'Prompt vocabulary for motion',
-        text: 'Consistency at the frame level came from a controlled prompt vocabulary. Camera language (dolly-in, whip-pan, push) was baked into generation so AI shots cut seamlessly against real footage.' },
-      { type: 'split-feature', flip: true,
-        image: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=1200&q=85&auto=format',
-        heading: 'Invisible integration',
-        text: 'Frame-rate conforming, colour-space matching, grain injection and edge blending in After Effects erase the line between generated and captured material.' },
-      { type: 'tool-stack', label: 'Stack',
-        items: ['Runway Gen-3', 'After Effects', 'DaVinci Resolve', 'Topaz'] }
-    ]
+    category: 'AI · Video', title: 'AI Video', client: 'Runway Gen-3 Production',
+    img1: 'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=800&q=85&auto=format',
+    heading1: 'Text to Motion',
+    text1: 'Runway Gen-3 was used to generate entire sequences from text descriptions, producing footage that was then seamlessly composited into live-action edits. The key innovation was developing a prompt vocabulary that consistently produced motion-matched output compatible with real camera movements.',
+    img2: 'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=800&q=85&auto=format',
+    heading2: 'Seamless Integration',
+    text2: 'Each AI-generated clip was processed through a custom After Effects pipeline: frame interpolation to match the project\'s frame rate, color space conversion, grain matching, and edge blending. The final viewer cannot distinguish AI footage from camera-captured material.',
+    closing: '"The camera of the future writes with light and language."',
   },
   {
-    archetype: 'ai-case',
-    category: 'AI · Style Transfer',
-    title: 'Neural Style',
-    client: 'Stable Diffusion XL Pipeline',
     heroImg: 'https://images.unsplash.com/photo-1677442135968-6db3b0025e95?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-typographic',
-        category: 'AI · Style Transfer · 2025',
-        titleHtml: 'Neural <em>Style</em>',
-        feat: 'Custom LoRA &middot; Stable Diffusion XL' },
-      { type: 'pipeline', title: 'Training Pipeline', steps: [
-        { title: '01 · Dataset',      text: 'Brand identity assets — logos, type, palette, photography — were curated and tagged into a clean training set.' },
-        { title: '02 · LoRA training',text: 'Fine-tuned LoRA weights on top of SDXL, with validation against hold-out brand references at every epoch.' },
-        { title: '03 · Deployment',   text: 'ComfyUI batch workflow: generate → upscale → colour-match → QA. Human review on every hero before release.' }
-      ]},
-      { type: 'pull-quote', text: 'Teaching a machine your brand\u2019s visual DNA — then watching it dream.' },
-      { type: 'tool-stack', label: 'Stack',
-        items: ['Stable Diffusion XL', 'LoRA', 'ComfyUI', 'Topaz', 'Photoshop'] }
-    ]
+    category: 'AI · Style Transfer', title: 'Neural Style', client: 'Stable Diffusion XL Pipeline',
+    img1: 'https://images.unsplash.com/photo-1633356122544-f134324a6cee?w=800&q=85&auto=format',
+    heading1: 'Custom LoRA Training',
+    text1: 'Fine-tuned LoRA models were trained on each brand\'s visual identity — logos, typography, color palettes, and photographic style. This allowed Stable Diffusion XL to generate new imagery that felt native to the brand, maintaining consistency that generic models cannot achieve.',
+    img2: 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=85&auto=format',
+    heading2: 'Scale Without Compromise',
+    text2: 'The trained models were deployed in a ComfyUI batch pipeline, producing hundreds of on-brand variations per hour. Each output passed through automated quality checks before human review, creating an efficient hybrid workflow that maintained artistic standards at industrial scale.',
+    closing: '"Teaching a machine your brand\'s visual DNA — then watching it dream."',
   },
   {
-    archetype: 'ai-case',
-    category: 'AI · Diffusion',
-    title: 'Diffusion Video',
-    client: 'Kling AI Production',
     heroImg: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-fullbleed' },
-      { type: 'stats-strip', items: [
-        { value: 'Kling AI', label: 'Engine' },
-        { value: 'Sketch→Film', label: 'Workflow' },
-        { value: 'Minutes', label: 'Iteration cycle' },
-        { value: '2025', label: 'Year' }
-      ]},
-      { type: 'split-feature',
-        image: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=1200&q=85&auto=format',
-        heading: 'Storyboard → Screen',
-        text: 'From rough pencil sketches, Kling AI generated photorealistic scenes the director could iterate on in minutes. Pre-production compressed from weeks to days — without losing intent.' },
-      { type: 'split-feature', flip: true,
-        image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=1200&q=85&auto=format',
-        heading: 'The compositing layer',
-        text: 'Raw AI output is never final. Depth passes, HDRI-matched relighting, lens breathing and micro-shake were layered in comp to sell the footage as real camera material.' },
-      { type: 'pull-quote', text: 'The sketch becomes the film — imagination is the only limit.' }
-    ]
+    category: 'AI · Diffusion', title: 'Diffusion Video', client: 'Kling AI · Sora',
+    img1: 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=800&q=85&auto=format',
+    heading1: 'Storyboard to Screen',
+    text1: 'Starting from rough pencil storyboards, Kling AI and Sora transformed sketches into photorealistic scenes. The director could iterate on camera angles, lighting, and composition in minutes rather than weeks — fundamentally changing the pre-production workflow.',
+    img2: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=85&auto=format',
+    heading2: 'The Compositing Layer',
+    text2: 'Raw AI outputs were never used as-is. Each frame went through manual compositing: depth passes were extracted, elements were re-lit to match on-set HDRI data, and camera imperfections (lens breathing, subtle shake) were added to sell the footage as real.',
+    closing: '"The sketch becomes the film — imagination is the only limit."',
   },
   {
-    archetype: 'ai-case',
-    category: 'AI · Post-Production',
-    title: 'Motion AI',
-    client: 'After Effects + AI Pipeline',
     heroImg: 'https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-typographic',
-        category: 'AI · Post-Production · 2025',
-        titleHtml: 'Motion <em>AI</em>',
-        feat: 'Tracking · Roto · Interpolation' },
-      { type: 'stats-strip', items: [
-        { value: '-60%',    label: 'Post time' },
-        { value: '4K',      label: 'Deliverable' },
-        { value: 'Hybrid',  label: 'Human + AI' },
-        { value: '2025',    label: 'Year' }
-      ]},
-      { type: 'split-feature',
-        image: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=1200&q=85&auto=format',
-        heading: 'Intelligent automation',
-        text: 'AI-assisted motion tracking and rotoscoping inside After Effects reduce the labour on long-form edits by more than half. The knack is knowing exactly where to let the machine work — and where not to.' },
-      { type: 'pull-quote', text: 'AI handles the labour — so the artist can focus on the art.' },
-      { type: 'tool-stack', label: 'Stack',
-        items: ['After Effects', 'Content-Aware Fill', 'Rotobrush 3', 'Topaz Video AI'] }
-    ]
+    category: 'AI · Post-Production', title: 'Motion AI', client: 'After Effects + AI Pipeline',
+    img1: 'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=800&q=85&auto=format',
+    heading1: 'Intelligent Automation',
+    text1: 'AI-powered tools within After Effects handle the repetitive work: motion tracking, rotoscoping, and frame interpolation. What once took an artist days now takes hours. But the key insight is knowing where to let the AI work and where human judgment is irreplaceable.',
+    img2: 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=800&q=85&auto=format',
+    heading2: '60% Faster, 100% Quality',
+    text2: 'On a recent feature-length edit, AI-assisted rotoscoping reduced post-production time by 60%. The saved hours were reinvested in creative decisions — color grading, sound design, and editorial refinements that elevate the final product beyond what a rushed timeline would allow.',
+    closing: '"AI handles the labor — so the artist can focus on the art."',
   },
   {
-    archetype: 'ai-case',
-    category: 'AI · Automation',
-    title: 'Custom Pipelines',
-    client: 'ComfyUI Workflows',
     heroImg: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=1400&q=90&auto=format',
-    modules: [
-      { type: 'hero-fullbleed' },
-      { type: 'pipeline', title: 'End-to-end workflow', steps: [
-        { title: '01 · Prompt',    text: 'Structured prompts feed the generation graph — parametrised so a single input produces multiple brand-safe variations.' },
-        { title: '02 · Generate',  text: 'ControlNet-guided generation keeps composition locked while style and subject flex. Face restoration runs inline.' },
-        { title: '03 · Upscale',   text: 'Topaz upscales to delivery resolution; background removal runs as a final node for e-commerce cutouts.' },
-        { title: '04 · Export',    text: '500+ images per hour, all tagged with brand metadata — ready to drop into a CMS or asset manager.' }
-      ]},
-      { type: 'pull-quote', text: 'Automation is not the enemy of craft — it\u2019s the foundation of scale.' },
-      { type: 'tool-stack', label: 'Stack',
-        items: ['ComfyUI', 'ControlNet', 'Stable Diffusion XL', 'Topaz', 'rembg'] }
-    ]
-  }
+    category: 'AI · Automation', title: 'Custom Pipelines', client: 'ComfyUI Workflows',
+    img1: 'https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=85&auto=format',
+    heading1: 'Node-Based Power',
+    text1: 'ComfyUI\'s node-based interface allows building complex image generation pipelines visually. Custom workflows chain together generation, controlnet guidance, upscaling, face restoration, and background removal — all running automatically with minimal human intervention.',
+    img2: 'https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=800&q=85&auto=format',
+    heading2: 'Campaign at Scale',
+    text2: 'For a major e-commerce client, these pipelines produced 500+ product images per hour — each with consistent lighting, background, and brand styling. The cost savings compared to traditional product photography were substantial, enabling small brands to compete visually with industry giants.',
+    closing: '"Automation is not the enemy of craft — it\'s the foundation of scale."',
+  },
 ];
-
-// ---- AI PAGE BUILDER ----
-// Listing data (used by the sticky-index + rows view on /ai).
-// Each entry points to the corresponding aiDetails[i] for the project-detail page.
-const aiProjects = [
-  {
-    num: '01',
-    title: 'Generative Art',
-    titleHtml: 'Generative <em>Art</em>',
-    client: 'Nike — Spring Collection',
-    tool: 'Midjourney v6',
-    desc: 'Style-locked campaign imagery at scale — 200+ assets unified under a single visual grammar, delivered in half the cost and time of a traditional shoot.',
-    image: 'https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=1400&q=85&auto=format',
-    variant: 'a'
-  },
-  {
-    num: '02',
-    title: 'AI Video',
-    titleHtml: 'AI <em>Video</em>',
-    client: 'Runway Gen-3',
-    tool: 'Runway Gen-3',
-    desc: 'Text-to-video sequences fluently cut against live action — prompt vocabulary engineered for camera language, grain-matched and colour-graded into the edit.',
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1400&q=85&auto=format',
-    /* Contact-sheet variant: uses secondary thumbs */
-    sheet: [
-      'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=700&q=85&auto=format',
-      'https://images.unsplash.com/photo-1536240478700-b869070f9279?w=700&q=85&auto=format',
-      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?w=700&q=85&auto=format'
-    ],
-    variant: 'b'
-  },
-  {
-    num: '03',
-    title: 'Neural Style',
-    titleHtml: 'Neural <em>Style</em>',
-    client: 'Stable Diffusion XL',
-    tool: 'Custom LoRA',
-    desc: 'Fine-tuned LoRA models trained on brand identity assets — pixel-precise style transfer at industrial scale, without losing the hand of the artist behind it.',
-    /* Typography-only variant — no hero image */
-    stack: ['Stable Diffusion XL', 'LoRA', 'ComfyUI', 'Topaz'],
-    variant: 'c'
-  },
-  {
-    num: '04',
-    title: 'Diffusion Video',
-    titleHtml: 'Diffusion <em>Video</em>',
-    client: 'Kling AI',
-    tool: 'Kling AI',
-    desc: 'Storyboard to photorealism in minutes. Sketches become shots, shots become films — with a compositing layer that sells the footage as camera-captured.',
-    image: 'https://images.unsplash.com/photo-1635070041078-e363dbe005cb?w=1400&q=85&auto=format',
-    variant: 'a'
-  },
-  {
-    num: '05',
-    title: 'Motion AI',
-    titleHtml: 'Motion <em>AI</em>',
-    client: 'AfterEffects + AI',
-    tool: 'AE + AI',
-    desc: 'AI-assisted tracking, rotoscoping and frame interpolation cut long-form post time by 60%. Time saved becomes time spent on craft — colour, sound, editorial.',
-    image: 'https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=1400&q=85&auto=format',
-    sheet: [
-      'https://images.unsplash.com/photo-1655720828018-edd2daec9349?w=700&q=85&auto=format',
-      'https://images.unsplash.com/photo-1535016120720-40c646be5580?w=700&q=85&auto=format',
-      'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=700&q=85&auto=format'
-    ],
-    variant: 'b'
-  },
-  {
-    num: '06',
-    title: 'Custom Pipelines',
-    titleHtml: 'Custom <em>Pipelines</em>',
-    client: 'ComfyUI Workflows',
-    tool: 'ComfyUI',
-    desc: 'End-to-end automated workflows: prompt → generate → upscale → export. 500+ brand-safe assets per hour, every output tagged and ready to ship.',
-    image: 'https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=1400&q=85&auto=format',
-    variant: 'a'
-  }
-];
-
-(function buildAIPage() {
-  const sidebar = document.getElementById('ai-sidebar');
-  const rowsEl  = document.getElementById('ai-rows');
-  if (!sidebar || !rowsEl) return;
-
-  aiProjects.forEach(function(p, i) {
-    /* ── Sidebar item ── */
-    var idxItem = document.createElement('a');
-    idxItem.className = 'ai-idx-item';
-    idxItem.setAttribute('data-target', 'ai-row-' + i);
-    idxItem.innerHTML =
-      '<span class="ai-idx-num">' + p.num + '</span>' +
-      '<span class="ai-idx-title">' + p.title + '</span>';
-    sidebar.appendChild(idxItem);
-    if (window.__wireCursorHover) window.__wireCursorHover(idxItem);
-
-    /* Click in sidebar → scroll to matching row */
-    idxItem.addEventListener('click', function() {
-      var target = document.getElementById('ai-row-' + i);
-      var scrollWrap = document.getElementById('ai-scroll-wrapper');
-      if (target && scrollWrap) {
-        scrollWrap.scrollTo({ top: target.offsetTop - 120, behavior: 'smooth' });
-      }
-    });
-
-    /* ── Row ── */
-    var row = document.createElement('div');
-    row.id = 'ai-row-' + i;
-    row.className = 'ai-row variant-' + p.variant + (i % 3 === 1 ? ' flip' : '');
-    row.onclick = function() { showProjectDetail(aiDetails[i], 'ai'); };
-
-    var meta =
-      '<div class="ai-row-meta">' +
-        '<span>' + p.num + '</span>' +
-        '<span class="ai-row-meta-sep"></span>' +
-        '<span>' + p.client + '</span>' +
-        '<span class="ai-row-meta-sep"></span>' +
-        '<span>' + p.tool + '</span>' +
-      '</div>';
-
-    if (p.variant === 'a') {
-      /* Typographic + oversized image with parallax */
-      row.innerHTML =
-        '<div class="ai-row-text">' +
-          meta +
-          '<h3 class="ai-row-title">' + p.titleHtml + '</h3>' +
-          '<p class="ai-row-desc">' + p.desc + '</p>' +
-          '<span class="ai-row-cta">Open Case Study</span>' +
-        '</div>' +
-        '<div class="ai-row-media">' +
-          '<div class="ai-row-img" data-parallax="1" style="background-image:url(\'' + p.image + '\')"></div>' +
-        '</div>';
-    } else if (p.variant === 'b') {
-      /* Contact-sheet (3 frames) + text */
-      var sheetCells = (p.sheet || [p.image, p.image, p.image]).slice(0, 3).map(function(src) {
-        return '<div class="ai-row-sheet-cell" style="background-image:url(\'' + src + '\')"></div>';
-      }).join('');
-      row.innerHTML =
-        '<div class="ai-row-text">' +
-          meta +
-          '<h3 class="ai-row-title">' + p.titleHtml + '</h3>' +
-          '<p class="ai-row-desc">' + p.desc + '</p>' +
-          '<span class="ai-row-cta">Open Case Study</span>' +
-        '</div>' +
-        '<div class="ai-row-sheet">' + sheetCells + '</div>';
-    } else {
-      /* Typography-only statement row */
-      var stackHtml = (p.stack || []).map(function(s) {
-        return '<span class="ai-row-stack-item">' + s + '</span>';
-      }).join('');
-      row.innerHTML =
-        meta +
-        '<h3 class="ai-row-bigtitle">' + p.titleHtml + '</h3>' +
-        '<div class="ai-row-split">' +
-          '<p class="ai-row-desc">' + p.desc + '</p>' +
-          '<div class="ai-row-stack">' + stackHtml + '</div>' +
-        '</div>' +
-        '<span class="ai-row-cta" style="margin-top:28px">Open Case Study</span>';
-    }
-
-    rowsEl.appendChild(row);
-    if (window.__wireCursorHover) window.__wireCursorHover(row);
-  });
-
-  /* ── Scroll-driven: active sidebar + parallax on variant-a images ── */
-  const scrollWrap = document.getElementById('ai-scroll-wrapper');
-  const rows = rowsEl.querySelectorAll('.ai-row');
-  const idxItems = sidebar.querySelectorAll('.ai-idx-item');
-  const parallaxImgs = rowsEl.querySelectorAll('[data-parallax]');
-
-  let scrollTicking = false;
-  function onAIScroll() {
-    if (scrollTicking) return;
-    scrollTicking = true;
-    requestAnimationFrame(function() {
-      scrollTicking = false;
-      const vhHalf = window.innerHeight / 2;
-      /* Active sidebar: row whose center is closest to viewport center */
-      let bestI = 0;
-      let bestDist = Infinity;
-      rows.forEach(function(r, i) {
-        const rect = r.getBoundingClientRect();
-        const center = rect.top + rect.height / 2;
-        const dist = Math.abs(center - vhHalf);
-        if (dist < bestDist) { bestDist = dist; bestI = i; }
-      });
-      idxItems.forEach(function(el, i) {
-        el.classList.toggle('active', i === bestI);
-      });
-      /* Parallax: translate img by a fraction of its offset from viewport centre */
-      parallaxImgs.forEach(function(img) {
-        const parent = img.parentElement;
-        if (!parent) return;
-        const rect = parent.getBoundingClientRect();
-        const progress = (rect.top + rect.height / 2 - vhHalf) / window.innerHeight;
-        /* Clamp to avoid extreme shifts on fast scroll */
-        const clamped = Math.max(-0.6, Math.min(0.6, progress));
-        img.style.setProperty('--parallax', (clamped * -36) + 'px');
-      });
-    });
-  }
-
-  /* Observe activation of AI page: only start listening when active */
-  let aiScrollBound = false;
-  function bindAIScroll() {
-    if (aiScrollBound || !scrollWrap) return;
-    scrollWrap.addEventListener('scroll', onAIScroll, { passive: true });
-    window.addEventListener('resize', onAIScroll, { passive: true });
-    aiScrollBound = true;
-  }
-  function unbindAIScroll() {
-    if (!aiScrollBound || !scrollWrap) return;
-    scrollWrap.removeEventListener('scroll', onAIScroll);
-    window.removeEventListener('resize', onAIScroll);
-    aiScrollBound = false;
-  }
-
-  const aiPage = document.getElementById('ai-page');
-  const aiObs = new MutationObserver(function(muts) {
-    muts.forEach(function(m) {
-      if (m.target.id !== 'ai-page') return;
-      if (m.target.classList.contains('active')) {
-        bindAIScroll();
-        /* Reveal rows on enter + initial parallax/active pass */
-        requestAnimationFrame(function() {
-          rows.forEach(function(r, i) {
-            r.style.setProperty('--reveal-delay', (i * 0.08) + 's');
-            r.classList.add('in-view');
-          });
-          onAIScroll();
-        });
-      } else {
-        unbindAIScroll();
-      }
-    });
-  });
-  aiObs.observe(aiPage, { attributes: true, attributeFilter: ['class'] });
-})();
 
 // ---- VIDEO GRID ----
 const videoData = [
@@ -3627,7 +2412,6 @@ videoData.forEach((v, i) => {
 
 // ---- VFX CASES ----
 const VFX_PATH = 'media/VFX/';
-
 const vfxData = [
   {
     title: 'Cani Randagi',
@@ -3638,41 +2422,17 @@ const vfxData = [
     mainImg: VFX_PATH + 'VFX_1.png',
     subImg:  VFX_PATH + 'VFX_1-1.png',
     detail: {
-      archetype: 'music-video',
+      heroImg: VFX_PATH + 'VFX_1.png',
       category: 'VFX · Music Video',
       title: 'Cani Randagi',
-      client: 'Scaccia × Melons',
-      heroImg: VFX_PATH + 'VFX_1.png',
-      modules: [
-        { type: 'hero-typographic',
-          category: 'Music Video · 2025',
-          titleHtml: 'Cani <em>Randagi</em>',
-          feat: 'Scaccia <span class="pd-feat-sep">×</span> Melons',
-          year: '2025' },
-        { type: 'stats-strip', items: [
-          { value: 'Scaccia',          label: 'Artist' },
-          { value: 'Melons',           label: 'Featuring' },
-          { value: 'Music Video',      label: 'Format' },
-          { value: '2025',             label: 'Year' }
-        ]},
-        { type: 'lyrics',
-          text: 'Randagi <span class="pd-dim">senza collare</span>,<br>solo i muri <em>sanno parlare</em>.' },
-        { type: 'split-feature',
-          image: VFX_PATH + 'VFX_1-1.png',
-          heading: 'Street as a stage',
-          text: 'The suburban landscape had to feel alive — breathing with the track. Plates were shot handheld then stabilized in post; atmospheric haze, light wraps and reactive environment cues were layered shot-by-shot to make the city breathe with the music.' },
-        { type: 'director-note',
-          name: 'Director’s note',
-          text: 'The brief was "cinema without cinema money". Every effect had to disappear behind the emotion — wire removals, sky extensions, frame-by-frame relighting. No one was supposed to notice them. They don\'t.' },
-        { type: 'credits', items: [
-          { role: 'Direction',    name: 'Scaccia' },
-          { role: 'Post & VFX',   name: 'Francesco Aiena' },
-          { role: 'Colour Grade', name: 'Francesco Aiena' },
-          { role: 'Label',        name: 'Independent' }
-        ]},
-        { type: 'pull-quote',
-          text: 'When the effect vanishes, the emotion takes over.' }
-      ]
+      client: 'Scaccia & Melons',
+      img1: VFX_PATH + 'VFX_1-1.png',
+      heading1: 'Street as a Stage',
+      text1: 'The concept called for a video where the suburban landscape felt alive — breathing with the track. Plates were shot handheld and then stabilized in post, with VFX layers introducing atmospheric haze, light wraps, and reactive environment cues synced to the beat.',
+      img2: VFX_PATH + 'VFX_1.png',
+      heading2: 'Invisible Craft',
+      text2: 'Every composite was designed to go unnoticed — from wire removals to sky extensions, from subtle color isolations to the relighting of entire frames. The result is a video that feels cinematic without ever announcing its VFX.',
+      closing: '"When the effect vanishes, the emotion takes over."',
     }
   },
   {
@@ -3684,43 +2444,17 @@ const vfxData = [
     mainImg: VFX_PATH + 'VFX_2.png',
     subImg:  VFX_PATH + 'VFX_2-1.png',
     detail: {
-      archetype: 'music-video',
+      heroImg: VFX_PATH + 'VFX_2.png',
       category: 'VFX · Music Video',
       title: 'VUEM',
       client: 'Giovane Kid',
-      heroImg: VFX_PATH + 'VFX_2.png',
-      modules: [
-        { type: 'hero-fullbleed',
-          image: VFX_PATH + 'VFX_2.png',
-          category: 'VFX · Music Video',
-          title: 'VUEM',
-          client: 'Giovane Kid' },
-        { type: 'stats-strip', items: [
-          { value: 'Giovane Kid',      label: 'Artist' },
-          { value: 'Music Video',      label: 'Format' },
-          { value: 'Dream / Distort',  label: 'Mood' },
-          { value: '2025',             label: 'Year' }
-        ]},
-        { type: 'lyrics',
-          text: 'Non so <span class="pd-dim">cosa voglia dire</span>,<br>ma so esattamente <em>cosa significa</em>.' },
-        { type: 'full-bleed',
-          image: VFX_PATH + 'VFX_2-1.png' },
-        { type: 'split-feature', flip: true,
-          image: VFX_PATH + 'VFX_2.png',
-          heading: 'Texture over polish',
-          text: 'Instead of chasing cleanliness, the grade pushes grain, chromatic fringing and controlled chaos. Light leaks, dust and haze are combined in After Effects to build atmosphere shot-by-shot — the footage itself feels like it\'s dreaming.' },
-        { type: 'director-note',
-          name: 'Director’s note',
-          text: 'VUEM is built around the idea of a fluid, unstable reality — so the VFX approach leans into imperfection. Subtle warps, frame blending, hand-crafted glitches give every shot a tactile, almost analog feel.' },
-        { type: 'credits', items: [
-          { role: 'Artist',       name: 'Giovane Kid' },
-          { role: 'Post & VFX',   name: 'Francesco Aiena' },
-          { role: 'Colour Grade', name: 'Francesco Aiena' },
-          { role: 'Format',       name: 'Music Video' }
-        ]},
-        { type: 'pull-quote',
-          text: 'The most honest effect is the one that feels remembered, not rendered.' }
-      ]
+      img1: VFX_PATH + 'VFX_2.png',
+      heading1: 'A Dream in Motion',
+      text1: 'VUEM was built around the idea of a fluid, unstable reality — so the VFX approach leaned into imperfection. Subtle warps, frame blending and hand-crafted glitches give each shot a tactile, almost analog feel, as if the footage itself were dreaming.',
+      img2: VFX_PATH + 'VFX_2-1.png',
+      heading2: 'Texture over Polish',
+      text2: 'Instead of chasing cleanliness, the grade and compositing push grain, chromatic fringing and controlled chaos. Every asset is a layer — light leaks, dust, haze — combined in After Effects to build atmosphere shot by shot.',
+      closing: '"The most honest effect is the one that feels remembered, not rendered."',
     }
   },
   {
@@ -3732,49 +2466,19 @@ const vfxData = [
     mainImg: VFX_PATH + 'VFX_3.png',
     subImg:  VFX_PATH + 'VFX_3-1.png',
     detail: {
-      archetype: 'aftermovie',
+      heroImg: VFX_PATH + 'VFX_3.png',
       category: 'VFX · Aftermovie',
       title: 'Aftermovie',
-      client: 'DMT Collective',
-      heroImg: VFX_PATH + 'VFX_3.png',
-      modules: [
-        { type: 'hero-fullbleed',
-          image: VFX_PATH + 'VFX_3.png',
-          category: 'VFX · Aftermovie',
-          title: 'Aftermovie',
-          client: 'DMT Collective' },
-        { type: 'stats-strip', items: [
-          { value: '01',     label: 'Night' },
-          { value: '136',    label: 'BPM avg.' },
-          { value: '4h',     label: 'Setlist' },
-          { value: '2min',   label: 'Runtime' }
-        ]},
-        { type: 'pull-quote',
-          text: 'Editing and VFX as one language — every beat triggers a visual response.' },
-        { type: 'contact-sheet',
-          label: 'Selected frames',
-          frames: [
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png',
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png',
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png'
-          ]},
-        { type: 'director-note',
-          name: 'Director’s note',
-          text: 'Built from the ground up for vertical and horizontal delivery. Every hero shot was recomposed in post to hit the frame perfectly on every platform, without ever losing rhythm. The cut doesn\'t recap the night — it is the night, a second time.' },
-        { type: 'credits', items: [
-          { role: 'Client', name: 'DMT Collective' },
-          { role: 'Edit',   name: 'Francesco Aiena' },
-          { role: 'VFX',    name: 'Francesco Aiena' },
-          { role: 'Motion', name: 'Francesco Aiena' }
-        ]},
-        { type: 'pull-quote',
-          text: 'An aftermovie isn’t a recap — it’s a second night.' }
-      ]
+      client: 'DMT',
+      img1: VFX_PATH + 'VFX_3.png',
+      heading1: 'Editing is VFX',
+      text1: 'For the DMT aftermovie, cut and compositing were treated as a single language. Every beat of the track triggers a visual response — a flash, a camera-shake, a tracked graphic — designed to pull the viewer inside the room, not just show it to them.',
+      img2: VFX_PATH + 'VFX_3-1.png',
+      heading2: 'Designed for the Loop',
+      text2: 'Built from the ground up for vertical and horizontal delivery, the piece uses motion-tracked typography and reactive light overlays. Each hero shot was recomposed in post to hit the frame perfectly on every platform, without ever losing rhythm.',
+      closing: '"An aftermovie isn\'t a recap — it\'s a second night."',
     }
-  }
+  },
 ];
 
 const vc = document.getElementById('vfx-cases');
@@ -3782,11 +2486,13 @@ vfxData.forEach((v, i) => {
   const project = document.createElement('div');
   project.className = 'vfx-project' + (i % 2 === 1 ? ' reverse' : '');
   project.onclick = function(){ showProjectDetail(vfxData[i].detail, 'vfx'); };
+
   const hasSub = !!v.subImg;
   const indexStr = String(i + 1).padStart(2, '0');
   const creditHtml = v.feat
     ? v.artist + ' <span>&middot;</span> feat. ' + v.feat
     : v.artist;
+
   project.innerHTML =
     '<div class="vfx-visual' + (hasSub ? '' : ' single') + '">' +
       '<div class="vfx-frame vfx-frame-main" style="background-image:url(\'' + v.mainImg + '\')"></div>' +
@@ -3799,7 +2505,7 @@ vfxData.forEach((v, i) => {
       '<p class="vfx-desc">' + v.desc + '</p>' +
       '<span class="vfx-cta">View Case Study</span>' +
     '</div>';
-  if (window.__wireCursorHover) window.__wireCursorHover(project);
+
   vc.appendChild(project);
 });
 
