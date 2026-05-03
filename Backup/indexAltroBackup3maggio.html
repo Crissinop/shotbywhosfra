@@ -242,14 +242,9 @@
     z-index: 100;
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     padding: 28px 36px;
     pointer-events: none;
-  }
-  #header-left, #header-right {
-    display: flex;
-    align-items: center;
-    gap: 14px;
   }
   /* Name shown on home (left=FRANCESCO, right=AIENA) and inner pages (right only) */
   .header-firstname,
@@ -308,257 +303,6 @@
   #pupil-glow {
     transform-origin: center;
     transition: r 0.3s;
-  }
-
-  /* ─────────────────────────────────────────────
-     MOBILE HAMBURGER + DRAWER
-     Hidden on desktop. Activates ≤ 768px.
-     ───────────────────────────────────────────── */
-  .mobile-nav-toggle {
-    display: none;  /* hidden on desktop */
-    appearance: none;
-    width: 44px;
-    height: 44px;
-    background: transparent;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    padding: 0;
-    pointer-events: all;
-    transition: background 0.25s var(--transition), border-color 0.25s var(--transition);
-  }
-  .mobile-nav-toggle:hover { background: var(--surface-2); border-color: var(--accent); }
-  .mobile-nav-toggle-bars {
-    position: relative;
-    width: 18px;
-    height: 12px;
-    display: block;
-  }
-  .mobile-nav-toggle-bars span {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    height: 1.5px;
-    background: var(--text);
-    border-radius: 2px;
-    transition: transform 0.35s var(--transition), top 0.25s var(--transition), opacity 0.2s ease;
-  }
-  .mobile-nav-toggle-bars span:nth-child(1) { top: 0; }
-  .mobile-nav-toggle-bars span:nth-child(2) { top: 5px; }
-  .mobile-nav-toggle-bars span:nth-child(3) { top: 10px; }
-  /* Open state: morph to "X" */
-  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-bars span:nth-child(1) {
-    top: 5px; transform: rotate(45deg);
-  }
-  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-bars span:nth-child(2) {
-    opacity: 0;
-  }
-  .mobile-nav-toggle[aria-expanded="true"] .mobile-nav-toggle-bars span:nth-child(3) {
-    top: 5px; transform: rotate(-45deg);
-  }
-
-  /* Drawer overlay (fade) */
-  .mobile-nav-overlay {
-    position: fixed;
-    inset: 0;
-    background: color-mix(in srgb, var(--bg) 70%, transparent);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    z-index: 998;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.35s var(--transition);
-  }
-  .mobile-nav-overlay.is-open {
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  /* Drawer panel (slide from right) */
-  .mobile-nav {
-    position: fixed;
-    top: 0; right: 0; bottom: 0;
-    width: min(360px, 88vw);
-    z-index: 999;
-    background: var(--bg-elev);
-    border-left: 1px solid var(--line-strong);
-    box-shadow: -20px 0 60px rgba(0,0,0,0.4);
-    transform: translateX(100%);
-    transition: transform 0.45s var(--transition);
-    display: flex;
-    flex-direction: column;
-    padding: 88px 28px 28px;
-    overflow-y: auto;
-    overscroll-behavior: contain;
-  }
-  .mobile-nav.is-open { transform: translateX(0); }
-
-  .mobile-nav-inner {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    gap: 28px;
-  }
-  .mobile-nav-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .mobile-nav-link {
-    display: block;
-    width: 100%;
-    appearance: none;
-    background: transparent;
-    border: none;
-    text-align: left;
-    padding: 14px 4px;
-    font-family: var(--font-display);
-    font-size: clamp(32px, 8.5vw, 44px);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
-    cursor: pointer;
-    line-height: 1;
-    border-bottom: 1px solid var(--line);
-    position: relative;
-    transition: color 0.25s var(--transition), padding 0.3s var(--transition);
-  }
-  .mobile-nav-link::after {
-    content: '→';
-    position: absolute;
-    right: 8px;
-    top: 50%;
-    transform: translateY(-50%) translateX(-6px);
-    opacity: 0;
-    color: var(--accent);
-    font-size: 18px;
-    transition: transform 0.25s var(--transition), opacity 0.25s ease;
-  }
-  .mobile-nav-link:hover,
-  .mobile-nav-link:active,
-  .mobile-nav-link.is-current {
-    color: var(--accent);
-    padding-left: 8px;
-  }
-  .mobile-nav-link:hover::after,
-  .mobile-nav-link.is-current::after {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
-
-  .mobile-nav-divider {
-    height: 1px;
-    background: var(--line);
-    margin: 4px 0;
-  }
-
-  .mobile-nav-cta {
-    appearance: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
-    padding: 18px 22px;
-    background: var(--accent);
-    color: var(--on-accent);
-    border: none;
-    border-radius: 14px;
-    font-family: var(--font-display);
-    font-size: 14px;
-    font-weight: 800;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.2s, transform 0.15s var(--transition);
-  }
-  .mobile-nav-cta:hover { background: var(--accent-strong); }
-  .mobile-nav-cta:active { transform: scale(0.985); }
-  .mobile-nav-cta-arrow {
-    font-size: 18px;
-    transition: transform 0.3s var(--transition);
-  }
-  .mobile-nav-cta:hover .mobile-nav-cta-arrow { transform: translateX(4px); }
-
-  .mobile-nav-theme {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-top: 4px;
-  }
-  .mobile-nav-theme-label {
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--text-mute);
-  }
-  .mobile-nav-theme-buttons {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 4px;
-    border-radius: 999px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    align-self: flex-start;
-  }
-  .mobile-nav-theme-buttons button {
-    appearance: none;
-    background: transparent;
-    border: none;
-    color: var(--text-mute);
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s, background 0.25s var(--transition);
-  }
-  .mobile-nav-theme-buttons button:hover { color: var(--text); }
-  .mobile-nav-theme-buttons button[aria-pressed="true"] {
-    background: var(--accent);
-    color: var(--on-accent);
-  }
-
-  .mobile-nav-foot {
-    margin-top: auto;
-    padding-top: 16px;
-    border-top: 1px solid var(--line);
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--text-mute);
-  }
-
-  /* Body scroll lock when drawer is open */
-  body.mobile-nav-locked { overflow: hidden; touch-action: none; }
-
-  /* Show hamburger ONLY on mobile.
-     Hide drawer entirely on desktop (defensive — even if a state lingers). */
-  @media (max-width: 768px) {
-    .mobile-nav-toggle { display: inline-flex; }
-  }
-  @media (min-width: 769px) {
-    .mobile-nav,
-    .mobile-nav-overlay { display: none !important; }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .mobile-nav { transition: none !important; }
-    .mobile-nav-overlay { transition: opacity 0.01ms !important; }
   }
 
   /* NAVIGATION - bottom left */
@@ -679,9 +423,7 @@
   /* VIDEO PAGE GRID */
   .video-grid {
     display: grid;
-    /* min(100%, 480px) lets grid shrink below 480 on narrow viewports
-       without forcing horizontal overflow */
-    grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(480px, 1fr));
     gap: 16px;
     margin-bottom: 60px;
   }
@@ -748,36 +490,24 @@
   }
   .video-label {
     position: absolute;
-    bottom: 36px; left: 16px; right: 16px;
+    bottom: 32px; left: 16px; right: 16px;
     font-size: 16px;
     font-weight: 800;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: #FFFFFF;
     z-index: 1;
-    line-height: 1.18;
-    /* Allow up to 2 lines, ellipsis after */
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    /* Long uppercase strings need word-level break opportunities on narrow viewports */
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    line-height: 1.2;
   }
   .video-client {
     position: absolute;
-    bottom: 14px; left: 16px; right: 16px;
+    bottom: 14px; left: 16px;
     font-size: 12px;
     color: #FFFFFF;
     opacity: 0.65;
     letter-spacing: 0.06em;
     z-index: 1;
     font-style: italic;
-    /* Single-line, ellipsis */
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
 
   /* ============================================
@@ -876,9 +606,7 @@
   .ai-row-meta {
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
     gap: 14px;
-    row-gap: 8px;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 0.22em;
@@ -1689,15 +1417,9 @@
     }
     .footer-socials {
       flex-direction: row;
-      flex-wrap: wrap;
       align-items: flex-start;
-      gap: 12px 18px;
-      width: 100%;
+      gap: 20px;
     }
-    .footer-social { font-size: 11px; letter-spacing: 0.14em; }
-    .footer-bottom { gap: 8px; }
-    .footer-copy { font-size: 9px; letter-spacing: 0.12em; }
-    .footer-tagline { font-size: 10px; }
   }
 
   /* BLINK SYSTEM UPDATED - mask based (no distortion) */
@@ -1819,17 +1541,6 @@
       margin-bottom: 56px;
     }
     .vfx-project::before { display: none; }
-    /* Video cards mobile: smaller, tighter label, more bottom space for client */
-    .video-label {
-      font-size: 14px;
-      bottom: 38px;
-      letter-spacing: 0.02em;
-    }
-    .video-client { font-size: 11px; bottom: 14px; }
-    .video-meta { top: 12px; left: 12px; right: 12px; }
-    .video-cat, .video-dur { font-size: 10px; padding: 3px 8px; }
-    /* AI meta-row: allow wrapping to second line on small screens */
-    .ai-row-meta { flex-wrap: wrap; row-gap: 6px; }
     #vfx-cases { gap: 88px; }
     .vfx-project,
     .vfx-project.reverse {
@@ -1903,57 +1614,40 @@
   .project-detail-hero-overlay {
     position: absolute;
     inset: 0;
-    background:
-      linear-gradient(to top,
-        color-mix(in srgb, var(--bg) 92%, transparent) 0%,
-        color-mix(in srgb, var(--bg) 50%, transparent) 28%,
-        transparent 60%);
+    background: linear-gradient(to top, rgba(10,10,10,0.85) 0%, rgba(10,10,10,0.2) 40%, transparent 70%);
     z-index: 1;
   }
   .project-detail-hero-content {
     position: relative;
     z-index: 2;
-    padding: clamp(40px, 6vw, 80px) clamp(24px, 5vw, 72px);
-    /* Allow the title to breathe full-width on big viewports */
-    max-width: min(1400px, 88vw);
-    width: 100%;
+    padding: 60px 48px;
+    max-width: 700px;
   }
   .project-detail-cat {
     display: inline-block;
     font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.16em;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     background: var(--accent);
     color: var(--on-accent);
-    padding: 5px 14px;
+    padding: 4px 12px;
     border-radius: 4px;
-    margin-bottom: 22px;
+    margin-bottom: 16px;
   }
   .project-detail-title {
-    font-family: var(--font-display);
-    font-size: clamp(48px, 9vw, 168px);
+    font-size: clamp(36px, 6vw, 72px);
     font-weight: 800;
-    letter-spacing: -0.045em;
-    line-height: 0.9;
-    margin: 0 0 18px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 12px;
     color: var(--text);
-    /* Long titles can extend to second line gracefully */
-    max-width: 14ch;
-  }
-  .project-detail-title em {
-    font-family: var(--font-serif);
-    font-style: italic;
-    font-weight: 400;
-    letter-spacing: -0.02em;
-    color: var(--accent);
   }
   .project-detail-client {
     font-family: var(--font-serif);
-    font-size: clamp(15px, 1.6vw, 22px);
+    font-size: clamp(14px, 2vw, 20px);
     font-style: italic;
-    opacity: 0.7;
-    color: var(--text);
+    opacity: 0.6;
   }
   .project-detail-body {
     padding: 0 48px;
@@ -2413,11 +2107,8 @@
     background-position: center;
   }
   @media (max-width: 768px) {
-    .project-detail-hero { height: 56vh; min-height: 360px; }
-    .project-detail-hero-content { padding: 28px 20px; max-width: 100%; }
-    .project-detail-title { font-size: clamp(40px, 11vw, 72px); max-width: 18ch; }
-    .project-detail-cat { margin-bottom: 16px; }
-    .project-detail-client { font-size: 14px; }
+    .project-detail-hero { height: 50vh; min-height: 300px; }
+    .project-detail-hero-content { padding: 32px 20px; }
     .project-detail-body { padding: 0 20px; }
     .project-detail-row { grid-template-columns: 1fr; gap: 28px; }
     .project-detail-row.reverse .project-detail-img { order: 0; }
@@ -2477,24 +2168,15 @@
     color: var(--on-accent);
   }
   @media (max-width: 768px) {
-    /* Mobile: theme switcher lives inside the hamburger drawer.
-       Hide the fixed pill to avoid covering footer / clutter. */
-    #theme-switcher { display: none !important; }
-
-    /* Back button as a pill, more visibly tappable on mobile */
-    .header-back {
-      padding: 8px 14px;
-      border: 1px solid var(--line-strong);
-      border-radius: 999px;
-      background: color-mix(in srgb, var(--bg-elev) 90%, transparent);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      opacity: 1;
-      gap: 6px;
+    .theme-switcher.home-pos,
+    .theme-switcher.inner-pos {
+      bottom: 14px;
+      top: auto;
+      left: 50%;
+      right: auto;
+      transform: translateX(-50%);
     }
-    .header-back:active { transform: scale(0.96); }
-    /* Header gets a subtle gradient fade on mobile so floating UI reads well */
-    .header { padding: 18px 16px; }
+    .theme-switcher button { padding: 7px 11px; font-size: 9px; letter-spacing: 0.14em; }
   }
   /* When custom cursor is on, remove default cursor */
   .theme-switcher button { cursor: none; }
@@ -2525,48 +2207,12 @@
   <div id="header-left">
     <!-- on home: FRANCESCO  |  on inner pages: ← Back -->
     <span id="header-firstname" class="header-firstname" role="button" tabindex="0" onclick="showPage('home')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();showPage('home');}" aria-label="Go to home" style="cursor:none">FRANCESCO</span>
-    <button id="header-back" class="header-back" onclick="showPage('home')" aria-label="Back to home" style="display:none"><span aria-hidden="true">←</span> Back</button>
+    <button id="header-back" class="header-back" onclick="showPage('home')" aria-label="Back to home" style="display:none">← Back</button>
   </div>
   <div id="header-right">
     <span id="header-lastname" class="header-lastname">AIENA</span>
-    <!-- Mobile-only hamburger; hidden on desktop via CSS -->
-    <button id="mobile-nav-toggle" class="mobile-nav-toggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="mobile-nav">
-      <span class="mobile-nav-toggle-bars" aria-hidden="true">
-        <span></span><span></span><span></span>
-      </span>
-    </button>
   </div>
 </div>
-
-<!-- ============= MOBILE NAV DRAWER ============= -->
-<div id="mobile-nav-overlay" class="mobile-nav-overlay" hidden></div>
-<nav id="mobile-nav" class="mobile-nav" aria-label="Main navigation" aria-hidden="true" hidden>
-  <div class="mobile-nav-inner">
-    <ul class="mobile-nav-list">
-      <li><button type="button" class="mobile-nav-link" data-go="video">Video</button></li>
-      <li><button type="button" class="mobile-nav-link" data-go="ai">AI</button></li>
-      <li><button type="button" class="mobile-nav-link" data-go="vfx">VFX</button></li>
-      <li><button type="button" class="mobile-nav-link" data-go="about">About</button></li>
-    </ul>
-    <div class="mobile-nav-divider" aria-hidden="true"></div>
-    <button type="button" class="mobile-nav-cta" id="mobile-nav-contact">
-      <span>Get in touch</span>
-      <span class="mobile-nav-cta-arrow" aria-hidden="true">→</span>
-    </button>
-    <div class="mobile-nav-theme" role="group" aria-label="Colour theme">
-      <span class="mobile-nav-theme-label">Theme</span>
-      <div class="mobile-nav-theme-buttons">
-        <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
-        <button type="button" data-theme-set="auto"  aria-pressed="true">Auto</button>
-        <button type="button" data-theme-set="dark"  aria-pressed="false">Dark</button>
-      </div>
-    </div>
-    <div class="mobile-nav-foot">
-      <span>shotbywhosfra</span>
-      <span>© 2026</span>
-    </div>
-  </div>
-</nav>
 
 <!-- =================== HOME =================== -->
 <div id="home" class="page active">
@@ -4373,121 +4019,12 @@ document.addEventListener('keydown', e => {
 })();
 
 // ---- THEME SWITCHER ----
-// ---- MOBILE NAV DRAWER ----
-(function mobileNavModule() {
-  var toggle  = document.getElementById('mobile-nav-toggle');
-  var nav     = document.getElementById('mobile-nav');
-  var overlay = document.getElementById('mobile-nav-overlay');
-  if (!toggle || !nav || !overlay) return;
-
-  var openerEl = null; // element to restore focus to on close
-
-  function setOpen(open) {
-    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-    toggle.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
-    nav.setAttribute('aria-hidden', open ? 'false' : 'true');
-    if (open) {
-      nav.removeAttribute('hidden');
-      overlay.removeAttribute('hidden');
-      // Force reflow so transition runs
-      void nav.offsetWidth;
-      nav.classList.add('is-open');
-      overlay.classList.add('is-open');
-      document.body.classList.add('mobile-nav-locked');
-      // Focus first focusable element in drawer
-      var first = nav.querySelector('button, a');
-      if (first) setTimeout(function(){ first.focus(); }, 80);
-    } else {
-      nav.classList.remove('is-open');
-      overlay.classList.remove('is-open');
-      document.body.classList.remove('mobile-nav-locked');
-      // After transition, hide for AT
-      setTimeout(function() {
-        if (!nav.classList.contains('is-open')) {
-          nav.setAttribute('hidden', '');
-          overlay.setAttribute('hidden', '');
-        }
-      }, 460);
-      if (openerEl && typeof openerEl.focus === 'function') {
-        openerEl.focus();
-      }
-      openerEl = null;
-    }
-  }
-
-  toggle.addEventListener('click', function() {
-    var open = toggle.getAttribute('aria-expanded') === 'true';
-    if (!open) openerEl = toggle;
-    setOpen(!open);
-  });
-
-  overlay.addEventListener('click', function() { setOpen(false); });
-
-  // ESC closes
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && nav.classList.contains('is-open')) {
-      setOpen(false);
-    }
-  });
-
-  // Focus trap
-  nav.addEventListener('keydown', function(e) {
-    if (e.key !== 'Tab' || !nav.classList.contains('is-open')) return;
-    var focusables = nav.querySelectorAll('button, a, [tabindex]:not([tabindex="-1"])');
-    if (!focusables.length) return;
-    var first = focusables[0], last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
-      e.preventDefault(); last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
-      e.preventDefault(); first.focus();
-    }
-  });
-
-  // Wire navigation links
-  nav.querySelectorAll('.mobile-nav-link[data-go]').forEach(function(btn) {
-    btn.addEventListener('click', function() {
-      var target = btn.getAttribute('data-go');
-      setOpen(false);
-      if (typeof showPage === 'function') showPage(target);
-    });
-  });
-
-  // Wire CTA → open contact modal
-  var cta = document.getElementById('mobile-nav-contact');
-  if (cta) {
-    cta.addEventListener('click', function() {
-      setOpen(false);
-      if (typeof openContact === 'function') openContact();
-    });
-  }
-
-  // Auto-close drawer when viewport returns to desktop (orientation/resize)
-  var mql = window.matchMedia('(min-width: 769px)');
-  if (mql.addEventListener) {
-    mql.addEventListener('change', function(e) {
-      if (e.matches && nav.classList.contains('is-open')) setOpen(false);
-    });
-  }
-
-  // Highlight current page entry when drawer opens
-  function syncCurrent() {
-    var current = (typeof currentPage !== 'undefined') ? currentPage : null;
-    nav.querySelectorAll('.mobile-nav-link[data-go]').forEach(function(b) {
-      b.classList.toggle('is-current', b.getAttribute('data-go') === current);
-    });
-  }
-  toggle.addEventListener('click', syncCurrent);
-})();
-
-
 (function themeModule() {
   var STORAGE_KEY = 'sbwf_theme';
   var root = document.documentElement;
   var systemMQ = window.matchMedia('(prefers-color-scheme: light)');
   var switcher = document.getElementById('theme-switcher');
-  /* All theme buttons across UIs (desktop fixed switcher + mobile drawer buttons) */
-  var allButtons = document.querySelectorAll('button[data-theme-set]');
-  if (!allButtons.length) return;
+  if (!switcher) return;
 
   function currentMode() {
     return localStorage.getItem(STORAGE_KEY) || 'auto';
@@ -4499,8 +4036,10 @@ document.addEventListener('keydown', e => {
   }
 
   function syncThemeColorMeta(theme) {
+    // Update <meta name="theme-color"> for browser chrome
     var dark = '#0E0F13', light = '#F4F2EC';
-    document.querySelectorAll('meta[name="theme-color"]').forEach(function(m) {
+    var metas = document.querySelectorAll('meta[name="theme-color"]');
+    metas.forEach(function(m) {
       var media = m.getAttribute('media') || '';
       if (!media) m.setAttribute('content', theme === 'light' ? light : dark);
     });
@@ -4510,15 +4049,15 @@ document.addEventListener('keydown', e => {
     var theme = resolveTheme(mode);
     root.setAttribute('data-theme', theme);
     root.setAttribute('data-theme-mode', mode);
-    /* Reflect aria-pressed across ALL theme buttons (desktop + mobile drawer) */
-    document.querySelectorAll('button[data-theme-set]').forEach(function(btn) {
+    // Reflect aria-pressed on buttons
+    switcher.querySelectorAll('button[data-theme-set]').forEach(function(btn) {
       btn.setAttribute('aria-pressed', btn.getAttribute('data-theme-set') === mode ? 'true' : 'false');
     });
     syncThemeColorMeta(theme);
   }
 
-  // Wire all theme buttons (both surfaces share the same handler)
-  allButtons.forEach(function(btn) {
+  // Wire buttons
+  switcher.querySelectorAll('button[data-theme-set]').forEach(function(btn) {
     btn.addEventListener('click', function() {
       var mode = btn.getAttribute('data-theme-set');
       try { localStorage.setItem(STORAGE_KEY, mode); } catch(e) {}
