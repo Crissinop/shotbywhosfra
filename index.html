@@ -21,15 +21,15 @@
 <script>
 (function(){
   try {
-    var stored = localStorage.getItem('sbwf_theme'); // 'light' | 'dark' | 'auto' | null
-    var pref = (stored === 'light' || stored === 'dark')
+    var stored = localStorage.getItem('sbwf_theme');
+    /* Legacy 'auto' value migration: treat as no explicit choice */
+    if (stored !== 'light' && stored !== 'dark') stored = null;
+    var theme = stored
       ? stored
       : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    document.documentElement.setAttribute('data-theme', pref);
-    document.documentElement.setAttribute('data-theme-mode', stored || 'auto');
+    document.documentElement.setAttribute('data-theme', theme);
   } catch(e) {
     document.documentElement.setAttribute('data-theme', 'dark');
-    document.documentElement.setAttribute('data-theme-mode', 'auto');
   }
 })();
 </script>
@@ -303,12 +303,37 @@
   #eye-container:hover #eye-svg {
     filter: drop-shadow(0 0 90px var(--accent-soft));
   }
-
   /* Eye pupil glow */
   #pupil-glow {
     transform-origin: center;
     transition: r 0.3s;
   }
+  /* Crisp blink animation */
+  #eye-svg {
+    shape-rendering: geometricPrecision;
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
+
+  /* ROLLBACK: Eye-video CSS kept commented for re-enabling later.
+     Uncomment + comment-out the SVG rules above to switch back to the MP4 version.
+  #eye-container {
+    aspect-ratio: 2/1;
+    overflow: hidden;
+  }
+  #eye-video {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+    filter: drop-shadow(0 0 60px var(--accent-faint));
+    transition: filter 0.4s var(--transition), transform 0.4s var(--transition);
+  }
+  #eye-container:hover #eye-video {
+    filter: drop-shadow(0 0 90px var(--accent-soft));
+    transform: scale(1.02);
+  }
+  */
 
   /* ─────────────────────────────────────────────
      MOBILE HAMBURGER + DRAWER
@@ -418,9 +443,9 @@
     text-align: left;
     padding: 14px 4px;
     font-family: var(--font-display);
-    font-size: clamp(32px, 8.5vw, 44px);
+    font-size: clamp(22px, 6vw, 30px);
     font-weight: 800;
-    letter-spacing: -0.02em;
+    letter-spacing: -0.015em;
     color: var(--text);
     cursor: pointer;
     line-height: 1;
@@ -436,7 +461,7 @@
     transform: translateY(-50%) translateX(-6px);
     opacity: 0;
     color: var(--accent);
-    font-size: 18px;
+    font-size: 16px;
     transition: transform 0.25s var(--transition), opacity 0.25s ease;
   }
   .mobile-nav-link:hover,
@@ -463,15 +488,15 @@
     align-items: center;
     justify-content: space-between;
     gap: 16px;
-    padding: 18px 22px;
+    padding: 14px 18px;
     background: var(--accent);
     color: var(--on-accent);
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     font-family: var(--font-display);
-    font-size: 14px;
+    font-size: 12px;
     font-weight: 800;
-    letter-spacing: 0.18em;
+    letter-spacing: 0.16em;
     text-transform: uppercase;
     cursor: pointer;
     transition: background 0.2s, transform 0.15s var(--transition);
@@ -479,17 +504,11 @@
   .mobile-nav-cta:hover { background: var(--accent-strong); }
   .mobile-nav-cta:active { transform: scale(0.985); }
   .mobile-nav-cta-arrow {
-    font-size: 18px;
+    font-size: 16px;
     transition: transform 0.3s var(--transition);
   }
   .mobile-nav-cta:hover .mobile-nav-cta-arrow { transform: translateX(4px); }
 
-  .mobile-nav-theme {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    padding-top: 4px;
-  }
   .mobile-nav-theme-label {
     font-family: var(--font-display);
     font-size: 10px;
@@ -497,37 +516,6 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--text-mute);
-  }
-  .mobile-nav-theme-buttons {
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 4px;
-    border-radius: 999px;
-    background: var(--surface);
-    border: 1px solid var(--line);
-    align-self: flex-start;
-  }
-  .mobile-nav-theme-buttons button {
-    appearance: none;
-    background: transparent;
-    border: none;
-    color: var(--text-mute);
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    border-radius: 999px;
-    cursor: pointer;
-    line-height: 1;
-    transition: color 0.2s, background 0.25s var(--transition);
-  }
-  .mobile-nav-theme-buttons button:hover { color: var(--text); }
-  .mobile-nav-theme-buttons button[aria-pressed="true"] {
-    background: var(--accent);
-    color: var(--on-accent);
   }
 
   .mobile-nav-foot {
@@ -547,10 +535,12 @@
   /* Body scroll lock when drawer is open */
   body.mobile-nav-locked { overflow: hidden; touch-action: none; }
 
-  /* Show hamburger ONLY on mobile.
-     Hide drawer entirely on desktop (defensive — even if a state lingers). */
+  /* Show hamburger ONLY on mobile, AND only on inner pages.
+     The hamburger is hidden on home where the user already sees the
+     full nav-list naturally (VIDEO / AI / VFX / ABOUT). */
   @media (max-width: 768px) {
     .mobile-nav-toggle { display: inline-flex; }
+    body[data-page="home"] .mobile-nav-toggle { display: none; }
   }
   @media (min-width: 769px) {
     .mobile-nav,
@@ -1678,6 +1668,16 @@
     opacity: 0.35;
     white-space: nowrap;
   }
+  .footer-vat {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--text);
+    opacity: 0.35;
+    white-space: nowrap;
+  }
 
   /* Mobile footer */
   @media (max-width: 768px) {
@@ -1695,17 +1695,11 @@
       width: 100%;
     }
     .footer-social { font-size: 11px; letter-spacing: 0.14em; }
-    .footer-bottom { gap: 8px; }
+    .footer-bottom { gap: 8px; flex-wrap: wrap; }
     .footer-copy { font-size: 9px; letter-spacing: 0.12em; }
     .footer-tagline { font-size: 10px; }
+    .footer-vat { font-size: 9px; letter-spacing: 0.12em; }
   }
-
-  /* BLINK SYSTEM UPDATED - mask based (no distortion) */
-#eye-svg{
-  shape-rendering: geometricPrecision;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-}
 
   /* SCAN LINE subtle bg effect */
   #home::after {
@@ -1721,29 +1715,6 @@
     );
     pointer-events: none;
   }
-
-  /* GREETING BADGE */
-  #greeting {
-    position: fixed;
-    top: 28px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 100;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    background: rgba(0,0,0,0.2);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--line-strong);
-    padding: 8px 20px;
-    border-radius: 999px;
-    color: var(--text);
-    opacity: 0;
-    transition: opacity 0.6s 1.2s;
-    pointer-events: none;
-  }
-  #greeting.visible { opacity: 1; }
 
   /* ENTRY ANIMATION */
   .fade-up {
@@ -1938,8 +1909,26 @@
     line-height: 0.9;
     margin: 0 0 18px;
     color: var(--text);
-    /* Long titles can extend to second line gracefully */
     max-width: 14ch;
+  }
+  /* Adaptive sizes — applied by JS based on title character count.
+     Keeps long titles like "Anche Gli Eroi Muoiono" from invading the hero. */
+  .project-detail-title.size-md {
+    font-size: clamp(42px, 6.5vw, 124px);
+    max-width: 18ch;
+    line-height: 0.95;
+  }
+  .project-detail-title.size-sm {
+    font-size: clamp(36px, 5vw, 92px);
+    max-width: 22ch;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .project-detail-title.size-xs {
+    font-size: clamp(32px, 3.8vw, 68px);
+    max-width: 28ch;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
   }
   .project-detail-title em {
     font-family: var(--font-serif);
@@ -2011,6 +2000,147 @@
     opacity: 0.8;
     max-width: 700px;
     margin: 0 auto;
+  }
+
+  /* ─────────────────────────────────────────────
+     DIALOGUE SPREAD — editorial alt-pattern for legacy (video) detail.
+     Used to break the "left-image / right-text" rhythm with an
+     image-centric layout where the heading sits ABOVE the cinematic frame
+     and the body text flows in two columns BELOW.
+     ───────────────────────────────────────────── */
+  .pd-dialogue {
+    position: relative;
+    padding: clamp(72px, 10vw, 140px) 0 clamp(72px, 10vw, 140px);
+    border-bottom: 1px solid var(--line);
+  }
+  .pd-dialogue-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 4vw, 60px);
+  }
+  .pd-dialogue-heading {
+    font-family: var(--font-display);
+    font-size: clamp(34px, 5.4vw, 72px);
+    font-weight: 800;
+    letter-spacing: -0.035em;
+    line-height: 0.96;
+    color: var(--text);
+    margin: 0 0 clamp(28px, 4vw, 48px);
+    max-width: 18ch;
+  }
+  .pd-dialogue-heading em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+
+  /* Cinematic frame — the only image in this section, framed and breathing */
+  .pd-dialogue-frame {
+    width: 100%;
+    aspect-ratio: 16/9;
+    overflow: hidden;
+    border-radius: 4px;
+    position: relative;
+    /* Reveal: clip-path sweeps from one side based on row parity */
+    clip-path: inset(0 100% 0 0);
+    transition: clip-path 1.4s var(--transition) calc(var(--pd-delay, 0s) + 0.15s);
+  }
+  .pd-dialogue:nth-of-type(even) .pd-dialogue-frame {
+    clip-path: inset(0 0 0 100%);
+  }
+  .pd-dialogue.pd-visible .pd-dialogue-frame { clip-path: inset(0 0 0 0); }
+  .pd-dialogue-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transform: scale(1.06) translateY(var(--pd-parallax, 0px));
+    filter: saturate(0.88) contrast(1.04);
+    transition:
+      filter 1.6s var(--transition) calc(var(--pd-delay, 0s) + 0.5s),
+      transform 1.4s var(--transition);
+    will-change: transform, filter;
+  }
+  .pd-dialogue.pd-visible .pd-dialogue-img {
+    filter: saturate(1) contrast(1.04);
+  }
+  .pd-dialogue:hover .pd-dialogue-img {
+    filter: saturate(1.08) contrast(1.06);
+    transform: scale(1.08) translateY(var(--pd-parallax, 0px));
+  }
+  /* Subtle vignette + corner mark — same accent threading as AI rows */
+  .pd-dialogue-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 50%, transparent 55%, rgba(0,0,0,0.18) 100%),
+      linear-gradient(180deg, transparent 65%, rgba(0,0,0,0.22));
+    pointer-events: none;
+    opacity: 0.85;
+    transition: opacity 0.6s var(--transition);
+  }
+  .pd-dialogue:hover .pd-dialogue-frame::before { opacity: 0.55; }
+  .pd-dialogue-frame::after {
+    content: '';
+    position: absolute;
+    bottom: 14px; left: 14px;
+    width: 28px; height: 1px;
+    background: var(--accent);
+    z-index: 2;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.6s var(--transition) calc(var(--pd-delay, 0s) + 0.9s);
+  }
+  .pd-dialogue.pd-visible .pd-dialogue-frame::after { transform: scaleX(1); }
+
+  /* Body text in two editorial columns under the frame */
+  .pd-dialogue-body {
+    margin-top: clamp(36px, 5vw, 56px);
+    column-count: 2;
+    column-gap: clamp(36px, 4vw, 64px);
+    column-rule: 1px solid var(--line);
+  }
+  .pd-dialogue-body p {
+    font-family: var(--font-serif);
+    font-size: clamp(15px, 1.2vw, 17px);
+    line-height: 1.75;
+    color: var(--text-dim);
+    margin: 0;
+    /* Avoid orphan/widow at column break */
+    break-inside: avoid;
+  }
+  .pd-dialogue-body p + p { margin-top: 1em; }
+  .pd-dialogue-body p::first-letter {
+    font-family: var(--font-display);
+    font-size: 1.15em;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  /* Reduced-motion: kill clip-path sweep */
+  @media (prefers-reduced-motion: reduce) {
+    .pd-dialogue-frame,
+    .pd-dialogue:nth-of-type(even) .pd-dialogue-frame { clip-path: none !important; }
+    .pd-dialogue-img { filter: saturate(1) !important; transform: none !important; }
+  }
+
+  /* Tablet: tighten body columns */
+  @media (max-width: 1100px) and (min-width: 769px) {
+    .pd-dialogue-body { column-count: 2; }
+  }
+
+  /* Mobile: single column, smaller frame ratio */
+  @media (max-width: 768px) {
+    .pd-dialogue { padding: 56px 0; }
+    .pd-dialogue-frame { aspect-ratio: 4/3; }
+    .pd-dialogue-heading { font-size: clamp(30px, 9vw, 44px); max-width: 100%; }
+    .pd-dialogue-body { column-count: 1; column-rule: none; }
   }
 
   /* ============================================
@@ -2427,58 +2557,92 @@
   }
 
   /* ─────────────────────────────────────────────
-     THEME SWITCHER — segmented Auto / Light / Dark
-     Fixed bottom-center on home, top-right on inner pages.
+     THEME TOGGLE — single icon button (sun ↔ moon)
+     Desktop: fixed pill (home: bottom-center, inner pages: top-right)
+     Mobile : lives inside the hamburger drawer (drawer variant)
      ───────────────────────────────────────────── */
-  .theme-switcher {
-    position: fixed;
-    z-index: 200;
-    display: inline-flex;
-    align-items: center;
-    gap: 2px;
-    padding: 4px;
+  .theme-toggle {
+    appearance: none;
+    width: 40px;
+    height: 40px;
+    padding: 0;
     border-radius: 999px;
     background: color-mix(in srgb, var(--bg-elev) 92%, transparent);
     border: 1px solid var(--line-strong);
+    color: var(--text);
+    cursor: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     box-shadow: 0 8px 24px rgba(0,0,0,0.18);
-    pointer-events: all;
+    transition:
+      background 0.25s var(--transition),
+      border-color 0.25s var(--transition),
+      color 0.25s var(--transition),
+      transform 0.25s var(--transition);
   }
-  /* Position: home = bottom-center, inner pages = top-right (next to header) */
-  .theme-switcher.home-pos {
+  .theme-toggle:hover {
+    background: var(--surface);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .theme-toggle:active { transform: scale(0.94); }
+  .theme-toggle:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 4px;
+  }
+
+  /* Fixed positions for desktop */
+  #theme-switcher { position: fixed; z-index: 200; pointer-events: all; }
+  #theme-switcher.home-pos {
     bottom: 36px;
     left: 50%;
     transform: translateX(-50%);
   }
-  .theme-switcher.inner-pos {
+  #theme-switcher.home-pos:active {
+    transform: translateX(-50%) scale(0.94);
+  }
+  #theme-switcher.inner-pos {
     top: 22px;
     right: 36px;
   }
-  .theme-switcher button {
-    appearance: none;
-    background: transparent;
-    border: none;
-    color: var(--text-mute);
-    font-family: var(--font-display);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    padding: 8px 14px;
-    border-radius: 999px;
-    cursor: none;
-    line-height: 1;
-    transition: color 0.2s, background 0.25s var(--transition);
+
+  /* Drawer variant: bigger circular button, no fixed positioning */
+  .theme-toggle-drawer {
+    width: 44px;
+    height: 44px;
+    background: var(--surface);
+    box-shadow: none;
   }
-  .theme-switcher button:hover { color: var(--text); }
-  .theme-switcher button[aria-pressed="true"] {
-    background: var(--accent);
-    color: var(--on-accent);
+
+  /* Icons inside the toggle */
+  .theme-icon {
+    width: 18px;
+    height: 18px;
+    display: block;
+    color: inherit;
+    transition: transform 0.4s var(--transition), opacity 0.25s ease;
   }
+  /* Show ONE icon depending on current theme — the icon represents the *action*
+     (clicking sun → light, clicking moon → dark). So on dark theme show sun. */
+  [data-theme="dark"] .theme-icon-moon { display: none; }
+  [data-theme="light"] .theme-icon-sun { display: none; }
+  /* Subtle entry animation when icon swaps (on theme change) */
+  .theme-toggle:hover .theme-icon { transform: rotate(-12deg); }
+
+  /* Mobile drawer label + toggle: aligned row */
+  .mobile-nav-theme {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 4px;
+  }
+
+  /* Hide fixed desktop pill on mobile (lives in drawer) */
   @media (max-width: 768px) {
-    /* Mobile: theme switcher lives inside the hamburger drawer.
-       Hide the fixed pill to avoid covering footer / clutter. */
     #theme-switcher { display: none !important; }
 
     /* Back button as a pill, more visibly tappable on mobile */
@@ -2496,10 +2660,9 @@
     /* Header gets a subtle gradient fade on mobile so floating UI reads well */
     .header { padding: 18px 16px; }
   }
-  /* When custom cursor is on, remove default cursor */
-  .theme-switcher button { cursor: none; }
+  /* On touch devices, allow native cursor on the toggle */
   @media (hover: none), (pointer: coarse) {
-    .theme-switcher button { cursor: pointer; }
+    .theme-toggle { cursor: pointer; }
   }
 
   /* Scrollbar */
@@ -2513,9 +2676,6 @@
 <!-- CUSTOM CURSOR -->
 <div id="cursor-ring" aria-hidden="true"></div>
 <div id="cursor-dot" aria-hidden="true"></div>
-
-<!-- GREETING BADGE -->
-<div id="greeting" aria-live="polite"></div>
 
 <!-- PARTICLE CANVAS -->
 <canvas id="particles" aria-hidden="true"></canvas>
@@ -2553,13 +2713,26 @@
       <span>Get in touch</span>
       <span class="mobile-nav-cta-arrow" aria-hidden="true">→</span>
     </button>
-    <div class="mobile-nav-theme" role="group" aria-label="Colour theme">
+    <div class="mobile-nav-theme">
       <span class="mobile-nav-theme-label">Theme</span>
-      <div class="mobile-nav-theme-buttons">
-        <button type="button" data-theme-set="light" aria-pressed="false">Light</button>
-        <button type="button" data-theme-set="auto"  aria-pressed="true">Auto</button>
-        <button type="button" data-theme-set="dark"  aria-pressed="false">Dark</button>
-      </div>
+      <button type="button" class="theme-toggle theme-toggle-drawer" data-theme-toggle aria-label="Switch theme">
+        <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+          <g stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+            <line x1="12" y1="2.2" x2="12" y2="4.6"/>
+            <line x1="12" y1="19.4" x2="12" y2="21.8"/>
+            <line x1="2.2" y1="12" x2="4.6" y2="12"/>
+            <line x1="19.4" y1="12" x2="21.8" y2="12"/>
+            <line x1="5.1" y1="5.1" x2="6.8" y2="6.8"/>
+            <line x1="17.2" y1="17.2" x2="18.9" y2="18.9"/>
+            <line x1="5.1" y1="18.9" x2="6.8" y2="17.2"/>
+            <line x1="17.2" y1="6.8" x2="18.9" y2="5.1"/>
+          </g>
+        </svg>
+        <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path d="M20.5 14.4A8.5 8.5 0 0 1 9.6 3.5a.6.6 0 0 0-.83-.7A9.6 9.6 0 1 0 21.2 15.2a.6.6 0 0 0-.7-.83Z" fill="currentColor"/>
+        </svg>
+      </button>
     </div>
     <div class="mobile-nav-foot">
       <span>shotbywhosfra</span>
@@ -2571,6 +2744,8 @@
 <!-- =================== HOME =================== -->
 <div id="home" class="page active">
   <div id="eye-container" role="button" tabindex="0" aria-label="Open contact form">
+    <!-- ROLLBACK: original animated SVG eye is active.
+         The MP4 alternative is kept commented below for re-enabling later. -->
     <svg id="eye-svg" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Animated eye that follows the cursor">
       <defs>
         <!-- Iris gradient: warm amber/gold with depth -->
@@ -2602,7 +2777,7 @@
           <stop offset="60%" stop-color="white" stop-opacity="0.04"/>
           <stop offset="100%" stop-color="white" stop-opacity="0"/>
         </radialGradient>
-        <!-- Eyelid skin gradient (neutral, opacity 0 — kept for compat) -->
+        <!-- Eyelid skin gradient -->
         <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%"  stop-color="#000000" stop-opacity="0"/>
           <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
@@ -2815,6 +2990,11 @@
 
           </g>
     </svg>
+
+    <!-- TEMPORARILY DISABLED — looping video version of the eye.
+         To re-enable: uncomment this and comment out the SVG above.
+    <video id="eye-video" src="media/eye.mp4" muted autoplay loop playsinline preload="auto" aria-hidden="true"></video>
+    -->
   </div>
 
   <!-- NAV LEFT -->
@@ -2845,8 +3025,10 @@
       <div class="footer-inner">
         <div class="footer-bottom">
           <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
+          <span class="footer-sep" aria-hidden="true"></span>
           <span class="footer-tagline">Francesco Aiena</span>
+          <span class="footer-sep" aria-hidden="true"></span>
+          <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
           <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
@@ -2879,8 +3061,10 @@
       <div class="footer-inner">
         <div class="footer-bottom">
           <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
+          <span class="footer-sep" aria-hidden="true"></span>
           <span class="footer-tagline">Francesco Aiena</span>
+          <span class="footer-sep" aria-hidden="true"></span>
+          <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
           <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
@@ -2905,8 +3089,10 @@
       <div class="footer-inner">
         <div class="footer-bottom">
           <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
+          <span class="footer-sep" aria-hidden="true"></span>
           <span class="footer-tagline">Francesco Aiena</span>
+          <span class="footer-sep" aria-hidden="true"></span>
+          <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
           <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
@@ -3005,8 +3191,10 @@
       <div class="footer-inner">
         <div class="footer-bottom">
           <span class="footer-copy">© 2026</span>
-          <span class="footer-sep"></span>
+          <span class="footer-sep" aria-hidden="true"></span>
           <span class="footer-tagline">Francesco Aiena</span>
+          <span class="footer-sep" aria-hidden="true"></span>
+          <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
           <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
@@ -3025,11 +3213,27 @@
 </div>
 
 <!-- =================== THEME SWITCHER =================== -->
-<div class="theme-switcher home-pos" id="theme-switcher" role="group" aria-label="Colour theme">
-  <button type="button" data-theme-set="light" aria-pressed="false" aria-label="Light theme">Light</button>
-  <button type="button" data-theme-set="auto" aria-pressed="true" aria-label="Auto theme (follows system)">Auto</button>
-  <button type="button" data-theme-set="dark" aria-pressed="false" aria-label="Dark theme">Dark</button>
-</div>
+<!-- =================== THEME TOGGLE (desktop fixed) =================== -->
+<button type="button" id="theme-switcher" class="theme-toggle home-pos" data-theme-toggle aria-label="Switch theme">
+  <!-- Sun icon: shown when theme is dark (clicking → light) -->
+  <svg class="theme-icon theme-icon-sun" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="4.2" fill="currentColor"/>
+    <g stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+      <line x1="12" y1="2.2" x2="12" y2="4.6"/>
+      <line x1="12" y1="19.4" x2="12" y2="21.8"/>
+      <line x1="2.2" y1="12" x2="4.6" y2="12"/>
+      <line x1="19.4" y1="12" x2="21.8" y2="12"/>
+      <line x1="5.1" y1="5.1" x2="6.8" y2="6.8"/>
+      <line x1="17.2" y1="17.2" x2="18.9" y2="18.9"/>
+      <line x1="5.1" y1="18.9" x2="6.8" y2="17.2"/>
+      <line x1="17.2" y1="6.8" x2="18.9" y2="5.1"/>
+    </g>
+  </svg>
+  <!-- Moon icon: shown when theme is light (clicking → dark) -->
+  <svg class="theme-icon theme-icon-moon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M20.5 14.4A8.5 8.5 0 0 1 9.6 3.5a.6.6 0 0 0-.83-.7A9.6 9.6 0 1 0 21.2 15.2a.6.6 0 0 0-.7-.83Z" fill="currentColor"/>
+  </svg>
+</button>
 
 <!-- =================== CONTACT MODAL =================== -->
 <div id="contact-modal" role="dialog" aria-modal="true" aria-labelledby="contact-title" aria-hidden="true">
@@ -3219,7 +3423,31 @@ window.addEventListener('resize', () => { initCanvas(); initParticles(); });
 
 // ---- PAGE ROUTING ----
 let currentPage = 'home';
+let _isPopState = false; // prevents pushState ↔ popstate loops
+
+/* History API guard: in some sandboxed contexts (e.g. an iframe loaded via
+   srcdoc, certain embed previews, archive.org) replaceState/pushState raises
+   SecurityError because the document URL ('about:srcdoc') doesn't share origin
+   with the parent. Wrap calls so the app keeps working without history sync.
+   Signature mirrors the native History API for drop-in replacement. */
+const safeHistory = {
+  push: function(state, title, url) {
+    try { history.pushState(state, title || '', url); } catch (e) { /* sandboxed: ignore */ }
+  },
+  replace: function(state, title, url) {
+    try { history.replaceState(state, title || '', url); } catch (e) { /* sandboxed: ignore */ }
+  }
+};
+
+/* Map page name ↔ URL hash. Single source of truth. */
+const PAGE_TO_HASH = { home: '', video: '#/video', ai: '#/ai', vfx: '#/vfx', about: '#/about' };
+const HASH_TO_PAGE = { '': 'home', '#/': 'home', '#/video': 'video', '#/ai': 'ai', '#/vfx': 'vfx', '#/about': 'about' };
+
 function showPage(name) {
+  if (currentPage === name && !_isPopState) {
+    /* No-op: same page click; still ensure UI is in correct state */
+    return;
+  }
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   const target = document.getElementById(name === 'home' ? 'home' : name + '-page');
   if (target) {
@@ -3234,6 +3462,9 @@ function showPage(name) {
       }, 100);
     }
   }
+  /* Reflect current page on <body data-page="…"> for CSS targeting (hide hamburger on home, etc.) */
+  document.body.setAttribute('data-page', name);
+
   const fn = document.getElementById('header-firstname');
   const ln = document.getElementById('header-lastname');
   const hb = document.getElementById('header-back');
@@ -3244,13 +3475,25 @@ function showPage(name) {
   } else {
     if (fn) fn.style.display = 'none';
     if (ln) ln.style.display = 'none';
-    if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage('home'); }; }
+    if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ history.back(); }; }
   }
   // Update theme switcher position
   var ts = document.getElementById('theme-switcher');
   if (ts) {
     ts.classList.toggle('home-pos', name === 'home');
     ts.classList.toggle('inner-pos', name !== 'home');
+  }
+
+  /* History API: push only when the navigation is user-initiated */
+  if (!_isPopState) {
+    const hash = PAGE_TO_HASH[name] != null ? PAGE_TO_HASH[name] : '';
+    const url = location.pathname + location.search + hash;
+    /* Avoid duplicate consecutive entries with same URL */
+    if ((location.hash || '') !== hash) {
+      safeHistory.push({ kind: 'page', name: name }, '', url);
+    } else {
+      safeHistory.replace({ kind: 'page', name: name }, '', url);
+    }
   }
 }
 
@@ -3297,9 +3540,19 @@ const PD_MODULES = {
     }
     hero.appendChild(pdEl('div', 'project-detail-hero-overlay'));
     var content = pdEl('div', 'project-detail-hero-content');
+    /* Adaptive title size: pick a class based on character count of the
+       *displayed* title (ignoring HTML tags so <em> doesn't inflate the count). */
+    var titleHtml = project.titleHtml || escapeHTML(m.title || project.title || '');
+    var titleText = titleHtml.replace(/<[^>]+>/g, '');
+    var titleSizeClass = '';
+    var len = titleText.length;
+    if (len > 28)      titleSizeClass = ' size-xs';
+    else if (len > 20) titleSizeClass = ' size-sm';
+    else if (len > 13) titleSizeClass = ' size-md';
+    /* else: default (large) */
     content.innerHTML =
       '<span class="project-detail-cat">' + escapeHTML(m.category || project.category) + '</span>' +
-      '<h1 class="project-detail-title">' + (project.titleHtml || escapeHTML(m.title || project.title)) + '</h1>' +
+      '<h1 class="project-detail-title' + titleSizeClass + '">' + titleHtml + '</h1>' +
       '<span class="project-detail-client">' + escapeHTML(m.client || project.client) + '</span>';
     hero.appendChild(content);
     return hero;
@@ -3528,8 +3781,10 @@ function showProjectDetail(projectData, fromSection) {
     '<div class="footer-inner">' +
       '<div class="footer-bottom">' +
         '<span class="footer-copy">© 2026</span>' +
-        '<span class="footer-sep"></span>' +
+        '<span class="footer-sep" aria-hidden="true"></span>' +
         '<span class="footer-tagline">Francesco Aiena</span>' +
+        '<span class="footer-sep" aria-hidden="true"></span>' +
+        '<span class="footer-vat">P.IVA 12345678901</span>' +
       '</div>' +
       '<div class="footer-socials">' +
         '<a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>' +
@@ -3550,10 +3805,20 @@ function showProjectDetail(projectData, fromSection) {
   var scrollWrap = document.getElementById('project-detail-scroll') || dp;
   scrollWrap.scrollTop = 0;
   currentPage = 'project-detail';
+  document.body.setAttribute('data-page', 'project-detail');
 
   // Theme switcher → inner-page position
   var tsPd = document.getElementById('theme-switcher');
   if (tsPd) { tsPd.classList.remove('home-pos'); tsPd.classList.add('inner-pos'); }
+
+  /* History API — push a project-detail state. State carries id + source so refresh / back works.
+     The caller passes (projectData, fromSection); we resolve a stable id for the URL. */
+  if (!_isPopState) {
+    var pid = (projectData && (projectData.__id != null ? projectData.__id : (projectData.num || projectData.title))) || '';
+    var slug = String(pid).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+    var hash = '#/' + (fromSection || 'project') + (slug ? '/' + slug : '');
+    safeHistory.push({ kind: 'project-detail', source: fromSection, id: pid }, '', location.pathname + location.search + hash);
+  }
 
   // Play hero video (if any) — same aggressive retry strategy as before
   var heroVidEl = projectData.__heroVideoEl;
@@ -3595,7 +3860,7 @@ function showProjectDetail(projectData, fromSection) {
   var hb = document.getElementById('header-back');
   if (fn) fn.style.display = 'none';
   if (ln) ln.style.display = 'none';
-  if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ showPage(previousSection); }; }
+  if (hb) { hb.style.display = 'flex'; hb.onclick = function(){ history.back(); }; }
 
   // Reveal modules on enter — double-RAF guarantees the transition fires
   requestAnimationFrame(function() {
@@ -3607,28 +3872,71 @@ function showProjectDetail(projectData, fromSection) {
   });
 }
 
-// Legacy renderer — used when a project has no modules[] declared
+// Legacy renderer — used when a project has no modules[] declared.
+// Composes two sections per project, alternating two grammars:
+//   • dialogue-spread: image-centric, heading above, body in 2 columns
+//   • split-row     : classic image|text 50/50 layout
+// Even videos (0,2,4): dialogue → split.  Odd (1,3): split → dialogue.
 function renderLegacyDetail(projectData, container) {
   // Hero
   var hero = PD_MODULES['hero-fullbleed']({}, projectData);
   container.appendChild(hero);
 
   var body = pdEl('div', 'project-detail-body');
-  var sec1 = pdEl('div', 'project-detail-section project-detail-row');
-  var img1 = pdEl('div', 'project-detail-img');
-  img1.style.backgroundImage = 'url(' + projectData.img1 + ')';
-  var txt1 = pdEl('div', 'project-detail-text',
-    '<h2>' + escapeHTML(projectData.heading1) + '</h2><p>' + escapeHTML(projectData.text1) + '</p>');
-  sec1.appendChild(img1); sec1.appendChild(txt1); body.appendChild(sec1);
 
-  var sec2 = pdEl('div', 'project-detail-section project-detail-row reverse');
-  var img2 = pdEl('div', 'project-detail-img');
-  img2.style.backgroundImage = 'url(' + projectData.img2 + ')';
-  var txt2 = pdEl('div', 'project-detail-text',
-    '<h2>' + escapeHTML(projectData.heading2) + '</h2><p>' + escapeHTML(projectData.text2) + '</p>');
-  sec2.appendChild(img2); sec2.appendChild(txt2); body.appendChild(sec2);
+  /* Build a "dialogue-spread" section block */
+  function buildDialogue(num, image, heading, text, headingMeta) {
+    var section = pdEl('div', 'pd-dialogue pd-module');
 
-  var closing = pdEl('div', 'project-detail-closing');
+    var inner = pdEl('div', 'pd-dialogue-inner');
+
+    var h = pdEl('h2', 'pd-dialogue-heading');
+    h.innerHTML = heading; /* allow <em> markup */
+    inner.appendChild(h);
+
+    var frame = pdEl('div', 'pd-dialogue-frame');
+    var img = pdEl('div', 'pd-dialogue-img');
+    img.style.backgroundImage = 'url(' + image + ')';
+    frame.appendChild(img);
+    inner.appendChild(frame);
+
+    var bodyText = pdEl('div', 'pd-dialogue-body');
+    var p = pdEl('p');
+    p.textContent = text;
+    bodyText.appendChild(p);
+    inner.appendChild(bodyText);
+
+    section.appendChild(inner);
+    return section;
+  }
+
+  /* Build a "split-row" section block (classic 50/50) */
+  function buildSplitRow(image, heading, text, reverse) {
+    var sec = pdEl('div', 'project-detail-section project-detail-row pd-module' + (reverse ? ' reverse' : ''));
+    var img = pdEl('div', 'project-detail-img');
+    img.style.backgroundImage = 'url(' + image + ')';
+    var txt = pdEl('div', 'project-detail-text',
+      '<h2>' + escapeHTML(heading) + '</h2><p>' + escapeHTML(text) + '</p>');
+    sec.appendChild(img);
+    sec.appendChild(txt);
+    return sec;
+  }
+
+  /* Even video index → dialogue first, split second; odd → reversed */
+  var idx = (typeof projectData.__videoIndex === 'number') ? projectData.__videoIndex : 0;
+  var dialogueFirst = (idx % 2 === 0);
+  var meta = (projectData.category || projectData.client || 'Project');
+
+  if (dialogueFirst) {
+    body.appendChild(buildDialogue('01', projectData.img1, projectData.heading1, projectData.text1, meta));
+    body.appendChild(buildSplitRow(projectData.img2, projectData.heading2, projectData.text2, true /* reverse */));
+  } else {
+    body.appendChild(buildSplitRow(projectData.img1, projectData.heading1, projectData.text1, false));
+    body.appendChild(buildDialogue('02', projectData.img2, projectData.heading2, projectData.text2, meta));
+  }
+
+  /* Closing pull-quote (unchanged) */
+  var closing = pdEl('div', 'project-detail-closing pd-module');
   var closingP = pdEl('p', 'project-detail-closing-text');
   closingP.textContent = projectData.closing;
   closing.appendChild(closingP);
@@ -3684,22 +3992,6 @@ document.getElementById('contact-modal').addEventListener('keydown', function(e)
     e.preventDefault(); first.focus();
   }
 });
-
-// ---- GREETING (localStorage) ----
-function setGreeting() {
-  const hour = new Date().getHours();
-  const visits = parseInt(localStorage.getItem('fran_visits') || '0') + 1;
-  localStorage.setItem('fran_visits', visits);
-  let msg;
-  if (visits === 1) msg = hour < 12 ? 'Good morning, newcomer!' : hour < 18 ? 'Good afternoon, newcomer!' : 'Good evening, newcomer!';
-  else if (visits < 5) msg = 'Welcome back! Glad to see you again.';
-  else msg = 'Hey again! You really like what you see 👀';
-  const g = document.getElementById('greeting');
-  g.textContent = msg;
-  setTimeout(() => g.classList.add('visible'), 200);
-  setTimeout(() => g.classList.remove('visible'), 4000);
-}
-setGreeting();
 
 // ---- AI PROJECT DETAILS (modular, archetype: ai-case) ----
 const aiDetails = [
@@ -4101,7 +4393,7 @@ const videoData = [
       img1: 'media/VIDEOS/EUROSOCIALGVNG_1.jpg',
       heading1: 'AI Meets Advertising',
       text1: 'EUROSOCIALGVNG è un commercial nato dalla sinergia tra visione creativa e intelligenza artificiale. Ogni frame è stato concepito con l\'aiuto di strumenti AI per la generazione di concept visivi, compositing e motion design — spingendo i confini di ciò che un piccolo team può produrre.',
-      img2: 'media/VIDEOS/EUROSOCIALGVNG_1.jpg',
+      img2: 'media/VIDEOS/EUROSOCIALGVNG_2.jpg',
       heading2: 'Il Processo Creativo',
       text2: 'Dall\'ideazione alla delivery, l\'AI ha accelerato ogni fase: storyboarding generativo, color palette automatizzate e prototipazione rapida delle scene. Il risultato è uno spot dal look cinematografico, costruito con un workflow ibrido che unisce artigianalità e tecnologia di frontiera.',
       closing: '"Concept board generato in un pomeriggio, spot tagliato in tre giorni. L\'AI accorcia, non sostituisce."',
@@ -4338,6 +4630,116 @@ vfxData.forEach((v, i) => {
   vc.appendChild(project);
 });
 
+// ---- HISTORY ROUTER ----
+/* Assign a stable __id to every project's detail object so we can build URLs
+   like #/ai/01, #/vfx/cani-randagi, #/video/push-it.
+   We slugify based on the most stable available field. */
+(function assignProjectIds() {
+  function slug(s) {
+    return String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  }
+  /* AI: aiDetails uses aiProjects[i].num as authoritative numeric id */
+  if (typeof aiDetails !== 'undefined' && typeof aiProjects !== 'undefined') {
+    aiDetails.forEach(function(d, i) {
+      d.__id   = aiProjects[i] ? aiProjects[i].num : String(i);
+      d.__source = 'ai';
+    });
+  }
+  /* Video: detail object slug from title */
+  if (typeof videoData !== 'undefined') {
+    videoData.forEach(function(v, i) {
+      if (!v.detail) return;
+      v.detail.__id   = slug(v.title);
+      v.detail.__source = 'video';
+      v.detail.__videoIndex = i;
+    });
+  }
+  /* VFX: detail object slug from title */
+  if (typeof vfxData !== 'undefined') {
+    vfxData.forEach(function(v) {
+      if (!v.detail) return;
+      v.detail.__id   = slug(v.title);
+      v.detail.__source = 'vfx';
+    });
+  }
+})();
+
+/* Locate a detail object by source + slug — used for deep-link / popstate restoration */
+function findProjectBySlug(source, idOrSlug) {
+  if (!source || !idOrSlug) return null;
+  function match(d) {
+    if (!d) return false;
+    var id = String(d.__id || '').toLowerCase();
+    return id === String(idOrSlug).toLowerCase();
+  }
+  if (source === 'ai' && typeof aiDetails !== 'undefined') {
+    return aiDetails.find(match) || null;
+  }
+  if (source === 'video' && typeof videoData !== 'undefined') {
+    var hit = videoData.find(function(v){ return match(v.detail); });
+    return hit ? hit.detail : null;
+  }
+  if (source === 'vfx' && typeof vfxData !== 'undefined') {
+    var hit2 = vfxData.find(function(v){ return match(v.detail); });
+    return hit2 ? hit2.detail : null;
+  }
+  return null;
+}
+
+/* popstate listener — back/forward browser button restores correct view without
+   pushing a new history entry (the _isPopState flag prevents the loop). */
+window.addEventListener('popstate', function(evt) {
+  var st = evt.state;
+  _isPopState = true;
+  try {
+    if (st && st.kind === 'project-detail') {
+      var proj = findProjectBySlug(st.source, st.id);
+      if (proj) { showProjectDetail(proj, st.source); return; }
+      if (st.source && HASH_TO_PAGE['#/' + st.source]) { showPage(st.source); return; }
+      showPage('home');
+    } else if (st && st.kind === 'page') {
+      showPage(st.name);
+    } else {
+      var page = HASH_TO_PAGE[location.hash] || 'home';
+      showPage(page);
+    }
+  } finally {
+    _isPopState = false;
+  }
+});
+
+/* Boot: read URL on load → restore correct page (deep-link support) */
+(function bootRoute() {
+  var hash = location.hash || '';
+  /* project-detail deep link: #/<source>/<slug> */
+  var m = hash.match(/^#\/(ai|vfx|video)\/([a-z0-9-]+)$/i);
+  if (m) {
+    var src = m[1].toLowerCase();
+    var slug = m[2].toLowerCase();
+    var proj = findProjectBySlug(src, slug);
+    if (proj) {
+      _isPopState = true;
+      try { showProjectDetail(proj, src); }
+      finally { _isPopState = false; }
+      /* Replace state so the back stack starts from this URL cleanly */
+      safeHistory.replace({ kind: 'project-detail', source: src, id: slug }, '', location.pathname + location.search + hash);
+      return;
+    }
+  }
+  /* Page-level hash */
+  var page = HASH_TO_PAGE[hash];
+  if (page && page !== 'home') {
+    _isPopState = true;
+    try { showPage(page); }
+    finally { _isPopState = false; }
+    safeHistory.replace({ kind: 'page', name: page }, '', location.pathname + location.search + hash);
+  } else {
+    /* Default: home — set replaceState so popstate has something to read */
+    document.body.setAttribute('data-page', 'home');
+    safeHistory.replace({ kind: 'page', name: 'home' }, '', location.pathname + location.search);
+  }
+})();
+
 // ---- SKILL BARS on about page activation ----
 const skillObserver = new MutationObserver(mutations => {
   mutations.forEach(m => {
@@ -4357,7 +4759,7 @@ skillObserver.observe(document.getElementById('about-page'), { attributes: true,
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     closeContact();
-    if (currentPage === 'project-detail') showPage(previousSection);
+    if (currentPage === 'project-detail') history.back();
     else if (currentPage !== 'home') showPage('home');
   }
 });
@@ -4477,6 +4879,63 @@ document.addEventListener('keydown', e => {
     });
   }
   toggle.addEventListener('click', syncCurrent);
+
+  /* ── Touch gestures: close on swipe-down or fast scroll-down within the drawer ──
+     Logic: when the drawer is at scrollTop=0 and the user pulls down with
+     enough distance/velocity, close. Once they're scrolling within the drawer
+     content, normal scroll wins (no close). */
+  var touchStartY = null;
+  var touchStartT = null;
+  var touchScrollAtStart = 0;
+
+  nav.addEventListener('touchstart', function(e) {
+    if (!nav.classList.contains('is-open')) return;
+    var t = e.touches[0];
+    touchStartY = t.clientY;
+    touchStartT = Date.now();
+    touchScrollAtStart = nav.scrollTop;
+  }, { passive: true });
+
+  nav.addEventListener('touchmove', function(e) {
+    if (touchStartY == null || !nav.classList.contains('is-open')) return;
+    var dy = e.touches[0].clientY - touchStartY;
+    /* Only act on downward gestures originating from the top of the drawer.
+       If the user scrolled inside, do nothing (they are reading). */
+    if (touchScrollAtStart > 4) return;
+    if (dy > 8) {
+      /* Live drag: translate the drawer to give visual feedback */
+      var dragY = Math.min(dy, 320);
+      nav.style.transform = 'translateY(' + (dragY * 0.55) + 'px)';
+      var fade = Math.max(0, 1 - dragY / 320);
+      overlay.style.opacity = fade;
+    }
+  }, { passive: true });
+
+  nav.addEventListener('touchend', function(e) {
+    if (touchStartY == null) return;
+    var endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+    var dy = endY - touchStartY;
+    var dt = Math.max(1, Date.now() - touchStartT);
+    var vy = dy / dt;  /* px per ms */
+    /* Reset inline styles regardless */
+    nav.style.transform = '';
+    overlay.style.opacity = '';
+    /* Close conditions: dragged > 90px OR fast flick downward (>0.4 px/ms) with > 30px */
+    if (touchScrollAtStart <= 4 && (dy > 90 || (vy > 0.4 && dy > 30))) {
+      setOpen(false);
+    }
+    touchStartY = null;
+    touchStartT = null;
+    touchScrollAtStart = 0;
+  });
+
+  /* NOTE on Android back button + drawer:
+     We intentionally do NOT push a history sentinel for the drawer. Reason:
+     coordinating it with showPage()/showProjectDetail() history transitions
+     creates race conditions (history.back() is async, navigation pushes are
+     sync). Cleaner UX: tap outside, swipe down, or hamburger X all close.
+     Android back from drawer-open will go to the previous page, which is
+     also a reasonable expectation. */
 })();
 
 
@@ -4484,18 +4943,28 @@ document.addEventListener('keydown', e => {
   var STORAGE_KEY = 'sbwf_theme';
   var root = document.documentElement;
   var systemMQ = window.matchMedia('(prefers-color-scheme: light)');
-  var switcher = document.getElementById('theme-switcher');
-  /* All theme buttons across UIs (desktop fixed switcher + mobile drawer buttons) */
-  var allButtons = document.querySelectorAll('button[data-theme-set]');
-  if (!allButtons.length) return;
+  /* Single-icon toggle buttons (desktop fixed + mobile drawer) */
+  var toggles = document.querySelectorAll('[data-theme-toggle]');
+  if (!toggles.length) return;
 
-  function currentMode() {
-    return localStorage.getItem(STORAGE_KEY) || 'auto';
+  /* Migration: previous version exposed an explicit "Auto" choice. Wipe it
+     so the user reverts to follow-system on next interaction. */
+  try {
+    if (localStorage.getItem(STORAGE_KEY) === 'auto') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  } catch(e) {}
+
+  function storedTheme() {
+    /* Returns 'light' | 'dark' | null. null means "no explicit choice → follow system". */
+    try {
+      var v = localStorage.getItem(STORAGE_KEY);
+      return (v === 'light' || v === 'dark') ? v : null;
+    } catch(e) { return null; }
   }
 
-  function resolveTheme(mode) {
-    if (mode === 'light' || mode === 'dark') return mode;
-    return systemMQ.matches ? 'light' : 'dark';
+  function effectiveTheme() {
+    return storedTheme() || (systemMQ.matches ? 'light' : 'dark');
   }
 
   function syncThemeColorMeta(theme) {
@@ -4506,34 +4975,35 @@ document.addEventListener('keydown', e => {
     });
   }
 
-  function applyTheme(mode) {
-    var theme = resolveTheme(mode);
+  function applyTheme(theme) {
     root.setAttribute('data-theme', theme);
-    root.setAttribute('data-theme-mode', mode);
-    /* Reflect aria-pressed across ALL theme buttons (desktop + mobile drawer) */
-    document.querySelectorAll('button[data-theme-set]').forEach(function(btn) {
-      btn.setAttribute('aria-pressed', btn.getAttribute('data-theme-set') === mode ? 'true' : 'false');
-    });
+    /* The toggle's accessible label reflects the action it performs:
+       on dark theme the visible icon is the sun and clicking it goes to light. */
+    var nextLabel = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    toggles.forEach(function(btn) { btn.setAttribute('aria-label', nextLabel); });
     syncThemeColorMeta(theme);
   }
 
-  // Wire all theme buttons (both surfaces share the same handler)
-  allButtons.forEach(function(btn) {
+  /* Click → flip current theme + persist explicit choice */
+  toggles.forEach(function(btn) {
     btn.addEventListener('click', function() {
-      var mode = btn.getAttribute('data-theme-set');
-      try { localStorage.setItem(STORAGE_KEY, mode); } catch(e) {}
-      applyTheme(mode);
+      var current = effectiveTheme();
+      var next = current === 'dark' ? 'light' : 'dark';
+      try { localStorage.setItem(STORAGE_KEY, next); } catch(e) {}
+      applyTheme(next);
     });
     if (window.__wireCursorHover) window.__wireCursorHover(btn);
   });
 
-  // React to system theme change when in 'auto' mode
-  systemMQ.addEventListener && systemMQ.addEventListener('change', function() {
-    if (currentMode() === 'auto') applyTheme('auto');
-  });
+  /* Follow system theme when no explicit choice is stored */
+  if (systemMQ.addEventListener) {
+    systemMQ.addEventListener('change', function() {
+      if (storedTheme() === null) applyTheme(effectiveTheme());
+    });
+  }
 
-  // Initial UI sync (HTML attr was set pre-paint by inline script)
-  applyTheme(currentMode());
+  /* Initial UI sync (HTML data-theme was set pre-paint by inline script) */
+  applyTheme(effectiveTheme());
 })();
 
 // ---- VISIBILITY-AWARE PARTICLES (pause on hidden tab + reduced-motion) ----
@@ -4552,6 +5022,8 @@ document.addEventListener('keydown', e => {
 </script>
 
 <script>
+/* Blink scheduler — drives the SVG eye's eyelid animation.
+   Honours prefers-reduced-motion so it doesn't keep firing for sensitive users. */
 const blinkRect = document.getElementById("blinkRect");
 const _reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -4575,6 +5047,23 @@ function scheduleBlink(){
 }
 
 scheduleBlink();
+
+/* ROLLBACK: video-eye behaviour kept commented for future re-enable.
+(function() {
+  var v = document.getElementById('eye-video');
+  if (!v) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    v.removeAttribute('autoplay');
+    v.pause();
+  }
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) v.pause();
+    else if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      v.play().catch(function(){});
+    }
+  });
+})();
+*/
 </script>
 
 </body>
