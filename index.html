@@ -1294,194 +1294,393 @@
   }
   .motion-item:hover .motion-desc { opacity: 0.65; max-height: 120px; }
 
-  /* ABOUT PAGE */
-  /* ─ Full-width intro strip ─ */
-  .about-intro-strip {
+  /* ============================================
+     ABOUT PAGE — Editorial Resume system
+     5 stacked sections, each with its own grammar.
+     ============================================ */
+
+  /* Common section spacing */
+  .ab-section {
+    padding: clamp(72px, 10vw, 140px) clamp(0px, 4vw, 80px);
+    max-width: 1200px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--line);
+    position: relative;
+  }
+  .ab-section:last-of-type { border-bottom: none; }
+
+  /* Section header: small index + title — same family used on AI/VFX */
+  .ab-section-head {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 40px;
-    padding: 32px 0 40px;
-    border-bottom: 1px solid var(--line-strong);
-    margin-bottom: 52px;
-    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 28px;
+    margin-bottom: clamp(40px, 5vw, 64px);
   }
-  .about-lead {
-    font-family: var(--font-serif);
-    font-size: clamp(22px, 3.5vw, 40px);
-    font-style: italic;
-    line-height: 1.2;
-  }
-  .about-lead-sub {
+  .ab-section-num {
     font-family: var(--font-display);
-    font-size: clamp(12px, 1.4vw, 17px);
-    font-style: normal;
+    font-size: 11px;
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    opacity: 0.5;
-    display: block;
-    margin-top: 10px;
-  }
-  .about-numbers {
-    display: flex;
-    gap: 40px;
+    color: var(--text-mute);
     flex-shrink: 0;
+    padding-top: 4px;
   }
-  .about-number { text-align: center; }
-  .about-number strong {
-    display: block;
-    font-size: clamp(26px, 3vw, 42px);
+  .ab-section-title {
+    font-family: var(--font-display);
+    font-size: clamp(24px, 2.8vw, 40px);
     font-weight: 800;
+    letter-spacing: -0.025em;
     line-height: 1;
-  }
-  .about-number span {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    opacity: 0.45;
-    margin-top: 5px;
-    display: block;
+    color: var(--text);
+    margin: 0;
   }
 
-  /* ─ Main two-column grid ─ */
-  .about-grid {
+  /* ─── 1. STATEMENT — editorial prose with side meta ─── */
+  .ab-statement {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 64px;
+    grid-template-columns: 1.4fr 1fr;
+    gap: clamp(40px, 6vw, 100px);
+    align-items: start;
+    padding-top: clamp(40px, 5vw, 64px);
+    padding-bottom: clamp(72px, 10vw, 140px);
+  }
+  .ab-statement-main {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    max-width: 56ch;
+  }
+  /* Eyebrow caps — editorial section signature, no decoration overload */
+  .ab-eyebrow {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  /* Body prose — magazine-style serif italic, comfortable reading length */
+  .ab-statement-prose {
+    font-family: var(--font-serif);
+    font-size: clamp(18px, 1.6vw, 22px);
+    font-style: italic;
+    line-height: 1.55;
+    letter-spacing: -0.005em;
+    color: var(--text);
+    margin: 0;
+  }
+  .ab-statement-prose em {
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+  }
+
+  /* Right-side meta column — magazine-style credit block */
+  .ab-statement-aside {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .ab-aside-row {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ab-aside-row:last-of-type { border-bottom: none; }
+  .ab-aside-key {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+  .ab-aside-val {
+    font-family: var(--font-serif);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--text);
+  }
+
+  /* ─── 2. CAPABILITIES — numbered list, no percentages ─── */
+  .ab-cap-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .ab-cap-item {
+    display: grid;
+    grid-template-columns: 88px 1fr;
+    gap: clamp(20px, 3vw, 40px);
+    align-items: baseline;
+    padding: clamp(28px, 3.5vw, 44px) 0;
+    border-top: 1px solid var(--line);
+    transition: border-color 0.4s ease;
+  }
+  .ab-cap-item:last-of-type { border-bottom: 1px solid var(--line); }
+  .ab-cap-item:hover { border-top-color: var(--line-strong); }
+  .ab-cap-num {
+    font-family: var(--font-display);
+    font-size: clamp(28px, 3.4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--accent);
+    line-height: 1;
+    transition: transform 0.4s var(--transition);
+    align-self: start;
+    padding-top: 0.1em;
+  }
+  .ab-cap-item:hover .ab-cap-num { transform: translateX(6px); }
+  .ab-cap-body { display: flex; flex-direction: column; gap: 10px; }
+  .ab-cap-name {
+    font-family: var(--font-display);
+    font-size: clamp(22px, 2.6vw, 34px);
+    font-weight: 800;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+    color: var(--text);
+    margin: 0;
+  }
+  .ab-cap-desc {
+    font-family: var(--font-serif);
+    font-size: clamp(15px, 1.2vw, 17px);
+    font-style: italic;
+    line-height: 1.6;
+    color: var(--text-dim);
+    margin: 0;
+    max-width: 56ch;
+  }
+
+  /* ─── 3. SELECTED — clients + recognition unified ─── */
+  .ab-selected-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: clamp(40px, 6vw, 88px);
     align-items: start;
   }
-
-  /* ─ Bio blocks with labelled sections ─ */
-  .about-block {
-    margin-bottom: 36px;
-  }
-  .about-block:last-of-type { margin-bottom: 0; }
-  .about-block-label {
-    display: block;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    opacity: 0.4;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--line);
-  }
-  .about-bio {
-    font-family: var(--font-serif);
-    font-size: clamp(15px, 1.6vw, 19px);
-    line-height: 1.7;
-    font-style: italic;
-    opacity: 0.9;
-  }
-  .about-bio em {
-    font-style: normal;
+  .ab-sel-block { display: flex; flex-direction: column; gap: 18px; }
+  .ab-sel-label {
     font-family: var(--font-display);
-    font-size: 0.9em;
-    font-weight: 800;
-  }
-
-  /* ─ Skills ─ */
-  .about-right { display: flex; flex-direction: column; }
-  .skills-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 0; }
-  .skill-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 13px 0;
-    border-bottom: 1px solid var(--line);
-    gap: 20px;
-  }
-  .skill-name { font-size: 13px; font-weight: 700; letter-spacing: 0.03em; min-width: 130px; }
-  .skill-bar {
-    flex: 1;
-    height: 2px;
-    background: var(--line);
-    border-radius: 2px;
-    overflow: hidden;
-  }
-  .skill-fill {
-    height: 100%;
-    background: var(--text);
-    border-radius: 2px;
-    width: 0;
-    transition: width 1.1s var(--transition) 0.3s;
-  }
-  .about-page.active .skill-fill { width: var(--w); }
-  .skill-pct { font-size: 11px; opacity: 0.4; min-width: 30px; text-align: right; font-weight: 700; }
-
-  /* ─ Awards ─ */
-  .about-awards { display: flex; flex-direction: column; gap: 0; }
-  .award-item {
-    display: flex;
-    gap: 18px;
-    align-items: baseline;
-    padding: 11px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .award-item:last-child { border-bottom: none; }
-  .award-year {
     font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.08em;
-    opacity: 0.35;
-    flex-shrink: 0;
-    min-width: 32px;
-  }
-  .award-text {
-    font-size: 13px;
-    font-weight: 600;
-    opacity: 0.75;
-    line-height: 1.4;
-  }
-
-  /* ─ Clients ─ */
-  .clients-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 0;
-  }
-  .client-tag {
-    padding: 7px 16px;
-    border: 1px solid var(--line-strong);
-    border-radius: 6px;
-    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    opacity: 0.75;
-    transition: opacity 0.2s, border-color 0.2s;
+    color: var(--text-mute);
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--line-strong);
   }
-  .client-tag:hover { opacity: 1; border-color: var(--text-mute); }
+  .ab-sel-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  /* Clients: typographic word list, comma-separated visually via spacing */
+  .ab-selected-grid .ab-sel-block:first-child .ab-sel-list {
+    font-family: var(--font-serif);
+    font-size: clamp(22px, 2.6vw, 32px);
+    font-style: italic;
+    line-height: 1.45;
+    color: var(--text);
+  }
+  .ab-selected-grid .ab-sel-block:first-child .ab-sel-list li {
+    display: block;
+    transition: color 0.25s ease, transform 0.3s var(--transition);
+  }
+  .ab-selected-grid .ab-sel-block:first-child .ab-sel-list li:hover {
+    color: var(--accent);
+    transform: translateX(8px);
+  }
+  /* Recognition: year + line, archival timeline feel */
+  .ab-sel-list--years li {
+    display: grid;
+    grid-template-columns: 60px 1fr;
+    gap: 20px;
+    align-items: baseline;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+    transition: border-color 0.3s ease;
+  }
+  .ab-sel-list--years li:last-child { border-bottom: none; }
+  .ab-sel-list--years li:hover { border-bottom-color: var(--accent); }
+  .ab-year {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    color: var(--text-mute);
+  }
+  .ab-line {
+    font-family: var(--font-serif);
+    font-size: clamp(15px, 1.4vw, 18px);
+    line-height: 1.5;
+    color: var(--text);
+  }
 
-  .cv-download {
+  /* ─── 4. NUMBERS — typographic block ─── */
+  /* The three numbers are treated as ONE centred group, not distributed to
+     edges. This keeps the visual centre of mass aligned with the section
+     centre regardless of the differing widths of "6", "350", "500K".
+     Sizing is tuned so all three values fit on a single row within the
+     1200px section container (the widest value is "500K+" ≈ 3em wide). */
+  .ab-num-grid {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: clamp(32px, 5vw, 80px);
+    width: 100%;
+    flex-wrap: nowrap;
+  }
+  .ab-num {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    flex: 0 0 auto;
+    align-items: flex-start;
+    text-align: left;
+    min-width: 0; /* allow shrinking under flex container constraint */
+  }
+  .ab-num-value {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 7vw, 120px);
+    font-weight: 800;
+    letter-spacing: -0.05em;
+    line-height: 0.9;
+    color: var(--text);
+    display: inline-flex;
+    align-items: flex-start;
+    white-space: nowrap;
+  }
+  .ab-num-plus {
+    font-size: 0.42em;
+    color: var(--accent);
+    font-weight: 800;
+    margin-left: 0.06em;
+    margin-top: 0.18em;
+  }
+  .ab-num-label {
+    font-family: var(--font-display);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+  }
+
+  /* ─── 5. CTA — closing block ─── */
+  .ab-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 36px;
+    padding: clamp(96px, 12vw, 180px) 0 clamp(72px, 10vw, 120px);
+    border-bottom: none;
+  }
+  .ab-cta-line {
+    font-family: var(--font-display);
+    font-size: clamp(42px, 7vw, 110px);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    color: var(--text);
+    margin: 0;
+    max-width: 14ch;
+  }
+  .ab-cta-line em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    color: var(--accent);
+  }
+  .ab-cta-btn {
+    appearance: none;
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 32px;
-    padding: 14px 28px;
-    border: 1.5px solid var(--text-mute);
-    border-radius: 8px;
+    gap: 18px;
+    padding: 20px 36px;
+    background: var(--accent);
+    color: var(--on-accent);
+    border: none;
+    border-radius: 999px;
+    font-family: var(--font-display);
     font-size: 13px;
     font-weight: 800;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.22em;
     text-transform: uppercase;
-    color: var(--text);
-    text-decoration: none;
     cursor: none;
-    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    transition: background 0.2s, transform 0.2s var(--transition), gap 0.3s var(--transition);
   }
-  .cv-download:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .ab-cta-btn:hover { background: var(--accent-strong); gap: 28px; }
+  .ab-cta-btn:active { transform: scale(0.97); }
+  .ab-cta-arrow { font-size: 16px; line-height: 1; }
+  .ab-cv-link {
+    font-family: var(--font-display);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--text-mute);
+    cursor: none;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 4px;
+    transition: color 0.25s ease, border-color 0.25s ease;
+  }
+  .ab-cv-link:hover { color: var(--accent); border-bottom-color: var(--accent); }
+  @media (hover: none), (pointer: coarse) {
+    .ab-cta-btn, .ab-cv-link { cursor: pointer; }
+  }
 
-  /* ─ Responsive ─ */
-  @media (max-width: 900px) {
-    .about-grid { grid-template-columns: 1fr; gap: 48px; }
-    .about-intro-strip { flex-direction: column; align-items: flex-start; gap: 28px; }
-    .about-numbers { gap: 28px; }
+  /* ─── Reveal on scroll ─── */
+  .ab-section {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 1s var(--transition),
+      transform 1s var(--transition);
   }
+  .ab-section.in-view { opacity: 1; transform: translateY(0); }
+  @media (prefers-reduced-motion: reduce) {
+    .ab-section { opacity: 1 !important; transform: none !important; }
+  }
+
+  /* ─── Responsive ─── */
+  /* Tablet/intermediate: numbers stay on one row but tighten font + gap */
+  @media (max-width: 1100px) and (min-width: 901px) {
+    .ab-num-value { font-size: clamp(44px, 6vw, 88px); }
+    .ab-num-grid { gap: clamp(24px, 4vw, 56px); }
+  }
+  @media (max-width: 900px) {
+    .ab-statement {
+      grid-template-columns: 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .ab-statement-main { max-width: 100%; }
+    .ab-cap-item { grid-template-columns: 56px 1fr; gap: 18px; }
+    .ab-selected-grid { grid-template-columns: 1fr; gap: 56px; }
+    .ab-num-grid { flex-direction: column; align-items: flex-start; gap: 36px; }
+    .ab-aside-row { grid-template-columns: 88px 1fr; gap: 12px; }
+  }
+  @media (max-width: 600px) {
+    .ab-statement-prose { font-size: 17px; }
+    .ab-cap-item { grid-template-columns: 1fr; gap: 8px; }
+    .ab-cap-num { font-size: 22px; }
+    .ab-cta-btn { padding: 18px 28px; font-size: 12px; letter-spacing: 0.18em; }
+  }
+
 
   /* CONTACT MODAL */
   #contact-modal {
@@ -1779,8 +1978,6 @@
     }
     .nav-item { font-size: clamp(24px, 7.5vw, 36px); }
     .nav-toggle { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
-
-    .about-grid { grid-template-columns: 1fr; }
 
     /* VFX mobile */
     .vfx-intro {
@@ -3031,9 +3228,9 @@
           <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="Instagram (coming soon)">Instagram</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="LinkedIn (coming soon)">LinkedIn</a>
+          <a class="footer-social" href="https://www.youtube.com/@whosfra" target="_blank" rel="noopener noreferrer" aria-label="YouTube — opens in a new tab">YouTube</a>
+          <a class="footer-social" href="https://www.instagram.com/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — opens in a new tab">Instagram</a>
+          <a class="footer-social" href="https://www.linkedin.com/in/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn — opens in a new tab">LinkedIn</a>
         </div>
       </div>
     </div>
@@ -3067,9 +3264,9 @@
           <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="Instagram (coming soon)">Instagram</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="LinkedIn (coming soon)">LinkedIn</a>
+          <a class="footer-social" href="https://www.youtube.com/@whosfra" target="_blank" rel="noopener noreferrer" aria-label="YouTube — opens in a new tab">YouTube</a>
+          <a class="footer-social" href="https://www.instagram.com/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — opens in a new tab">Instagram</a>
+          <a class="footer-social" href="https://www.linkedin.com/in/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn — opens in a new tab">LinkedIn</a>
         </div>
       </div>
     </div>
@@ -3095,9 +3292,9 @@
           <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="Instagram (coming soon)">Instagram</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="LinkedIn (coming soon)">LinkedIn</a>
+          <a class="footer-social" href="https://www.youtube.com/@whosfra" target="_blank" rel="noopener noreferrer" aria-label="YouTube — opens in a new tab">YouTube</a>
+          <a class="footer-social" href="https://www.instagram.com/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — opens in a new tab">Instagram</a>
+          <a class="footer-social" href="https://www.linkedin.com/in/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn — opens in a new tab">LinkedIn</a>
         </div>
       </div>
     </div>
@@ -3109,84 +3306,146 @@
   <div class="inner-page">
     <h1 class="page-title">ABOUT</h1>
 
-    <!-- INTRO STRIP: full-width opening statement -->
-    <div class="about-intro-strip">
-      <p class="about-lead">
-        Video editor &amp; creative director.<br>
-        <span class="about-lead-sub">AI · VFX · Motion · Color · Italy → World.</span>
-      </p>
-      <div class="about-numbers">
-        <div class="about-number"><strong>6+</strong><span>Years</span></div>
-        <div class="about-number"><strong>350+</strong><span>Projects</span></div>
-        <div class="about-number"><strong>500K+</strong><span>Views</span></div>
+    <!-- ───── 1. STATEMENT — typographic opening ───── -->
+    <section class="ab-statement ab-section">
+      <div class="ab-statement-main">
+        <span class="ab-eyebrow">Francesco Aiena &mdash; Video Editor</span>
+        <p class="ab-statement-prose">
+          I cut <em>music videos</em>, festival aftermovies, and the occasional VFX-heavy piece.
+          Most days I&rsquo;m in <em>Premiere</em> or <em>DaVinci</em>, sometimes in After Effects,
+          occasionally feeding a ComfyUI graph at 2&nbsp;a.m.
+        </p>
       </div>
-    </div>
-
-    <!-- MAIN GRID -->
-    <div class="about-grid">
-
-      <!-- LEFT: bio blocks + clients -->
-      <div class="about-left">
-
-        <div class="about-block">
-          <span class="about-block-label">Who I am</span>
-          <p class="about-bio">
-            Francesco Aiena &mdash; <em>video editor</em> from Italy.
-            I cut music videos, festival aftermovies, brand films and the occasional
-            VFX-heavy piece. AI is part of the kit when it earns its place.
-          </p>
+      <aside class="ab-statement-aside" aria-label="Profile details">
+        <div class="ab-aside-row">
+          <span class="ab-aside-key">Based in</span>
+          <span class="ab-aside-val">Italy</span>
         </div>
-
-        <div class="about-block">
-          <span class="about-block-label">What I do</span>
-          <p class="about-bio">
-            Most days I&rsquo;m in <em>Premiere</em> or <em>DaVinci</em>, sometimes
-            in After Effects, occasionally feeding a ComfyUI graph at 2&nbsp;a.m.
-            I work end-to-end: edit, colour, light VFX, finish.
-            Briefs from a 15-second vertical to a 4-minute aftermovie. Same care, different runtime.
-          </p>
+        <div class="ab-aside-row">
+          <span class="ab-aside-key">Speaks</span>
+          <span class="ab-aside-val">IT &middot; EN</span>
         </div>
+        <div class="ab-aside-row">
+          <span class="ab-aside-key">Works as</span>
+          <span class="ab-aside-val">AI &middot; VFX &middot; Motion</span>
+        </div>
+        <div class="ab-aside-row">
+          <span class="ab-aside-key">Available</span>
+          <span class="ab-aside-val">Open to briefs</span>
+        </div>
+      </aside>
+    </section>
 
-        <div class="about-block">
-          <span class="about-block-label">Clients</span>
-          <div class="clients-row">
-            <span class="client-tag">Nike</span>
-            <span class="client-tag">Spotify</span>
-            <span class="client-tag">Universal</span>
-            <span class="client-tag">Red Bull</span>
-            <span class="client-tag">Adobe</span>
-            <span class="client-tag">Netflix</span>
-            <span class="client-tag">Lamborghini</span>
-            <span class="client-tag">Ferrari</span>
+    <!-- ───── 4. NUMBERS — typographic, quiet ───── -->
+    <section class="ab-numbers ab-section">
+      <header class="ab-section-head">
+        <span class="ab-section-num">02</span>
+        <h2 class="ab-section-title">By the numbers</h2>
+      </header>
+      <div class="ab-num-grid">
+        <div class="ab-num">
+          <strong class="ab-num-value">6<span class="ab-num-plus">+</span></strong>
+          <span class="ab-num-label">Years editing</span>
+        </div>
+        <div class="ab-num">
+          <strong class="ab-num-value">350<span class="ab-num-plus">+</span></strong>
+          <span class="ab-num-label">Projects shipped</span>
+        </div>
+        <div class="ab-num">
+          <strong class="ab-num-value">500K<span class="ab-num-plus">+</span></strong>
+          <span class="ab-num-label">Combined views</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───── 2. CAPABILITIES — numbered list, no percentages ───── -->
+    <section class="ab-capabilities ab-section">
+      <header class="ab-section-head">
+        <span class="ab-section-num">03</span>
+        <h2 class="ab-section-title">What I do</h2>
+      </header>
+      <ol class="ab-cap-list" role="list">
+        <li class="ab-cap-item">
+          <span class="ab-cap-num">01</span>
+          <div class="ab-cap-body">
+            <h3 class="ab-cap-name">Editing &amp; pacing</h3>
+            <p class="ab-cap-desc">From a 15-second vertical to a 4-minute aftermovie. The cut sets the rhythm; everything else follows.</p>
           </div>
-        </div>
+        </li>
+        <li class="ab-cap-item">
+          <span class="ab-cap-num">02</span>
+          <div class="ab-cap-body">
+            <h3 class="ab-cap-name">Motion &amp; design</h3>
+            <p class="ab-cap-desc">After Effects daily. Type animation, kinetic graphics, micro-interactions that serve the edit instead of overpowering it.</p>
+          </div>
+        </li>
+        <li class="ab-cap-item">
+          <span class="ab-cap-num">03</span>
+          <div class="ab-cap-body">
+            <h3 class="ab-cap-name">VFX &amp; compositing</h3>
+            <p class="ab-cap-desc">Wire removals, sky replacements, light wraps, cleanup. If you notice the effect, I&rsquo;ve done it wrong.</p>
+          </div>
+        </li>
+        <li class="ab-cap-item">
+          <span class="ab-cap-num">04</span>
+          <div class="ab-cap-body">
+            <h3 class="ab-cap-name">AI-augmented post</h3>
+            <p class="ab-cap-desc">Custom ComfyUI graphs, LoRAs trained on brand assets, generative previz. AI accelerates the pipeline, doesn&rsquo;t replace the eye.</p>
+          </div>
+        </li>
+        <li class="ab-cap-item">
+          <span class="ab-cap-num">05</span>
+          <div class="ab-cap-body">
+            <h3 class="ab-cap-name">Colour &amp; finish</h3>
+            <p class="ab-cap-desc">DaVinci grade, look development per project, delivery in spec. The last 5% that makes the rest land.</p>
+          </div>
+        </li>
+      </ol>
+    </section>
 
-        <a class="cv-download" role="button" tabindex="0" aria-label="Download CV (PDF)">Download CV ↓</a>
+    <!-- ───── 3. SELECTED — clients + recognition unified ───── -->
+    <section class="ab-selected ab-section">
+      <header class="ab-section-head">
+        <span class="ab-section-num">04</span>
+        <h2 class="ab-section-title">Selected</h2>
+      </header>
+      <div class="ab-selected-grid">
+        <div class="ab-sel-block">
+          <span class="ab-sel-label">Clients</span>
+          <ul class="ab-sel-list" role="list">
+            <li>Nike</li>
+            <li>Spotify</li>
+            <li>Universal</li>
+            <li>Red Bull</li>
+            <li>Adobe</li>
+            <li>Netflix</li>
+            <li>Lamborghini</li>
+          </ul>
+        </div>
+        <div class="ab-sel-block">
+          <span class="ab-sel-label">Recognition</span>
+          <ul class="ab-sel-list ab-sel-list--years" role="list">
+            <li><span class="ab-year">2026</span><span class="ab-line">Prada Workshop &mdash; Film Craft &middot; Editing</span></li>
+            <li><span class="ab-year">2026</span><span class="ab-line">Kid Yugi &amp; Anna &mdash; PUSH IT</span></li>
+            <li><span class="ab-year">2025</span><span class="ab-line">Test &mdash; Motion Graphics</span></li>
+            <li><span class="ab-year">2024</span><span class="ab-line">Vimeo Staff Pick &mdash; Experimental / Generative</span></li>
+          </ul>
+        </div>
       </div>
+    </section>
 
-      <!-- RIGHT: skills -->
-      <div class="about-right">
-        <span class="about-block-label">Skills</span>
-        <div class="skills-list">
-          <div class="skill-row"><span class="skill-name">Video Editing</span><div class="skill-bar" role="progressbar" aria-label="Video Editing" aria-valuenow="97" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:97%"></div></div><span class="skill-pct">97%</span></div>
-          <div class="skill-row"><span class="skill-name">After Effects</span><div class="skill-bar" role="progressbar" aria-label="After Effects" aria-valuenow="92" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:92%"></div></div><span class="skill-pct">92%</span></div>
-          <div class="skill-row"><span class="skill-name">Motion Design</span><div class="skill-bar" role="progressbar" aria-label="Motion Design" aria-valuenow="90" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:90%"></div></div><span class="skill-pct">90%</span></div>
-          <div class="skill-row"><span class="skill-name">AI / Generative</span><div class="skill-bar" role="progressbar" aria-label="AI / Generative" aria-valuenow="88" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:88%"></div></div><span class="skill-pct">88%</span></div>
-          <div class="skill-row"><span class="skill-name">VFX / Compositing</span><div class="skill-bar" role="progressbar" aria-label="VFX / Compositing" aria-valuenow="85" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:85%"></div></div><span class="skill-pct">85%</span></div>
-          <div class="skill-row"><span class="skill-name">Color Grading</span><div class="skill-bar" role="progressbar" aria-label="Color Grading" aria-valuenow="83" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:83%"></div></div><span class="skill-pct">83%</span></div>
-          <div class="skill-row"><span class="skill-name">3D / Cinema 4D</span><div class="skill-bar" role="progressbar" aria-label="3D / Cinema 4D" aria-valuenow="72" aria-valuemin="0" aria-valuemax="100"><div class="skill-fill" style="--w:72%"></div></div><span class="skill-pct">72%</span></div>
-        </div>
+    <!-- ───── 5. CTA — closing block ───── -->
+    <section class="ab-cta ab-section">
+      <p class="ab-cta-line">
+        Got something to <em>cut</em>?
+      </p>
+      <button type="button" class="ab-cta-btn" onclick="openContact()" aria-label="Open contact form">
+        <span>Let&rsquo;s talk</span>
+        <span class="ab-cta-arrow" aria-hidden="true">&rarr;</span>
+      </button>
+      <a class="ab-cv-link" role="button" tabindex="0" aria-label="Download CV (PDF)">Download CV &darr;</a>
+    </section>
 
-        <div class="about-awards">
-          <span class="about-block-label" style="margin-top:36px">Recognition</span>
-          <div class="award-item"><span class="award-year">2025</span><span class="award-text">Cannes Lions Bronze — Film Craft · Editing</span></div>
-          <div class="award-item"><span class="award-year">2025</span><span class="award-text">Emmy Nomination — Outstanding Title Design</span></div>
-          <div class="award-item"><span class="award-year">2024</span><span class="award-text">D&amp;AD Pencil — Motion Graphics</span></div>
-          <div class="award-item"><span class="award-year">2024</span><span class="award-text">Vimeo Staff Pick — Experimental / Generative</span></div>
-        </div>
-      </div>
-
-    </div>
     <div class="page-footer">
       <div class="footer-inner">
         <div class="footer-bottom">
@@ -3197,9 +3456,9 @@
           <span class="footer-vat">P.IVA 12345678901</span>
         </div>
         <div class="footer-socials">
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="Instagram (coming soon)">Instagram</a>
-          <a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="LinkedIn (coming soon)">LinkedIn</a>
+          <a class="footer-social" href="https://www.youtube.com/@whosfra" target="_blank" rel="noopener noreferrer" aria-label="YouTube — opens in a new tab">YouTube</a>
+          <a class="footer-social" href="https://www.instagram.com/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — opens in a new tab">Instagram</a>
+          <a class="footer-social" href="https://www.linkedin.com/in/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn — opens in a new tab">LinkedIn</a>
         </div>
       </div>
     </div>
@@ -3454,13 +3713,6 @@ function showPage(name) {
     target.classList.add('active');
     currentPage = name;
     if (name !== 'home') target.scrollTop = 0;
-    if (name === 'about') {
-      setTimeout(() => {
-        document.querySelectorAll('.about-page .skill-fill').forEach(f => {
-          f.style.width = f.style.getPropertyValue('--w') || getComputedStyle(f).getPropertyValue('--w');
-        });
-      }, 100);
-    }
   }
   /* Reflect current page on <body data-page="…"> for CSS targeting (hide hamburger on home, etc.) */
   document.body.setAttribute('data-page', name);
@@ -3787,9 +4039,9 @@ function showProjectDetail(projectData, fromSection) {
         '<span class="footer-vat">P.IVA 12345678901</span>' +
       '</div>' +
       '<div class="footer-socials">' +
-        '<a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="YouTube (coming soon)">YouTube</a>' +
-        '<a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="Instagram (coming soon)">Instagram</a>' +
-        '<a class="footer-social" href="#" onclick="event.preventDefault()" aria-label="LinkedIn (coming soon)">LinkedIn</a>' +
+        '<a class="footer-social" href="https://www.youtube.com/@whosfra" target="_blank" rel="noopener noreferrer" aria-label="YouTube — opens in a new tab">YouTube</a>' +
+        '<a class="footer-social" href="https://www.instagram.com/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="Instagram — opens in a new tab">Instagram</a>' +
+        '<a class="footer-social" href="https://www.linkedin.com/in/whosfra/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn — opens in a new tab">LinkedIn</a>' +
       '</div>' +
     '</div>';
   container.appendChild(footer);
@@ -4740,20 +4992,25 @@ window.addEventListener('popstate', function(evt) {
   }
 })();
 
-// ---- SKILL BARS on about page activation ----
-const skillObserver = new MutationObserver(mutations => {
-  mutations.forEach(m => {
-    if (m.target.id === 'about-page' && m.target.classList.contains('active')) {
-      setTimeout(() => {
-        document.querySelectorAll('.skill-fill').forEach(f => {
-          const w = getComputedStyle(f).getPropertyValue('--w').trim();
-          f.style.width = w;
-        });
-      }, 200);
-    }
-  });
-});
-skillObserver.observe(document.getElementById('about-page'), { attributes: true, attributeFilter: ['class'] });
+// ---- ABOUT SECTIONS reveal on scroll ----
+(function aboutSectionReveal() {
+  var aboutPage = document.getElementById('about-page');
+  if (!aboutPage) return;
+  var sections = aboutPage.querySelectorAll('.ab-section');
+  if (!sections.length || !('IntersectionObserver' in window)) {
+    sections.forEach(function(s){ s.classList.add('in-view'); });
+    return;
+  }
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { rootMargin: '0px 0px -10% 0px', threshold: 0.12 });
+  sections.forEach(function(s){ io.observe(s); });
+})();
 
 // ---- KEYBOARD NAV ----
 document.addEventListener('keydown', e => {
