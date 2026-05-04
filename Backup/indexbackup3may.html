@@ -405,10 +405,7 @@
   .mobile-nav {
     position: fixed;
     top: 0; right: 0; bottom: 0;
-    /* Use 100dvh on top of top/bottom for safe iOS dynamic viewport */
-    height: 100dvh;
-    /* Slimmer: was min(360px, 88vw) — now leaves more breathing room */
-    width: min(320px, 78vw);
+    width: min(360px, 88vw);
     z-index: 999;
     background: var(--bg-elev);
     border-left: 1px solid var(--line-strong);
@@ -417,55 +414,11 @@
     transition: transform 0.45s var(--transition);
     display: flex;
     flex-direction: column;
-    /* env() respects iPhone notch / Android nav bar */
-    padding:
-      calc(72px + env(safe-area-inset-top, 0px)) clamp(20px, 5vw, 28px)
-      calc(28px + env(safe-area-inset-bottom, 0px));
+    padding: 88px 28px 28px;
     overflow-y: auto;
     overscroll-behavior: contain;
-    /* Allow vertical scroll inside the drawer; we manage horizontal swipes ourselves */
-    touch-action: pan-y;
   }
   .mobile-nav.is-open { transform: translateX(0); }
-
-  /* Close button — top-right of drawer */
-  .mobile-nav-close {
-    position: absolute;
-    top: calc(18px + env(safe-area-inset-top, 0px));
-    right: 16px;
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    appearance: none;
-    background: transparent;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    color: var(--text);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 2;
-    transition:
-      background 0.25s var(--transition),
-      border-color 0.25s var(--transition),
-      color 0.25s var(--transition),
-      transform 0.2s var(--transition);
-  }
-  .mobile-nav-close:hover {
-    background: var(--surface);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
-  .mobile-nav-close:active { transform: scale(0.92); }
-  .mobile-nav-close svg {
-    width: 18px; height: 18px;
-    display: block;
-  }
-  .mobile-nav-close:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
-  }
 
   .mobile-nav-inner {
     display: flex;
@@ -711,9 +664,6 @@
     line-height: 0.9;
     margin-bottom: 60px;
     color: var(--text);
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
 
   /* VIDEO PAGE GRID */
@@ -938,9 +888,6 @@
     line-height: 0.92;
     color: var(--text);
     margin: 0;
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
   .ai-row-title em {
     font-family: var(--font-serif);
@@ -1260,9 +1207,6 @@
     line-height: 0.95;
     color: var(--text);
     margin: 0;
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
   .vfx-title em {
     font-family: var(--font-serif);
@@ -1653,9 +1597,6 @@
     color: var(--text);
     margin: 0;
     max-width: 14ch;
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
   .ab-cta-line em {
     font-family: var(--font-serif);
@@ -2070,13 +2011,6 @@
 
     /* Project-detail modules mobile */
     .pd-hero-typo { padding: 100px 20px 56px; }
-    /* Mobile: every adaptive variant scaled down so even worst-case lines
-       (e.g. "Randagi" 7 chars) stay inside a 320px content width on a
-       360px viewport. Formula = roughly char-count * 0.6em < viewport-width. */
-    .pd-hero-typo-title { font-size: clamp(44px, 12vw, 72px); }
-    .pd-hero-typo-title.size-md { font-size: clamp(38px, 10.4vw, 60px); }
-    .pd-hero-typo-title.size-sm { font-size: clamp(32px, 8.4vw, 50px); }
-    .pd-hero-typo-title.size-xs { font-size: clamp(26px, 6.8vw, 40px); }
     .pd-lyrics { padding: 60px 20px; grid-template-columns: 1fr; gap: 20px; }
     .pd-director { padding: 48px 20px; grid-template-columns: 1fr; gap: 20px; }
     .pd-sheet { padding: 48px 20px; }
@@ -2087,17 +2021,7 @@
     .pd-sheet-cell:nth-child(4),
     .pd-sheet-cell:nth-child(5) { grid-column: span 1; }
     .pd-sheet-cell:nth-child(6) { grid-column: span 3; height: 180px; }
-    /* Project-detail stats on mobile mirror the About "By the numbers"
-       grammar: single column, generous numerical accent, label small.
-       white-space: nowrap forbids per-letter breaks. With single column
-       the values have full row width — no ellipsis needed. */
-    .pd-stats { padding: 56px 20px; grid-template-columns: 1fr; gap: 36px; }
-    .pd-stat-val {
-      font-size: clamp(36px, 9.5vw, 64px);
-      letter-spacing: -0.04em;
-      white-space: nowrap;
-    }
-    .pd-stat-label { font-size: 10px; letter-spacing: 0.16em; }
+    .pd-stats { padding: 48px 20px; grid-template-columns: repeat(2, 1fr); gap: 28px; }
     .pd-compare { padding: 56px 20px; }
     .pd-compare-split { grid-template-columns: 1fr; aspect-ratio: auto; }
     .pd-compare-half { aspect-ratio: 16/10; }
@@ -2183,11 +2107,6 @@
     margin: 0 0 18px;
     color: var(--text);
     max-width: 14ch;
-    /* Long *words* are allowed to break at safe boundaries; we never want
-       per-character breaks like "Generative" → "G/e/n…". */
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
   /* Adaptive sizes — applied by JS based on title character count.
      Keeps long titles like "Anche Gli Eroi Muoiono" from invading the hero. */
@@ -2307,9 +2226,6 @@
     color: var(--text);
     margin: 0 0 clamp(28px, 4vw, 48px);
     max-width: 18ch;
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
   }
   .pd-dialogue-heading em {
     font-family: var(--font-serif);
@@ -2455,27 +2371,6 @@
     line-height: 0.88;
     color: var(--text);
     margin: 0;
-    /* Long display words like "Randagi" can break at safe boundaries when
-       absolutely required, never per-character. */
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: auto;
-  }
-  /* Adaptive desktop sizes — applied by JS (computeTitleSize) */
-  .pd-hero-typo-title.size-md {
-    font-size: clamp(48px, 9vw, 140px);
-    letter-spacing: -0.045em;
-    line-height: 0.92;
-  }
-  .pd-hero-typo-title.size-sm {
-    font-size: clamp(40px, 7vw, 104px);
-    letter-spacing: -0.04em;
-    line-height: 0.96;
-  }
-  .pd-hero-typo-title.size-xs {
-    font-size: clamp(34px, 5.5vw, 80px);
-    letter-spacing: -0.03em;
-    line-height: 1;
   }
   .pd-hero-typo-title em {
     font-family: var(--font-serif);
@@ -2596,24 +2491,12 @@
   .pd-sheet-cell:nth-child(5) { grid-column: span 1; grid-row: span 1; }
   .pd-sheet-cell:nth-child(6) { grid-column: span 6; grid-row: span 1; height: 240px; }
 
-  /* Stats strip (aftermovie + commercial): 4 KPI — desktop only.
-     Mobile override sits inside the @media (max-width: 768px) block above.
-     We scope the desktop rule with min-width to prevent the desktop
-     grid-template-columns from cascading after the mobile rule (CSS source
-     order would otherwise let it win at parity of specificity). */
-  @media (min-width: 769px) {
-    .pd-stats {
-      padding: 80px 60px;
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 20px;
-      border-top: 1px solid var(--line-strong);
-      border-bottom: 1px solid var(--line-strong);
-    }
-  }
-  /* Mobile base: still grid, single column (overridden inside max-width:768px) */
+  /* Stats strip (aftermovie + commercial): 4 KPI */
   .pd-stats {
+    padding: 80px 60px;
     display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
     border-top: 1px solid var(--line-strong);
     border-bottom: 1px solid var(--line-strong);
   }
@@ -2621,7 +2504,6 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-width: 0; /* allow shrinking inside the grid track */
   }
   .pd-stat-val {
     font-family: var(--font-display);
@@ -2630,12 +2512,6 @@
     letter-spacing: -0.03em;
     line-height: 1;
     color: var(--text);
-    /* Long string values like "Midjourney" or "vs. traditional" are allowed
-       to break BETWEEN words, never inside a word. Pure numbers like "200+",
-       "½", "2025" stay on a single line. */
-    overflow-wrap: break-word;
-    word-break: normal;
-    hyphens: none;
   }
   .pd-stat-val em {
     font-family: var(--font-serif);
@@ -2648,8 +2524,6 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     opacity: 0.6;
-    overflow-wrap: break-word;
-    word-break: normal;
   }
 
   /* Before/After (vfx-case): split view */
@@ -2868,14 +2742,7 @@
   @media (max-width: 768px) {
     .project-detail-hero { height: 56vh; min-height: 360px; }
     .project-detail-hero-content { padding: 28px 20px; max-width: 100%; }
-    /* Default (short titles ≤ 13 char): largest size */
-    .project-detail-title { font-size: clamp(40px, 10vw, 64px); max-width: 14ch; }
-    /* Medium-length titles (14-20 char): tighter */
-    .project-detail-title.size-md { font-size: clamp(34px, 8.4vw, 56px); max-width: 16ch; }
-    /* Long titles (21-28 char) */
-    .project-detail-title.size-sm { font-size: clamp(28px, 7.2vw, 48px); max-width: 18ch; }
-    /* Very long titles (>28 char) */
-    .project-detail-title.size-xs { font-size: clamp(24px, 6vw, 40px); max-width: 22ch; }
+    .project-detail-title { font-size: clamp(40px, 11vw, 72px); max-width: 18ch; }
     .project-detail-cat { margin-bottom: 16px; }
     .project-detail-client { font-size: 14px; }
     .project-detail-body { padding: 0 20px; }
@@ -3031,12 +2898,6 @@
 <!-- ============= MOBILE NAV DRAWER ============= -->
 <div id="mobile-nav-overlay" class="mobile-nav-overlay" hidden></div>
 <nav id="mobile-nav" class="mobile-nav" aria-label="Main navigation" aria-hidden="true" hidden>
-  <button type="button" id="mobile-nav-close" class="mobile-nav-close" aria-label="Close navigation menu">
-    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-      <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-    </svg>
-  </button>
   <div class="mobile-nav-inner">
     <ul class="mobile-nav-list">
       <li><button type="button" class="mobile-nav-link" data-go="video">Video</button></li>
@@ -3908,25 +3769,6 @@ function escapeHTML(s) {
 }
 
 // Module renderers — each returns a DOM node (or null to skip)
-// Adaptive title size: pick a CSS class based on the longest *visible line*
-// of the title (after splitting on <br> and stripping inline tags like <em>).
-// Used by hero-fullbleed and hero-typographic so titles never overflow at
-// any breakpoint. The threshold is the worst-case line width — a title
-// like "Cani<br>Randagi" is judged on "Randagi" (7 chars), not the total.
-function computeTitleSize(titleHtml) {
-  if (!titleHtml) return '';
-  var lines = String(titleHtml)
-    .split(/<br\s*\/?>/i)
-    .map(function(l) { return l.replace(/<[^>]+>/g, '').trim(); })
-    .filter(Boolean);
-  if (!lines.length) return '';
-  var maxLen = lines.reduce(function(m, l) { return Math.max(m, l.length); }, 0);
-  if (maxLen > 22) return ' size-xs';
-  if (maxLen > 14) return ' size-sm';
-  if (maxLen > 7)  return ' size-md';
-  return '';
-}
-
 const PD_MODULES = {
   // HERO — mode:'quiet' uses typographic; mode:'loud' uses full-bleed. Default: full-bleed.
   'hero': function(m, project) {
@@ -3950,8 +3792,16 @@ const PD_MODULES = {
     }
     hero.appendChild(pdEl('div', 'project-detail-hero-overlay'));
     var content = pdEl('div', 'project-detail-hero-content');
+    /* Adaptive title size: pick a class based on character count of the
+       *displayed* title (ignoring HTML tags so <em> doesn't inflate the count). */
     var titleHtml = project.titleHtml || escapeHTML(m.title || project.title || '');
-    var titleSizeClass = computeTitleSize(titleHtml);
+    var titleText = titleHtml.replace(/<[^>]+>/g, '');
+    var titleSizeClass = '';
+    var len = titleText.length;
+    if (len > 28)      titleSizeClass = ' size-xs';
+    else if (len > 20) titleSizeClass = ' size-sm';
+    else if (len > 13) titleSizeClass = ' size-md';
+    /* else: default (large) */
     content.innerHTML =
       '<span class="project-detail-cat">' + escapeHTML(m.category || project.category) + '</span>' +
       '<h1 class="project-detail-title' + titleSizeClass + '">' + titleHtml + '</h1>' +
@@ -3968,10 +3818,8 @@ const PD_MODULES = {
       '<span class="sep"></span>' +
       '<span>' + escapeHTML(m.year || project.year || '2025') + '</span>';
     hero.appendChild(meta);
-    var titleHtml = project.titleHtml || escapeHTML(m.title || project.title || '');
-    var titleSizeClass = computeTitleSize(titleHtml);
-    var title = pdEl('h1', 'pd-hero-typo-title' + titleSizeClass);
-    title.innerHTML = titleHtml;
+    var title = pdEl('h1', 'pd-hero-typo-title');
+    title.innerHTML = project.titleHtml || escapeHTML(m.title || project.title);
     hero.appendChild(title);
     if (project.client) {
       var feat = pdEl('span', 'pd-hero-typo-feat');
@@ -4874,6 +4722,8 @@ const vfxData = [
           { value: 'Music Video',      label: 'Format' },
           { value: '2025',             label: 'Year' }
         ]},
+        { type: 'lyrics',
+          text: 'Randagi <span class="pd-dim">senza collare</span>,<br>solo i muri <em>sanno parlare</em>.' },
         { type: 'split-feature',
           image: VFX_PATH + 'VFX_1-1.png',
           heading: 'Street as a stage',
@@ -5287,137 +5137,62 @@ document.addEventListener('keydown', e => {
   }
   toggle.addEventListener('click', syncCurrent);
 
-  // Wire close button
-  var closeBtn = document.getElementById('mobile-nav-close');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', function() { setOpen(false); });
-  }
+  /* ── Touch gestures: close on swipe-down or fast scroll-down within the drawer ──
+     Logic: when the drawer is at scrollTop=0 and the user pulls down with
+     enough distance/velocity, close. Once they're scrolling within the drawer
+     content, normal scroll wins (no close). */
+  var touchStartY = null;
+  var touchStartT = null;
+  var touchScrollAtStart = 0;
 
-  /* ── Touch gestures ──
-     Three behaviours, all driven by touchstart/move/end with axis lock:
-       1. Inside the drawer: swipe RIGHT to close (drag follows the finger).
-       2. Inside the drawer: swipe DOWN at scrollTop=0 to close (legacy path).
-       3. Anywhere on the page: swipe LEFT from the right edge (last 24px)
-          to OPEN the drawer when closed.
-     Axis lock: once delta on one axis exceeds 12px, that axis wins for the
-     rest of the gesture. Avoids fighting native scroll. */
-  var ts = {
-    x: null, y: null, t: null,
-    scrollAtStart: 0,
-    axis: null,        // 'x' | 'y' | null (locked once detected)
-    fromEdge: false    // true when the gesture started in the right-edge zone
-  };
-  var EDGE_PX = 24;        // edge zone for "swipe-to-open"
-  var AXIS_LOCK = 12;      // min delta to commit to an axis
-  var CLOSE_THRESHOLD = 80;// px to commit close
-  var FLICK_VEL = 0.4;     // px/ms
-
-  function resetGesture() {
-    nav.style.transform = '';
-    overlay.style.opacity = '';
-    ts.x = ts.y = ts.t = null;
-    ts.axis = null;
-    ts.fromEdge = false;
-    ts.scrollAtStart = 0;
-  }
-
-  /* DRAWER itself: gestures while open (swipe right or down to close) */
   nav.addEventListener('touchstart', function(e) {
     if (!nav.classList.contains('is-open')) return;
     var t = e.touches[0];
-    ts.x = t.clientX;
-    ts.y = t.clientY;
-    ts.t = Date.now();
-    ts.scrollAtStart = nav.scrollTop;
-    ts.axis = null;
+    touchStartY = t.clientY;
+    touchStartT = Date.now();
+    touchScrollAtStart = nav.scrollTop;
   }, { passive: true });
 
   nav.addEventListener('touchmove', function(e) {
-    if (ts.x == null || !nav.classList.contains('is-open')) return;
-    var t = e.touches[0];
-    var dx = t.clientX - ts.x;
-    var dy = t.clientY - ts.y;
-    /* Lock axis on first significant move */
-    if (!ts.axis) {
-      if (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK) {
-        ts.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
-      } else {
-        return; /* not enough movement to decide yet */
-      }
-    }
-    if (ts.axis === 'x') {
-      /* Horizontal: only react to right-swipes (positive dx) */
-      if (dx > 0) {
-        var w = nav.offsetWidth || 320;
-        var clamped = Math.min(dx, w);
-        nav.style.transform = 'translateX(' + clamped + 'px)';
-        overlay.style.opacity = Math.max(0, 1 - clamped / w);
-      }
-    } else if (ts.axis === 'y') {
-      /* Vertical: only act if user is at top of drawer (avoid hijacking scroll) */
-      if (ts.scrollAtStart > 4) return;
-      if (dy > 8) {
-        var dragY = Math.min(dy, 320);
-        nav.style.transform = 'translateY(' + (dragY * 0.55) + 'px)';
-        overlay.style.opacity = Math.max(0, 1 - dragY / 320);
-      }
+    if (touchStartY == null || !nav.classList.contains('is-open')) return;
+    var dy = e.touches[0].clientY - touchStartY;
+    /* Only act on downward gestures originating from the top of the drawer.
+       If the user scrolled inside, do nothing (they are reading). */
+    if (touchScrollAtStart > 4) return;
+    if (dy > 8) {
+      /* Live drag: translate the drawer to give visual feedback */
+      var dragY = Math.min(dy, 320);
+      nav.style.transform = 'translateY(' + (dragY * 0.55) + 'px)';
+      var fade = Math.max(0, 1 - dragY / 320);
+      overlay.style.opacity = fade;
     }
   }, { passive: true });
 
   nav.addEventListener('touchend', function(e) {
-    if (ts.x == null) { resetGesture(); return; }
-    var endTouch = (e.changedTouches && e.changedTouches[0]);
-    var dx = endTouch ? endTouch.clientX - ts.x : 0;
-    var dy = endTouch ? endTouch.clientY - ts.y : 0;
-    var dt = Math.max(1, Date.now() - ts.t);
-    var vx = dx / dt;
-    var vy = dy / dt;
-    var commitClose = false;
-    if (ts.axis === 'x') {
-      var w = nav.offsetWidth || 320;
-      if (dx > w * 0.35 || (vx > FLICK_VEL && dx > 30)) commitClose = true;
-    } else if (ts.axis === 'y') {
-      if (ts.scrollAtStart <= 4 && (dy > CLOSE_THRESHOLD + 10 || (vy > FLICK_VEL && dy > 30))) commitClose = true;
+    if (touchStartY == null) return;
+    var endY = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0].clientY : touchStartY;
+    var dy = endY - touchStartY;
+    var dt = Math.max(1, Date.now() - touchStartT);
+    var vy = dy / dt;  /* px per ms */
+    /* Reset inline styles regardless */
+    nav.style.transform = '';
+    overlay.style.opacity = '';
+    /* Close conditions: dragged > 90px OR fast flick downward (>0.4 px/ms) with > 30px */
+    if (touchScrollAtStart <= 4 && (dy > 90 || (vy > 0.4 && dy > 30))) {
+      setOpen(false);
     }
-    resetGesture();
-    if (commitClose) setOpen(false);
-  });
-
-  /* PAGE: edge-swipe from right to OPEN the drawer when closed */
-  var edgeStart = null;
-  document.addEventListener('touchstart', function(e) {
-    /* Only when drawer closed, viewport is mobile, and gesture starts near right edge */
-    if (nav.classList.contains('is-open')) return;
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
-    /* Only on inner pages (drawer is hidden on home) */
-    if (document.body.getAttribute('data-page') === 'home') return;
-    var t = e.touches[0];
-    if (window.innerWidth - t.clientX > EDGE_PX) return; /* not from the right edge */
-    edgeStart = { x: t.clientX, y: t.clientY, t: Date.now() };
-  }, { passive: true });
-
-  document.addEventListener('touchend', function(e) {
-    if (!edgeStart) return;
-    var endTouch = (e.changedTouches && e.changedTouches[0]);
-    var dx = endTouch ? endTouch.clientX - edgeStart.x : 0;
-    var dy = endTouch ? endTouch.clientY - edgeStart.y : 0;
-    var dt = Math.max(1, Date.now() - edgeStart.t);
-    var vx = dx / dt;
-    /* Open if: swipe leftward (negative dx) > 60px AND mostly horizontal */
-    if (dx < -60 && Math.abs(dx) > Math.abs(dy) && (vx < -0.2 || Math.abs(dx) > 100)) {
-      openerEl = null;
-      setOpen(true);
-    }
-    edgeStart = null;
+    touchStartY = null;
+    touchStartT = null;
+    touchScrollAtStart = 0;
   });
 
   /* NOTE on Android back button + drawer:
      We intentionally do NOT push a history sentinel for the drawer. Reason:
      coordinating it with showPage()/showProjectDetail() history transitions
      creates race conditions (history.back() is async, navigation pushes are
-     sync). Cleaner UX: tap outside, swipe-right, swipe-down, X button or
-     hamburger toggle all close. Android back from drawer-open will go to the
-     previous page, which is also a reasonable expectation. */
+     sync). Cleaner UX: tap outside, swipe down, or hamburger X all close.
+     Android back from drawer-open will go to the previous page, which is
+     also a reasonable expectation. */
 })();
 
 
