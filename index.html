@@ -523,12 +523,6 @@
     transform: translateY(-50%) translateX(0);
   }
 
-  .mobile-nav-divider {
-    height: 1px;
-    background: var(--line);
-    margin: 4px 0;
-  }
-
   .mobile-nav-cta {
     appearance: none;
     display: flex;
@@ -536,6 +530,7 @@
     justify-content: space-between;
     gap: 16px;
     padding: 14px 18px;
+    margin-top: 28px;
     background: var(--accent);
     color: var(--on-accent);
     border: none;
@@ -1639,7 +1634,8 @@
   .ab-cta {
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
+    text-align: center;
     gap: 36px;
     padding: clamp(96px, 12vw, 180px) 0 clamp(72px, 10vw, 120px);
     border-bottom: none;
@@ -1651,7 +1647,7 @@
     letter-spacing: -0.04em;
     line-height: 1;
     color: var(--text);
-    margin: 0;
+    margin: 0 auto;
     max-width: 14ch;
     overflow-wrap: break-word;
     word-break: normal;
@@ -2520,12 +2516,21 @@
   .pd-lyrics-text span { display: block; opacity: 0.55; }
 
   /* Director's note (music-video): signed block */
+  /* Director's note — desktop: label-left + body-right.
+     Same min-width scoping as pd-split so mobile single-column wins. */
+  @media (min-width: 769px) {
+    .pd-director {
+      padding: 80px 60px;
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 60px;
+      align-items: start;
+    }
+  }
   .pd-director {
-    padding: 80px 60px;
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 60px;
-    align-items: start;
+    grid-template-columns: 1fr;
+    gap: 16px;
     border-top: 1px solid var(--line-strong);
   }
   .pd-director-name {
@@ -2766,18 +2771,40 @@
   }
   .pd-stack-item:hover { background: var(--text); color: var(--bg); border-color: var(--text); }
 
-  /* Split feature (universal): img + text */
-  .pd-split {
-    padding: 80px 60px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 60px;
-    align-items: center;
+  /* Split feature (universal): img + text.
+     Desktop only: side-by-side 1fr 1fr. On mobile (≤768px) the rule inside
+     the responsive @media block at the top of the stylesheet collapses this
+     to a single column (image above, text below). We scope the desktop rule
+     with min-width to ensure the mobile single-column rule wins on small
+     viewports despite later source order. */
+  @media (min-width: 769px) {
+    .pd-split {
+      padding: 80px 60px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .pd-split.flip .pd-split-media { order: 1; }
+    .pd-split.flip .pd-split-text  { order: 0; }
+    .pd-split-media {
+      aspect-ratio: 4/5;
+      background-size: cover;
+      background-position: center;
+      background-color: rgba(0,0,0,0.2);
+      border-radius: 4px;
+    }
   }
-  .pd-split.flip .pd-split-media { order: 1; }
-  .pd-split.flip .pd-split-text  { order: 0; }
+  /* Mobile base: stack vertically (image above text), full-width image with
+     16:9 aspect for legibility. Padding handled by mobile media query. */
+  .pd-split {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
   .pd-split-media {
-    aspect-ratio: 4/5;
+    width: 100%;
+    aspect-ratio: 16/10;
     background-size: cover;
     background-position: center;
     background-color: rgba(0,0,0,0.2);
@@ -3044,7 +3071,6 @@
       <li><button type="button" class="mobile-nav-link" data-go="vfx">VFX</button></li>
       <li><button type="button" class="mobile-nav-link" data-go="about">About</button></li>
     </ul>
-    <div class="mobile-nav-divider" aria-hidden="true"></div>
     <button type="button" class="mobile-nav-cta" id="mobile-nav-contact">
       <span>Get in touch</span>
       <span class="mobile-nav-cta-arrow" aria-hidden="true">→</span>
@@ -3557,7 +3583,6 @@
             <li>Universal</li>
             <li>Red Bull</li>
             <li>Adobe</li>
-            <li>Netflix</li>
             <li>Lamborghini</li>
           </ul>
         </div>
@@ -5383,32 +5408,126 @@ document.addEventListener('keydown', e => {
     if (commitClose) setOpen(false);
   });
 
-  /* PAGE: edge-swipe from right to OPEN the drawer when closed */
-  var edgeStart = null;
+  /* PAGE: edge-swipe from right to progressively OPEN the drawer.
+     The drawer follows the finger in real-time (drag-follow). On release,
+     if the user pulled it past 35% width OR flicked fast enough, it snaps
+     open; otherwise it snaps back closed. This mirrors the close gesture
+     so opening and closing feel symmetric. */
+  var edgeDrag = null;
+  function setDragVisualOpen(progress) {
+    /* progress: 0 = fully closed, 1 = fully open */
+    var clamped = Math.max(0, Math.min(1, progress));
+    nav.style.transform = 'translateX(' + (100 - clamped * 100) + '%)';
+    overlay.style.opacity = String(clamped);
+  }
+  function endDragVisual() {
+    nav.style.transform = '';
+    overlay.style.opacity = '';
+    nav.style.transition = '';
+    overlay.style.transition = '';
+  }
+
   document.addEventListener('touchstart', function(e) {
-    /* Only when drawer closed, viewport is mobile, and gesture starts near right edge */
     if (nav.classList.contains('is-open')) return;
     if (!window.matchMedia('(max-width: 768px)').matches) return;
-    /* Only on inner pages (drawer is hidden on home) */
     if (document.body.getAttribute('data-page') === 'home') return;
     var t = e.touches[0];
-    if (window.innerWidth - t.clientX > EDGE_PX) return; /* not from the right edge */
-    edgeStart = { x: t.clientX, y: t.clientY, t: Date.now() };
+    if (window.innerWidth - t.clientX > EDGE_PX) return;
+    edgeDrag = {
+      x: t.clientX, y: t.clientY, t: Date.now(),
+      axis: null,
+      activated: false
+    };
+  }, { passive: true });
+
+  document.addEventListener('touchmove', function(e) {
+    if (!edgeDrag) return;
+    var t = e.touches[0];
+    var dx = t.clientX - edgeDrag.x;
+    var dy = t.clientY - edgeDrag.y;
+    /* Lock axis once movement exceeds threshold */
+    if (!edgeDrag.axis) {
+      if (Math.abs(dx) > AXIS_LOCK || Math.abs(dy) > AXIS_LOCK) {
+        edgeDrag.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+        if (edgeDrag.axis === 'y') {
+          /* Vertical swipe — abandon, let native scroll happen */
+          edgeDrag = null;
+          return;
+        }
+      } else {
+        return;
+      }
+    }
+    /* Only respond to LEFT-ward swipes (negative dx = opening direction) */
+    if (dx >= 0) {
+      if (edgeDrag.activated) setDragVisualOpen(0);
+      return;
+    }
+    /* First time we commit visually: prep the drawer + disable transitions */
+    if (!edgeDrag.activated) {
+      edgeDrag.activated = true;
+      if (nav.hasAttribute('hidden')) nav.removeAttribute('hidden');
+      if (overlay.hasAttribute('hidden')) overlay.removeAttribute('hidden');
+      nav.style.transition = 'none';
+      overlay.style.transition = 'none';
+    }
+    var w = nav.offsetWidth || 320;
+    var progress = Math.min(1, (-dx) / w);
+    setDragVisualOpen(progress);
   }, { passive: true });
 
   document.addEventListener('touchend', function(e) {
-    if (!edgeStart) return;
+    if (!edgeDrag) return;
+    var wasActive = edgeDrag.activated;
+    if (!wasActive) { edgeDrag = null; return; }
     var endTouch = (e.changedTouches && e.changedTouches[0]);
-    var dx = endTouch ? endTouch.clientX - edgeStart.x : 0;
-    var dy = endTouch ? endTouch.clientY - edgeStart.y : 0;
-    var dt = Math.max(1, Date.now() - edgeStart.t);
-    var vx = dx / dt;
-    /* Open if: swipe leftward (negative dx) > 60px AND mostly horizontal */
-    if (dx < -60 && Math.abs(dx) > Math.abs(dy) && (vx < -0.2 || Math.abs(dx) > 100)) {
+    var dx = endTouch ? endTouch.clientX - edgeDrag.x : 0;
+    var dt = Math.max(1, Date.now() - edgeDrag.t);
+    var vx = dx / dt; /* px per ms — negative = leftward */
+    var w = nav.offsetWidth || 320;
+    /* Commit open if: pulled past 35% width OR fast leftward flick */
+    var commitOpen = (-dx > w * 0.35) || (vx < -FLICK_VEL && -dx > 30);
+    edgeDrag = null;
+
+    /* Re-enable transitions for the snap animation */
+    nav.style.transition = '';
+    overlay.style.transition = '';
+
+    if (commitOpen) {
+      /* Animate inline-style from current drag position to fully open.
+         We keep the inline transform (specificity 1000) so it wins over
+         any class-based rule during the slide. After the transition ends
+         we drop the inline style and let .is-open take over. */
+      nav.style.transform = 'translateX(0)';
+      overlay.style.opacity = '1';
+      /* Keep ARIA + state in sync immediately */
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Close navigation menu');
+      nav.setAttribute('aria-hidden', 'false');
+      nav.classList.add('is-open');
+      overlay.classList.add('is-open');
+      document.body.classList.add('mobile-nav-locked');
       openerEl = null;
-      setOpen(true);
+      /* Focus first item once visible; drop inline overrides afterwards */
+      setTimeout(function() {
+        var first = nav.querySelector('button, a');
+        if (first) first.focus();
+        nav.style.transform = '';
+        overlay.style.opacity = '';
+      }, 460);
+    } else {
+      /* Snap back to closed: animate transform back to 100% */
+      nav.style.transform = 'translateX(100%)';
+      overlay.style.opacity = '0';
+      setTimeout(function() {
+        nav.style.transform = '';
+        overlay.style.opacity = '';
+        if (!nav.classList.contains('is-open')) {
+          nav.setAttribute('hidden', '');
+          overlay.setAttribute('hidden', '');
+        }
+      }, 460);
     }
-    edgeStart = null;
   });
 
   /* NOTE on Android back button + drawer:
