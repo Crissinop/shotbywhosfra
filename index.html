@@ -279,6 +279,9 @@
     /* Light desaturation only — keep brightness high so the video is
        clearly visible. Foreground readability is handled by the overlay. */
     filter: saturate(0.95);
+    /* Transparent background so during load the parent's radial gradient
+       shows through, not a black box. */
+    background: transparent;
   }
   /* Dark gradient overlay — top + bottom emphasis where header / CTA sit;
      mid-screen kept lighter to let the video breathe. */
@@ -2087,13 +2090,18 @@
     .nav-left {
       position: relative;
       bottom: auto; left: auto;
-      padding: 24px 20px 0;
+      /* Top padding clears the fixed header band (FRANCESCO / AIENA at top
+         + their hover area). Without this the nav items overlap the header
+         on mobile flex layout. */
+      padding: 96px 20px 0;
     }
     .bottom-right {
       position: relative;
       bottom: auto; right: auto;
       text-align: right;
-      padding: 16px 20px 0;
+      /* Lift the Contact + © 2026 group up from the very bottom edge so
+         they sit comfortably above the home base, not hugging the cut. */
+      padding: 16px 20px 14vh;
       align-self: flex-end;
     }
     .nav-item { font-size: clamp(24px, 7.5vw, 36px); }
@@ -3170,14 +3178,28 @@
 
 <!-- =================== HOME =================== -->
 <div id="home" class="page active">
-  <!-- Background video — home page only. Muted + autoplay + playsinline are
-       all required for autoplay across iOS Safari and Android Chrome.
-       aria-hidden because it conveys no information; tabindex=-1 keeps it
-       out of the keyboard tab order. -->
+  <!-- Background video — home page only.
+       Multiple <source> entries, ordered by preference. The browser picks
+       the first one whose codec it can decode. Putting WEBSITE_LANDINGPAGE_smaller
+       first because it's the lighter/transcoded version (28 MB vs 57 MB) and
+       most likely to be H.264 baseline — universally compatible.
+       LandingPage.mp4 is the fallback in case the user hasn't transcoded yet.
+       Required attrs for cross-browser autoplay:
+         muted          — without this, every browser blocks autoplay
+         autoplay       — request to start automatically
+         loop           — restart at end
+         playsinline    — iOS Safari: don't go fullscreen on play
+         webkit-playsinline — legacy iOS variant
+         disableremoteplayback — kill AirPlay button on iOS
+         disablepictureinpicture — kill PiP overlay
+         preload="auto" — fetch the file proactively for instant playback -->
   <video id="home-bg-video" class="home-bg-video"
-         src="media/LandingPage.mp4"
-         autoplay muted loop playsinline preload="auto"
-         aria-hidden="true" tabindex="-1"></video>
+         autoplay muted loop playsinline webkit-playsinline
+         disableremoteplayback disablepictureinpicture
+         preload="auto" aria-hidden="true" tabindex="-1">
+    <source src="media/WEBSITE_LANDINGPAGE_smaller.mp4" type="video/mp4">
+    <source src="media/LandingPage.mp4" type="video/mp4">
+  </video>
   <!-- Dark overlay improves legibility of foreground text against any frame
        of the video. Sits between the video and the foreground content. -->
   <div class="home-bg-overlay" aria-hidden="true"></div>
@@ -5466,20 +5488,79 @@ document.addEventListener('keydown', e => {
 const blinkRect = document.getElementById("blinkRect");
 const _reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-/* Home background video — small lifecycle module:
-     1. If the user prefers reduced motion, pause on the first frame so the
-        screen still has a still image as backdrop instead of motion.
-     2. Pause when the document tab is hidden (saves battery/CPU on mobile).
-     3. Resume on visibility change ONLY when the home page is currently active. */
+/* Home background video — lifecycle + diagnostic + autoplay rescue.
+   Strategy:
+     1. Listen to ALL relevant media events; log to console with [bg-video]
+        prefix so problems are visible without devtools instrumentation.
+     2. On every <source> error, log the URL that failed.
+     3. Try v.play() programmatically once metadata is ready. If play()
+        rejects (autoplay policy block), wire a one-shot listener on the
+        first user gesture (touch/click/keydown anywhere) to start it.
+     4. Honour reduced-motion + Page Visibility (existing behaviour). */
 (function homeBgVideoModule() {
   var v = document.getElementById('home-bg-video');
   if (!v) return;
+
+  /* --- Diagnostics ----------------------------------------------------- */
+  var EVENTS = ['loadstart','loadedmetadata','loadeddata','canplay','playing',
+                'pause','waiting','stalled','suspend','error','emptied','ended'];
+  EVENTS.forEach(function(name) {
+    v.addEventListener(name, function() {
+      var info = '[bg-video] ' + name;
+      if (name === 'error' && v.error) {
+        info += ' code=' + v.error.code + ' message=' + (v.error.message || '?');
+      }
+      info += ' readyState=' + v.readyState + ' networkState=' + v.networkState;
+      info += ' currentSrc=' + (v.currentSrc || '(none)');
+      console.log(info);
+    });
+  });
+  /* Per-source errors: when a <source> fails the browser emits an error
+     event ON THE SOURCE element, not on the <video>, unless ALL sources fail. */
+  Array.prototype.forEach.call(v.querySelectorAll('source'), function(s) {
+    s.addEventListener('error', function() {
+      console.log('[bg-video] source failed: ' + s.src);
+    });
+  });
+
+  /* --- Autoplay rescue ------------------------------------------------- */
+  function tryPlay() {
+    var p = v.play();
+    if (p && typeof p.then === 'function') {
+      p.then(function() {
+        console.log('[bg-video] play() resolved');
+      }).catch(function(err) {
+        console.log('[bg-video] play() rejected: ' + (err && err.name) + ' — ' + (err && err.message));
+        /* Wait for any user gesture, then retry once. */
+        var unlock = function() {
+          ['touchstart','click','keydown','pointerdown'].forEach(function(ev) {
+            document.removeEventListener(ev, unlock, true);
+          });
+          v.play().catch(function(err2) {
+            console.log('[bg-video] retry after gesture also failed: ' + err2.message);
+          });
+        };
+        ['touchstart','click','keydown','pointerdown'].forEach(function(ev) {
+          document.addEventListener(ev, unlock, { capture: true, once: false });
+        });
+      });
+    }
+  }
+
+  /* Kick off as soon as we can */
+  if (v.readyState >= 2) {
+    tryPlay();
+  } else {
+    v.addEventListener('canplay', tryPlay, { once: true });
+  }
+
+  /* --- Reduced-motion: freeze on first frame -------------------------- */
   if (_reducedMotion) {
-    /* Wait for first frame data, then pause */
     v.addEventListener('loadeddata', function() { v.pause(); }, { once: true });
-    /* Some browsers fire 'canplay' before 'loadeddata' is attached; cover both */
     if (v.readyState >= 2) v.pause();
   }
+
+  /* --- Page Visibility: pause when tab hidden ------------------------- */
   document.addEventListener('visibilitychange', function() {
     if (document.hidden) {
       v.pause();
