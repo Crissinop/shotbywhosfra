@@ -247,15 +247,27 @@
 
   /* HOME PAGE */
   #home {
-    background:
-      radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-faint) 0%, transparent 70%),
-      var(--bg);
+    /* No solid background here. The background-video covers the full
+       viewport; if the video fails to load, the global body background
+       (--bg) provides the fallback colour. The radial accent is kept as
+       a subtle decorative wash that overlays the video corners gently. */
     display: flex;
     flex-direction: column;
     height: 100vh;
     width: 100vw;
     overflow: hidden;
     position: relative; /* anchor the absolutely-positioned bg video */
+  }
+  /* Soft amber wash above the video, behind foreground content */
+  #home::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse 80% 60% at 50% 40%, var(--accent-faint) 0%, transparent 70%);
+    z-index: 2; /* above overlay (z=1), below foreground content (z=100+) */
+    mix-blend-mode: screen;
+    opacity: 0.6;
   }
   /* Background video: covers the entire home viewport, sits behind all
      content. object-fit:cover crops to fill without distortion. Pointer
@@ -1794,7 +1806,11 @@
     .ab-statement-main { max-width: 100%; }
     .ab-cap-item { grid-template-columns: 56px 1fr; gap: 18px; }
     .ab-selected-grid { grid-template-columns: 1fr; gap: 56px; }
-    .ab-num-grid { flex-direction: column; align-items: flex-start; gap: 36px; }
+    /* On mobile each stat (number + label) is centered both horizontally
+       on the row and within its own block. The plus sign comes along
+       because it's part of .ab-num-value (inline-flex). */
+    .ab-num-grid { flex-direction: column; align-items: center; gap: 36px; }
+    .ab-num { align-items: center; text-align: center; }
     .ab-aside-row { grid-template-columns: 88px 1fr; gap: 12px; }
   }
   @media (max-width: 600px) {
@@ -1911,10 +1927,71 @@
     text-transform: uppercase;
     cursor: none;
     margin-top: 8px;
-    transition: background 0.2s, transform 0.1s;
+    transition: background 0.2s, transform 0.1s, opacity 0.2s;
   }
   .contact-submit:hover { background: var(--accent-strong); }
   .contact-submit:active { transform: scale(0.98); }
+  /* Disabled state during submission */
+  .contact-submit[disabled] {
+    opacity: 0.6;
+    pointer-events: none;
+    cursor: wait;
+  }
+  /* Honeypot: visually hidden but kept accessible enough that bots find it.
+     Position offscreen instead of display:none — display:none can hint to
+     bots that the field is decoy. */
+  .contact-honeypot {
+    position: absolute !important;
+    left: -10000px !important;
+    width: 1px !important;
+    height: 1px !important;
+    overflow: hidden !important;
+  }
+  /* Status message: success / error feedback after submission */
+  .contact-status {
+    margin-top: 14px;
+    padding: 0;
+    font-family: var(--font-display);
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    text-align: center;
+    min-height: 0;
+    opacity: 0;
+    transition: opacity 0.3s, padding 0.3s, min-height 0.3s;
+  }
+  .contact-status.is-visible {
+    opacity: 1;
+    padding: 12px 16px;
+    min-height: 1em;
+    border-radius: 8px;
+  }
+  .contact-status.is-success {
+    background: rgba(16, 122, 87, 0.12);
+    color: #4ade80;
+    border: 1px solid rgba(16, 122, 87, 0.35);
+  }
+  .contact-status.is-error {
+    background: rgba(180, 50, 50, 0.12);
+    color: #ff8a8a;
+    border: 1px solid rgba(180, 50, 50, 0.35);
+  }
+  /* Light theme variants */
+  [data-theme="light"] .contact-status.is-success {
+    background: rgba(16, 122, 87, 0.10);
+    color: #047857;
+    border-color: rgba(16, 122, 87, 0.3);
+  }
+  [data-theme="light"] .contact-status.is-error {
+    background: rgba(180, 50, 50, 0.10);
+    color: #b91c1c;
+    border-color: rgba(180, 50, 50, 0.3);
+  }
+  /* Field invalid state (after submit attempt) */
+  .contact-field input.is-invalid,
+  .contact-field textarea.is-invalid {
+    border-color: rgba(180, 50, 50, 0.6);
+    background: rgba(180, 50, 50, 0.04);
+  }
 
   /* ── FOOTER MASTERPIECE ── */
   .page-footer {
@@ -3522,23 +3599,44 @@
   <div class="contact-box">
     <button class="contact-close" onclick="closeContact()" aria-label="Close contact form">✕</button>
     <h2 id="contact-title">Let's talk.</h2>
-    <div class="contact-field">
-      <label for="cf-name">Your Name</label>
-      <input id="cf-name" type="text" placeholder="Mario Rossi" autocomplete="name">
-    </div>
-    <div class="contact-field">
-      <label for="cf-email">Email</label>
-      <input id="cf-email" type="email" placeholder="mario@studio.com" autocomplete="email">
-    </div>
-    <div class="contact-field">
-      <label for="cf-instagram">Instagram <span style="opacity:0.5;font-size:9px;letter-spacing:0.05em">(optional)</span></label>
-      <input id="cf-instagram" type="text" placeholder="@username">
-    </div>
-    <div class="contact-field">
-      <label for="cf-message">Message</label>
-      <textarea id="cf-message" rows="4" placeholder="Tell me about your project..."></textarea>
-    </div>
-    <button class="contact-submit">Send Message →</button>
+    <form id="contact-form" novalidate
+          action="https://formspree.io/f/meenkolw" method="POST">
+      <div class="contact-field">
+        <label for="cf-name">Your Name</label>
+        <input id="cf-name" name="name" type="text" placeholder="Mario Rossi"
+               autocomplete="name" required minlength="2" maxlength="100">
+      </div>
+      <div class="contact-field">
+        <label for="cf-email">Email</label>
+        <input id="cf-email" name="email" type="email" placeholder="mario@studio.com"
+               autocomplete="email" required maxlength="200">
+      </div>
+      <div class="contact-field">
+        <label for="cf-instagram">Instagram <span style="opacity:0.5;font-size:9px;letter-spacing:0.05em">(optional)</span></label>
+        <input id="cf-instagram" name="instagram" type="text" placeholder="@username"
+               maxlength="100" autocomplete="off">
+      </div>
+      <div class="contact-field">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" rows="4"
+                  placeholder="Tell me about your project..."
+                  required minlength="10" maxlength="3000"></textarea>
+      </div>
+      <!-- Honeypot: invisible to humans, bots fill it. Submissions with this
+           field non-empty are silently discarded by Formspree. -->
+      <div class="contact-honeypot" aria-hidden="true">
+        <label for="cf-website">Don't fill this in</label>
+        <input id="cf-website" name="_gotcha" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <!-- Formspree subject + reply-to hooks. _replyto makes "Reply" in your
+           inbox go directly to the sender's email, not Formspree. -->
+      <input type="hidden" name="_subject" value="New message from shotbywhosfra.com">
+      <button class="contact-submit" type="submit">
+        <span class="contact-submit-label">Send Message →</span>
+      </button>
+      <!-- Status feedback area: visible only when there's a message to show. -->
+      <div id="contact-status" class="contact-status" role="status" aria-live="polite"></div>
+    </form>
   </div>
 </div>
 
@@ -4295,6 +4393,133 @@ document.getElementById('contact-modal').addEventListener('keydown', function(e)
     e.preventDefault(); first.focus();
   }
 });
+
+/* ── CONTACT FORM submission ──
+   Submits asynchronously to Formspree (no page reload). On success shows
+   inline confirmation + auto-closes after 2.5s. On network error falls
+   back to a mailto: link so the user can still reach Francesco even if
+   the API is down. */
+(function contactFormModule() {
+  var form = document.getElementById('contact-form');
+  if (!form) return;
+  var statusEl = document.getElementById('contact-status');
+  var submitBtn = form.querySelector('.contact-submit');
+  var labelEl = form.querySelector('.contact-submit-label');
+  var FALLBACK_EMAIL = 'francescoaiena99@gmail.com';
+
+  function setStatus(kind, message) {
+    if (!statusEl) return;
+    statusEl.className = 'contact-status is-visible is-' + kind;
+    statusEl.textContent = message;
+  }
+  function clearStatus() {
+    if (!statusEl) return;
+    statusEl.className = 'contact-status';
+    statusEl.textContent = '';
+  }
+  function setSubmitting(isSubmitting) {
+    submitBtn.disabled = isSubmitting;
+    labelEl.textContent = isSubmitting ? 'Sending…' : 'Send Message →';
+  }
+
+  /* Mark invalid fields visually + return list of issues */
+  function validate() {
+    var issues = [];
+    ['cf-name', 'cf-email', 'cf-message'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.classList.remove('is-invalid');
+      var val = (el.value || '').trim();
+      if (!val) {
+        issues.push(id);
+        el.classList.add('is-invalid');
+      } else if (id === 'cf-email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) {
+        issues.push(id);
+        el.classList.add('is-invalid');
+      } else if (id === 'cf-message' && val.length < 10) {
+        issues.push(id);
+        el.classList.add('is-invalid');
+      }
+    });
+    return issues;
+  }
+
+  /* Build a mailto: fallback URL prefilled with current form values.
+     Used only if the network request to Formspree fails outright. */
+  function mailtoFallback() {
+    var name    = (document.getElementById('cf-name').value    || '').trim();
+    var email   = (document.getElementById('cf-email').value   || '').trim();
+    var ig      = (document.getElementById('cf-instagram').value || '').trim();
+    var message = (document.getElementById('cf-message').value || '').trim();
+    var subject = encodeURIComponent('Contact from shotbywhosfra.com');
+    var body = encodeURIComponent(
+      'Name: ' + name + '\n' +
+      'Email: ' + email + '\n' +
+      (ig ? 'Instagram: ' + ig + '\n' : '') +
+      '\n' + message
+    );
+    return 'mailto:' + FALLBACK_EMAIL + '?subject=' + subject + '&body=' + body;
+  }
+
+  form.addEventListener('submit', function(e) {
+    e.preventDefault();
+    clearStatus();
+
+    var issues = validate();
+    if (issues.length) {
+      setStatus('error', 'Please fill in all required fields correctly.');
+      var firstBad = document.getElementById(issues[0]);
+      if (firstBad) firstBad.focus();
+      return;
+    }
+
+    setSubmitting(true);
+    var data = new FormData(form);
+
+    fetch(form.action, {
+      method: 'POST',
+      body: data,
+      headers: { 'Accept': 'application/json' }
+    }).then(function(response) {
+      if (response.ok) {
+        setStatus('success', 'Message sent. I’ll get back to you soon.');
+        form.reset();
+        setTimeout(function() {
+          closeContact();
+          /* Clear status after the modal has slid out so the next time it
+             opens it's a clean slate. */
+          setTimeout(clearStatus, 600);
+        }, 2200);
+      } else {
+        return response.json().then(function(json) {
+          var msg = (json && json.errors && json.errors.map(function(e){return e.message;}).join(', '))
+                    || 'Something went wrong. Please try again.';
+          setStatus('error', msg);
+        }).catch(function() {
+          setStatus('error', 'Something went wrong. Please try again.');
+        });
+      }
+    }).catch(function() {
+      /* Network failure (offline, DNS, blocked). Offer mailto fallback
+         so the user can still reach out. */
+      var link = mailtoFallback();
+      statusEl.className = 'contact-status is-visible is-error';
+      statusEl.innerHTML = 'Couldn\'t send through the form. ' +
+        '<a href="' + link + '" style="color:inherit;text-decoration:underline">Email me directly</a>.';
+    }).finally(function() {
+      setSubmitting(false);
+    });
+  });
+
+  /* Clear "is-invalid" highlight as soon as the user types in a flagged field */
+  form.querySelectorAll('input, textarea').forEach(function(el) {
+    el.addEventListener('input', function() {
+      el.classList.remove('is-invalid');
+      /* Hide any error status as soon as the user starts correcting */
+      if (statusEl.classList.contains('is-error')) clearStatus();
+    });
+  });
+})();
 
 // ---- AI PROJECT DETAILS (modular, archetype: ai-case) ----
 const aiDetails = [
