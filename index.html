@@ -2069,40 +2069,41 @@
   @media (max-width: 768px) {
     .header { padding: 18px 20px; }
 
-    /* HOME: switch from fixed to relative layout so content is reachable */
+    /* HOME on mobile.
+       The home page on mobile mirrors the desktop composition:
+         • Header (FRANCESCO / AIENA) — global fixed, stays at top.
+         • .nav-left (VIDEO/AI/VFX/ABOUT)   → bottom-left.
+         • .bottom-right (Contact + © 2026) → bottom-right, lifted slightly
+           above the very bottom edge so it doesn't hug the cut.
+       We keep #home full-viewport and use absolute positioning for the two
+       corner groups (the same pattern as desktop, just with mobile padding).
+       This is more deterministic than relying on flex justify-content with
+       a variable number of children (the bg-video + overlay are absolutely
+       positioned and don't participate in the flex flow, but mixing flex
+       and absolute kids was producing inconsistent placement). */
     #home {
-      height: auto;
+      height: 100vh;
       min-height: 100vh;
-      overflow-y: auto;
+      overflow: hidden;
       position: relative;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding-bottom: 24px;
-    }
-    #eye-container {
-      position: relative;
-      top: auto; left: auto;
-      transform: none;
-      width: 90vw;
-      margin: 100px auto 0;
+      display: block; /* override desktop's flex */
     }
     .nav-left {
-      position: relative;
-      bottom: auto; left: auto;
-      /* Top padding clears the fixed header band (FRANCESCO / AIENA at top
-         + their hover area). Without this the nav items overlap the header
-         on mobile flex layout. */
-      padding: 96px 20px 0;
+      position: absolute;
+      bottom: 24px;
+      left: 20px;
+      top: auto;
+      right: auto;
+      padding: 0;
     }
     .bottom-right {
-      position: relative;
-      bottom: auto; right: auto;
+      position: absolute;
+      bottom: 8vh; /* lifted above the cut, scales with viewport */
+      right: 20px;
+      left: auto;
+      top: auto;
       text-align: right;
-      /* Lift the Contact + © 2026 group up from the very bottom edge so
-         they sit comfortably above the home base, not hugging the cut. */
-      padding: 16px 20px 14vh;
-      align-self: flex-end;
+      padding: 0;
     }
     .nav-item { font-size: clamp(24px, 7.5vw, 36px); }
     .nav-toggle { width: 40px; height: 40px; font-size: 18px; margin-bottom: 8px; }
