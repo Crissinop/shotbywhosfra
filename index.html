@@ -16,7 +16,13 @@
 <link rel="apple-touch-icon" href="https://cdn.jsdelivr.net/gh/twitter/twemoji@14.0.2/assets/72x72/1f441.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<!-- Type system:
+     • Inter — display + UI sans (4 weights + variable). Replaces Syne.
+       Modern, neutral, exceptional small/large rendering, OT features (tnum).
+     • Instrument Serif — editorial italic for accent words (<em>) and quotes.
+       Replaces DM Serif Display. Slightly more contemporary, sharper at small
+       sizes, same editorial role. -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <!-- Theme bootstrap (anti-FOUC) — runs before any paint, sets [data-theme] from localStorage or system pref -->
 <script>
 (function(){
@@ -84,8 +90,11 @@
     --off-white:  var(--text-dim);
 
     /* Typography */
-    --font-display: 'Syne', sans-serif;
-    --font-serif: 'DM Serif Display', serif;
+    /* Display sans — Inter, with a robust system stack for fallback during
+       webfont load (FOUT) and as a graceful degrade if Inter fails. */
+    --font-display: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    /* Editorial italic — Instrument Serif, with serif fallback chain. */
+    --font-serif: 'Instrument Serif', Georgia, 'Times New Roman', serif;
     --transition: cubic-bezier(0.76, 0, 0.24, 1);
 
     color-scheme: dark;
@@ -121,9 +130,22 @@
     background: var(--bg);
     color: var(--text);
     font-family: var(--font-display);
+    /* Inter OpenType features:
+       cv11  — straight-sided "1" (cleaner with display weights)
+       ss01  — alternate "a" (single-storey, slightly more geometric)
+       cv05  — disambiguates "I/l" in label text
+       Body kept normal-figures; .pd-stat-val opts into tnum below. */
+    font-feature-settings: 'cv11', 'ss01', 'cv05';
     cursor: none;
     overflow-x: hidden;
     transition: background-color 0.4s var(--transition), color 0.4s var(--transition);
+  }
+  /* Tabular numerals where number alignment matters — stats blocks etc. */
+  .ab-num-value,
+  .pd-stat-val,
+  .ab-year,
+  .pd-pipeline-step::before {
+    font-feature-settings: 'cv11', 'tnum';
   }
 
   /* Reduced-motion: disable cursor easing, blink, particles, parallax */
