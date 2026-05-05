@@ -2067,38 +2067,51 @@
 
   /* RESPONSIVE */
   @media (max-width: 768px) {
-    .header { padding: 18px 20px; }
+    .header {
+      padding: calc(18px + env(safe-area-inset-top, 0px)) 20px 18px;
+    }
 
     /* HOME on mobile.
-       The home page on mobile mirrors the desktop composition:
-         • Header (FRANCESCO / AIENA) — global fixed, stays at top.
-         • .nav-left (VIDEO/AI/VFX/ABOUT)   → bottom-left.
-         • .bottom-right (Contact + © 2026) → bottom-right, lifted slightly
-           above the very bottom edge so it doesn't hug the cut.
-       We keep #home full-viewport and use absolute positioning for the two
-       corner groups (the same pattern as desktop, just with mobile padding).
-       This is more deterministic than relying on flex justify-content with
-       a variable number of children (the bg-video + overlay are absolutely
-       positioned and don't participate in the flex flow, but mixing flex
-       and absolute kids was producing inconsistent placement). */
+       The home corners (nav-left, bottom-right) MUST be visible at first
+       paint, without the user having to scroll past the address bar / nav
+       gesture bar. Two pieces are critical:
+
+       1. `#home` height is `100dvh` — *dynamic* viewport height. Unlike
+          `100vh` (which Chrome Android & old iOS calculate as the full
+          screen INCLUDING the URL bar + system nav, so part of the page
+          ends up hidden behind those UIs), `dvh` is the height that is
+          ACTUALLY visible right now. With `dvh` the page never hides
+          content behind the browser chrome.
+          Fallback to `100vh` for browsers without dvh (rare in 2026).
+
+       2. The two corner groups use `position: fixed` instead of
+          `absolute`. Fixed anchors them to the visible viewport rather
+          than to #home. So when Chrome Android shows / hides its URL
+          bar dynamically, the nav stays anchored to the visible bottom.
+
+       3. `safe-area-inset-bottom` adds extra padding for devices with
+          a home-indicator (iPhone 12+ etc.) so the text doesn't sit
+          UNDER the gesture bar. */
     #home {
-      height: 100vh;
+      height: 100vh;             /* fallback */
+      height: 100dvh;
       min-height: 100vh;
+      min-height: 100dvh;
       overflow: hidden;
       position: relative;
-      display: block; /* override desktop's flex */
+      display: block;            /* override desktop's flex */
     }
     .nav-left {
-      position: absolute;
-      bottom: 24px;
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       left: 20px;
       top: auto;
       right: auto;
       padding: 0;
     }
     .bottom-right {
-      position: absolute;
-      bottom: 8vh; /* lifted above the cut, scales with viewport */
+      position: fixed;
+      bottom: calc(20px + env(safe-area-inset-bottom, 0px));
       right: 20px;
       left: auto;
       top: auto;
