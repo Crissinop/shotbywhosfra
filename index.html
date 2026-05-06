@@ -323,6 +323,28 @@
      element with `position: fixed/absolute` paints above a sibling at
      z-index: 0 of the same stacking context provided no rule says otherwise. */
 
+  /* Home foreground text MUST stay light regardless of the active theme.
+     The home page sits over a dark background-video, so even in light theme
+     mode the foreground (FRANCESCO / AIENA / VIDEO / AI / VFX / ABOUT /
+     Contact / © 2026) must be white-on-dark for legibility. We override
+     `color: var(--text)` only when `body[data-page="home"]` is active so
+     inner pages keep their normal theme-driven colours. */
+  body[data-page="home"] .header-firstname,
+  body[data-page="home"] .header-lastname,
+  body[data-page="home"] .nav-item,
+  body[data-page="home"] .contact-btn,
+  body[data-page="home"] .copyright-home,
+  body[data-page="home"] .cta-text {
+    color: #FFFFFF;
+  }
+  /* Underline / hover affordance on contact-btn keeps amber accent */
+  body[data-page="home"] .contact-btn::after {
+    background: var(--accent);
+  }
+  body[data-page="home"] .contact-btn:hover {
+    color: var(--accent);
+  }
+
   /* HEADER */
   .header {
     position: fixed;
@@ -1252,33 +1274,13 @@
     cursor: none;
     position: relative;
   }
-  /* Giant editorial outline number anchored behind each project */
+  /* Giant editorial outline number anchored behind each project.
+     KEPT in markup (data-num is set by JS on each .vfx-project) so the
+     pattern can be re-enabled in the future if needed. Hidden via
+     display:none so it neither paints nor consumes layout space. */
   .vfx-project::before {
+    display: none;
     content: attr(data-num);
-    position: absolute;
-    top: -34px;
-    left: -10px;
-    font-family: var(--font-display);
-    font-size: clamp(120px, 18vw, 240px);
-    font-weight: 800;
-    line-height: 0.85;
-    letter-spacing: -0.05em;
-    -webkit-text-stroke: 1.2px var(--line-strong);
-    color: transparent;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.55;
-    transition: opacity 0.6s var(--transition), transform 0.6s var(--transition);
-  }
-  .vfx-project:hover::before {
-    opacity: 0.85;
-    transform: translateY(-4px);
-    -webkit-text-stroke-color: var(--accent);
-  }
-  /* The reverse layout flips the marker to the right */
-  .vfx-project.reverse::before {
-    left: auto;
-    right: -10px;
   }
   .vfx-project > * { position: relative; z-index: 1; }
   .vfx-project.reverse { direction: rtl; }
@@ -2428,11 +2430,24 @@
     line-height: 1.15;
   }
   .project-detail-text p {
-    font-family: var(--font-serif);
+    /* Project body paragraphs use Inter (the display sans). Italic serif
+       is reserved for emotional/editorial moments — director's notes,
+       pull-quotes, dialogue spreads — not for operational descriptions. */
+    font-family: var(--font-display);
     font-size: clamp(14px, 1.4vw, 17px);
-    font-style: italic;
+    font-weight: 400;
     line-height: 1.75;
-    opacity: 0.75;
+    opacity: 0.85;
+  }
+  /* Inline emphasis stays serif italic in amber — preserves the editorial
+     device of accent words even though the surrounding paragraph is now
+     a clean sans-serif. */
+  .project-detail-text p em {
+    font-family: var(--font-serif);
+    font-style: italic;
+    font-weight: 400;
+    color: var(--accent);
+    opacity: 1;
   }
   .project-detail-closing {
     padding: 100px 0 60px;

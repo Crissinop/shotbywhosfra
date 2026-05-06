@@ -8,9 +8,9 @@ Built as a single HTML file. No framework, no build step, no dependencies.
 ## What's inside
 - **Homepage** with an animated eye
 - **4 sections**: Video, AI, VFX, About
+- **Fully responsive**: mobile layout reflows cleanly without anything getting cut off
 - Vertical nav bottom-left, contact modal, personalized greeting via localStorage
 - Floating particles, custom cursor, right-click and text selection disabled
-- Fully responsive — mobile layout reflows cleanly without anything getting cut off
 
 ## Stack
 - HTML
