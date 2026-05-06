@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>shotbywhosfra — Francesco Aiena · Video, AI & VFX</title>
+<title>Francesco Aiena · Video, AI & VFX</title>
 <meta name="description" content="Portfolio of Francesco Aiena (shotbywhosfra) — video editor, AI-augmented post and VFX. Selected work for music, festivals and brands.">
 <meta name="author" content="Francesco Aiena">
 <meta name="theme-color" content="#0E0F13" media="(prefers-color-scheme: dark)">
 <meta name="theme-color" content="#F4F2EC" media="(prefers-color-scheme: light)">
-<meta property="og:title" content="shotbywhosfra — Francesco Aiena">
+<meta property="og:title" content="Francesco Aiena · Video, AI & VFX">
 <meta property="og:description" content="Video editor · AI · VFX. Selected work and case studies.">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_GB">
@@ -288,9 +288,17 @@
     object-fit: cover;
     z-index: 0;
     pointer-events: none;
-    /* Light desaturation only — keep brightness high so the video is
-       clearly visible. Foreground readability is handled by the overlay. */
-    filter: saturate(0.95);
+    /* Force a dedicated GPU compositing layer. Without translateZ(0),
+       Edge sometimes decodes the video but fails to paint frames to the
+       screen when the <video> sits inside a complex stacking context
+       (relative parent + absolute siblings + z-index ordering). The
+       transform creates a hardware layer that Edge's compositor handles
+       reliably. `will-change: transform` reinforces the hint to the
+       browser. Removed `filter: saturate()` because Edge sometimes
+       refuses to composite filtered videos with hardware acceleration. */
+    transform: translateZ(0);
+    will-change: transform;
+    backface-visibility: hidden;
     /* Transparent background so during load the parent's radial gradient
        shows through, not a black box. */
     background: transparent;
@@ -3288,7 +3296,11 @@
          autoplay muted loop playsinline webkit-playsinline
          disableremoteplayback disablepictureinpicture
          preload="auto" aria-hidden="true" tabindex="-1">
+    <!-- WEBSITE_LANDINGPAGE_smaller.mp4 (transcoded ~10MB) — recommended
+         for production but not yet on the repo. To enable, transcode
+         LandingPage.mp4 and uncomment the line below.
     <source src="media/WEBSITE_LANDINGPAGE_smaller.mp4" type="video/mp4">
+    -->
     <source src="media/LandingPage.mp4" type="video/mp4">
   </video>
   <!-- Dark overlay improves legibility of foreground text against any frame

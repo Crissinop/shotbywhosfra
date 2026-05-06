@@ -6,8 +6,8 @@ Built as a single HTML file. No framework, no build step, no dependencies.
 ---
 
 ## What's inside
-- **Homepage** with an animated eye that follows your cursor and blinks every 5 seconds
-- **5 sections**: Video, AI, VFX, Motion, About
+- **Homepage** with an animated eye
+- **4 sections**: Video, AI, VFX, About
 - Vertical nav bottom-left, contact modal, personalized greeting via localStorage
 - Floating particles, custom cursor, right-click and text selection disabled
 - Fully responsive — mobile layout reflows cleanly without anything getting cut off
@@ -34,4 +34,4 @@ Everything lives in one file. Search for these to update content quickly:
 | Video / project titles | `videoData` `vfxData` |
 
 ## License
-Do whatever you want with it. Just don't pretend you made the eye.
+All rights reserved.
