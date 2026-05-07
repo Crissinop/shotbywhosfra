@@ -5813,7 +5813,10 @@ vfxData.forEach((v, i) => {
       (hasSub ? '<div class="vfx-frame vfx-frame-sub" style="background-image:url(\'' + v.subImg + '\');--sub-rot:' + subRot + '"></div>' : '') +
     '</div>' +
     '<div class="vfx-info">' +
-      '<span class="vfx-index">' + indexStr + ' &mdash; Project</span>' +
+      /* Removed: <span class="vfx-index">NN — Project</span>.
+         Mirrors the same removal done on AI rows. The numeric index
+         is implicit from the visual order; the "— Project" suffix
+         was tautological. Cleaner: title + credit + desc + CTA. */
       '<h2 class="vfx-title">' + v.titleHtml + '</h2>' +
       '<span class="vfx-credit">' + creditHtml + '</span>' +
       '<p class="vfx-desc">' + v.desc + '</p>' +
