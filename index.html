@@ -4517,14 +4517,42 @@ const PD_MODULES = {
   'hero-fullbleed': function(m, project) {
     var hero = pdEl('div', 'project-detail-hero');
     var vid = null;
+    /* Resolve the best poster image: explicit module image > project
+       hero image > the propagated grid thumbnail (Video page only) >
+       nothing. We compute it once and use it BOTH as the <video
+       poster=…> attribute (browser-native loader experience) AND as
+       a CSS background-image on the container itself.
+       Why both? Defense in depth:
+       1. The poster attribute is what fills the video element while
+          the file is buffering — instant perceived load.
+       2. The background-image kicks in if the video element ITSELF
+          fails to render (404, blocked by extensions, codec missing,
+          GitHub raw rate-limit, network drop). The viewer always
+          sees something representative, never an empty black box. */
+    var posterSrc = m.image || project.heroImg || project.__poster || '';
     if (m.video || project.heroVideo) {
       vid = document.createElement('video');
       vid.className = 'project-detail-hero-video';
       vid.muted = true; vid.loop = true; vid.playsInline = true; vid.preload = 'auto';
       vid.setAttribute('muted', ''); vid.setAttribute('playsinline', ''); vid.setAttribute('webkit-playsinline', '');
+      if (posterSrc) vid.setAttribute('poster', posterSrc);
       vid.src = m.video || project.heroVideo;
+      /* Defensive error handler: if the video file fails irreversibly
+         (404, network drop, codec mismatch), hide the <video> element
+         so the container's background-image (set below) shows through.
+         Without this, a failed video leaves a black box covering the
+         poster fallback. */
+      vid.addEventListener('error', function() {
+        vid.style.display = 'none';
+      }, { once: true });
       hero.appendChild(vid);
       project.__heroVideoEl = vid;
+      /* Background-image as last-resort fallback (see comment above) */
+      if (posterSrc) {
+        hero.style.backgroundImage = "url('" + posterSrc + "')";
+        hero.style.backgroundSize = 'cover';
+        hero.style.backgroundPosition = 'center';
+      }
     } else {
       hero.style.backgroundImage = "url('" + (m.image || project.heroImg) + "')";
     }
@@ -5766,6 +5794,12 @@ vfxData.forEach((v, i) => {
       v.detail.__id   = slug(v.title);
       v.detail.__source = 'video';
       v.detail.__videoIndex = i;
+      /* Propagate the grid thumbnail down to the detail object so the
+         hero-fullbleed renderer can use it as a <video poster=…>.
+         The thumb is the curated frame already used in the grid card —
+         the right "what you'll see" preview while the video buffers.
+         Falls back to heroImg if no thumb is set (defensive). */
+      v.detail.__poster = v.thumb || v.detail.heroImg || '';
     });
   }
   /* VFX: detail object slug from title */
