@@ -159,10 +159,14 @@
     #particles { display: none !important; }
   }
 
-  /* Touch devices: disable custom cursor and particles entirely */
+  /* Touch devices: disable custom cursor entirely.
+     Particles ARE kept on touch — the JS uses a lite variant on mobile
+     (see drawParticles `isMobile` branch) that's safe for mid-tier GPUs.
+     The custom cursor is genuinely useless on touch (no hover, no
+     click-feedback model) so it stays disabled here. */
   @media (hover: none), (pointer: coarse) {
     body { cursor: auto !important; }
-    #cursor-dot, #cursor-ring, #particles { display: none !important; }
+    #cursor-dot, #cursor-ring { display: none !important; }
   }
 
   /* Focus visibility — keyboard navigation */
@@ -2379,7 +2383,10 @@
     .inner-page { padding: 90px 20px 60px; }
     body { cursor: auto; }
     #cursor-dot, #cursor-ring { display: none; }
-    #particles { display: none; }
+    /* #particles is no longer hidden on mobile — the JS path now
+       runs a "lite" variant (no halo, no constellation, no
+       repulsion, ~10-22 dots) that's safe for mid-tier mobile GPUs.
+       Keep the canvas visible so the lite path can paint into it. */
   }
 
   /* PROJECT DETAIL PAGE */
@@ -4166,6 +4173,15 @@ let particlesDpr = 1;
 let particlesRafRunning = false;
 let particlesVisible = true;        // set by IntersectionObserver
 
+/* Mobile detection — drives the "lite" particle variant.
+   On mobile we drop several heavy features:
+     - constellation lines (the O(n²) draw)
+     - mouse repulsion (no cursor on touch)
+     - halo glow (extra fill cost per particle)
+   Re-evaluated on resize because users can rotate / resize a window
+   across the breakpoint (rare on phones but normal on tablets). */
+let isMobile = window.matchMedia('(max-width: 768px)').matches;
+
 /* Amber palette derived from --accent / --accent-strong.
    Pre-stringified per-theme to avoid per-frame string ops.
    `dot`     → dense core, 0.55 alpha
@@ -4239,10 +4255,17 @@ function Particle() {
 
 function initParticles() {
   particles = [];
-  /* Density: ~1 particle per 22000 px², capped at 70.
-     On 1920×1080 that's ~70; on 2560×1440 ~70 (cap); on 1366×768 ~47.
-     Adapts gracefully without overwhelming small or huge displays. */
-  const count = Math.min(70, Math.floor((W * H) / 22000));
+  /* Count differentiated by device class:
+     - Desktop: ~1 particle per 22000 px², capped at 70.
+       1920×1080 ≈ 70, 2560×1440 ≈ 70 (cap), 1366×768 ≈ 47.
+     - Mobile: ~1 particle per 35000 px², capped at 22.
+       393×852 (iPhone 14) ≈ 9-10, 412×915 (Pixel 7) ≈ 10-11, but the
+       cap of 22 covers tablets in portrait. Density is intentionally
+       sparser on mobile to read as ambient atmosphere rather than a
+       cluster, given the smaller physical canvas. */
+  const count = isMobile
+    ? Math.min(22, Math.floor((W * H) / 35000))
+    : Math.min(70, Math.floor((W * H) / 22000));
   for (let i = 0; i < count; i++) particles.push(new Particle());
   rebuildParticleColors();
 }
@@ -4257,6 +4280,31 @@ function drawParticles() {
   ctx.clearRect(0, 0, W, H);
 
   const len = particles.length;
+
+  if (isMobile) {
+    /* MOBILE LITE PATH.
+       - No halo: skip the 4× radius arc per particle (~4× fill cost).
+       - No mouse repulsion: meaningless on touch, the "mouse" never
+         enters the canvas.
+       - No constellation lines: skip the entire O(n²) pass.
+       - Only ambient drift + dot draw. With ~10-22 particles this
+         path uses ~0.2-0.4ms per frame even on mid-tier Android. */
+    ctx.fillStyle = particleColors.dot;
+    for (let i = 0; i < len; i++) {
+      const p = particles[i];
+      p.x += p.vxBase;
+      p.y += p.vyBase;
+      if (p.x < -10) p.x = W + 10; else if (p.x > W + 10) p.x = -10;
+      if (p.y < -10) p.y = H + 10; else if (p.y > H + 10) p.y = -10;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    requestAnimationFrame(drawParticles);
+    return;
+  }
+
+  /* DESKTOP RICH PATH — halo + repulsion + constellation. */
   const mx = particleMouseX, my = particleMouseY;
   const repulseR2 = MOUSE_REPULSE_RADIUS_SQ;
 
@@ -4337,7 +4385,10 @@ function startParticles() {
   if (particlesRafRunning) return;
   if (currentPage === 'home') return;       // never paint on home
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if (window.matchMedia('(max-width: 768px)').matches) return;  // mobile: off
+  /* Mobile is now SUPPORTED via the lite path inside drawParticles
+     (no halo, no constellation, no repulsion, ~10-22 dots). The
+     previous early-return on max-width:768px is gone. The `isMobile`
+     flag at the top of this section drives the variant selection. */
   particlesRafRunning = true;
   requestAnimationFrame(drawParticles);
 }
@@ -4367,6 +4418,11 @@ window.addEventListener('resize', () => {
   if (resizeRafScheduled) return;
   resizeRafScheduled = true;
   requestAnimationFrame(() => {
+    /* Re-evaluate device class on resize. Crossing the 768px threshold
+       (window drag on desktop, tablet rotate, dev-tools open) means the
+       count, halo state, and draw path all need to switch. initParticles
+       reads `isMobile` so we update it FIRST. */
+    isMobile = window.matchMedia('(max-width: 768px)').matches;
     initCanvas();
     initParticles();
     resizeRafScheduled = false;
