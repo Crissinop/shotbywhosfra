@@ -238,25 +238,35 @@
     #cursor-dot, #cursor-ring { display: none !important; }
   }
 
-  /* SUPPRESS NATIVE I-BEAM on text inputs.
-     The browser's user-agent stylesheet sets `cursor: text` on inputs,
-     textareas, contenteditable elements and select dropdowns. That rule
-     wins over the global `body { cursor: none }` because element-level
-     UA defaults outweigh ancestor inheritance. Without this override
-     the I-beam appears NEXT TO the custom dot whenever the user hovers
-     a text field — visible most clearly in the contact form modal.
-     We force `cursor: none` on every text-bearing input so only the
-     custom cursor shows. On coarse-pointer devices the media query
-     above hides the custom cursor and the system one returns naturally
-     since `cursor: none` then has no competing custom layer. */
-  input, textarea, select, [contenteditable="true"], [contenteditable=""] {
-    cursor: none;
+  /* SUPPRESS NATIVE CURSOR EVERYWHERE.
+     Previously we forced `cursor: none` only on inputs/textareas, but
+     the native I-beam/text cursor still appeared on:
+       - <label> elements (browser inherits cursor from associated input)
+       - selectable text in paragraphs, spans, headings
+       - any element with `user-select: text` default behavior
+     The robust solution is a global `cursor: none !important` that
+     wins over every browser default and every existing style rule.
+     We then re-enable specific cursors where they make UX sense:
+       - touch / coarse-pointer devices: native cursor must work for
+         inputs (mobile keyboard caret).
+     The `!important` is regrettable but necessary — the user-agent
+     stylesheet has higher origin specificity for some elements like
+     <input> and <textarea>, and only !important-on-author can win. */
+  *, *::before, *::after {
+    cursor: none !important;
   }
-  /* On coarse-pointer / touch devices we WANT the native cursor back
-     on inputs so users see the standard mobile keyboard caret behavior. */
+  /* On coarse-pointer / touch devices the custom cursor is hidden
+     (see media query below). Restore native cursors so users get
+     proper text caret, pointer, etc. */
   @media (hover: none), (pointer: coarse) {
+    *, *::before, *::after {
+      cursor: auto !important;
+    }
+    a, button, [role="button"], .nav-item, .video-card, .ai-row, .vfx-project, label[for] {
+      cursor: pointer !important;
+    }
     input, textarea, select, [contenteditable="true"], [contenteditable=""] {
-      cursor: auto;
+      cursor: text !important;
     }
   }
 
@@ -406,6 +416,14 @@
     background: var(--accent);
   }
   body[data-page="home"] .contact-btn:hover {
+    color: var(--accent);
+  }
+  /* Same amber-on-hover treatment for the main nav items on home.
+     Without this, the white-color override above wins over the
+     generic `.nav-item:hover { color: var(--accent) }` rule and
+     the nav items appear inert on hover. Mirrors the contact-btn
+     treatment for visual consistency. */
+  body[data-page="home"] .nav-item:hover {
     color: var(--accent);
   }
 
@@ -2216,7 +2234,11 @@
   .nav-item:nth-child(4) { animation-delay: 0.54s; }
 
   /* PARTICLE CANVAS */
-  #particles { position: fixed; inset: 0; pointer-events: none; opacity: 0.35; z-index: 1; }
+  /* Particles canvas — global opacity reduced from 0.35 to 0.22 for a
+     more discreet ambient presence. Combined with the lower line-alpha
+     in the constellation pass below, the field reads as "barely-there
+     atmosphere" rather than as a foreground graphic. */
+  #particles { position: fixed; inset: 0; pointer-events: none; opacity: 0.22; z-index: 1; }
 
   /* COPYRIGHT HOME */
   .copyright-home {
@@ -4286,7 +4308,8 @@ function drawParticles() {
      particles and ~130px connect range on a 1080p screen, typically
      fewer than 200 line draws per frame. */
   const rgb = particleColors.lineRgb;
-  ctx.lineWidth = 0.6;
+  /* Line width: 0.5 (was 0.6) — barely-there hairline. */
+  ctx.lineWidth = 0.5;
   for (let i = 0; i < len; i++) {
     const a = particles[i];
     for (let j = i + 1; j < len; j++) {
@@ -4295,9 +4318,9 @@ function drawParticles() {
       const dyc = a.y - b.y;
       const d2 = dxc * dxc + dyc * dyc;
       if (d2 < CONNECT_DISTANCE_SQ) {
-        /* Linear opacity falloff with distance — far pairs draw
-           almost-invisible lines, close pairs draw stronger. */
-        const alpha = (1 - d2 / CONNECT_DISTANCE_SQ) * 0.18;
+        /* Linear opacity falloff with distance. Base alpha lowered
+           from 0.18 to 0.12 for a more discreet constellation. */
+        const alpha = (1 - d2 / CONNECT_DISTANCE_SQ) * 0.12;
         ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha.toFixed(3) + ')';
         ctx.beginPath();
         ctx.moveTo(a.x, a.y);
@@ -5422,13 +5445,11 @@ const aiProjects = [
     row.innerHTML =
       '<span class="ai-row-num" aria-hidden="true">' + p.num + '</span>' +
       '<div class="ai-row-text">' +
-        '<div class="ai-row-meta">' +
-          '<span>' + p.num + '</span>' +
-          '<span class="ai-row-meta-sep" aria-hidden="true"></span>' +
-          '<span>' + escapeHTML(p.client || '') + '</span>' +
-          '<span class="ai-row-meta-sep" aria-hidden="true"></span>' +
-          '<span>' + escapeHTML(p.tool || '') + '</span>' +
-        '</div>' +
+        /* Removed: <div class="ai-row-meta"> with num — client — tool.
+           The number is already prominently displayed as the giant
+           background numeral (.ai-row-num) and the client/tool was
+           often repeating itself ("02 — RUNWAY GEN-3 — RUNWAY GEN-3")
+           which read as redundant clutter. Cleaner: title + desc + CTA. */
         '<h3 class="ai-row-title">' + p.titleHtml + '</h3>' +
         '<p class="ai-row-desc">' + p.desc + '</p>' +
         '<span class="ai-row-cta">Open Case Study</span>' +
