@@ -862,6 +862,12 @@
     word-break: normal;
     hyphens: auto;
   }
+  /* About page only: the page title sits centred. Other inner pages
+     (Video, AI, VFX) keep their editorial-left layout, which suits
+     their list/grid content better. */
+  .about-page .page-title {
+    text-align: center;
+  }
 
   /* VIDEO PAGE GRID */
   .video-grid {
@@ -1492,41 +1498,26 @@
   }
   .ab-section:last-of-type { border-bottom: none; }
 
-  /* Section header: small index + title — same family used on AI/VFX.
-     Layout: 3-column grid so the centre cell (title) is centred relative
-     to the section width, while the index ("02") stays at its natural
-     position on the left. The empty third column mirrors the index on
-     the right to balance the centring. Falls back to a baseline-aligned
-     flex on browsers without grid support (none in current scope, but
-     defensive). */
+  /* Section header: title only — the small numeric index ("02", "03"…)
+     was removed per design request. Now a single centered title block,
+     so we don't need a 3-column grid anymore. The title sits centered
+     by virtue of its own text-align + the parent being a block. */
   .ab-section-head {
-    display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    align-items: baseline;
-    column-gap: 28px;
     margin-bottom: clamp(40px, 5vw, 64px);
-  }
-  .ab-section-num {
-    font-family: var(--font-display);
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--text-mute);
-    padding-top: 4px;
-    /* Lives in column 1, anchored left so it stays in its editorial slot */
-    justify-self: start;
+    text-align: center;
   }
   .ab-section-title {
     font-family: var(--font-display);
-    font-size: clamp(24px, 2.8vw, 40px);
+    /* Bumped up significantly: was clamp(24px, 2.8vw, 40px). The
+       previous size was overpowered by the 48-120px stat numbers
+       beneath it; now the title carries the proper visual weight
+       of a section header relative to the body content. */
+    font-size: clamp(40px, 5vw, 64px);
     font-weight: 800;
     letter-spacing: -0.025em;
-    line-height: 1;
+    line-height: 1.05;
     color: var(--text);
     margin: 0;
-    /* Centred within column 2 (auto-sized to title's intrinsic width) */
-    text-align: center;
   }
 
   /* ─── 1. STATEMENT — editorial prose with side meta ─── */
@@ -3681,7 +3672,6 @@
     <!-- ───── 4. NUMBERS — typographic, quiet ───── -->
     <section class="ab-numbers ab-section">
       <header class="ab-section-head">
-        <span class="ab-section-num">02</span>
         <h2 class="ab-section-title">By the numbers</h2>
       </header>
       <div class="ab-num-grid">
@@ -3703,7 +3693,6 @@
     <!-- ───── 2. CAPABILITIES — numbered list, no percentages ───── -->
     <section class="ab-capabilities ab-section">
       <header class="ab-section-head">
-        <span class="ab-section-num">03</span>
         <h2 class="ab-section-title">What I do</h2>
       </header>
       <ol class="ab-cap-list" role="list">
@@ -3748,7 +3737,6 @@
     <!-- ───── 3. SELECTED — clients + recognition unified ───── -->
     <section class="ab-selected ab-section">
       <header class="ab-section-head">
-        <span class="ab-section-num">04</span>
         <h2 class="ab-section-title">Selected</h2>
       </header>
       <div class="ab-selected-grid">
