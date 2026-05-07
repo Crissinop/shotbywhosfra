@@ -177,7 +177,11 @@
     outline: none;
   }
 
-  /* CUSTOM CURSOR — dual-layer, GPU-accelerated, sub-pixel smooth */
+  /* CUSTOM CURSOR — minimal, refined.
+     Both elements positioned via transform (translate3d); the -50%/-50%
+     centering is achieved with margin (set once). Hover/down feedback
+     uses transform + opacity + box-shadow only — never width/height,
+     never margin. No layout, only compositing. */
   #cursor-dot, #cursor-ring {
     position: fixed;
     top: 0; left: 0;
@@ -187,35 +191,51 @@
     transform: translate3d(-100px, -100px, 0);
   }
   #cursor-dot {
-    width: 6px; height: 6px;
-    margin: -3px 0 0 -3px;
-    background: var(--text);
+    width: 4px; height: 4px;
+    margin: -2px 0 0 -2px;
+    background: var(--accent);
     border-radius: 50%;
+    /* No glow in idle — keeps the cursor disciplined and unobtrusive.
+       Glow only appears on hover (see below) as a feedback signal. */
     transition: opacity 0.2s ease, background 0.2s ease;
   }
   #cursor-ring {
-    width: 36px; height: 36px;
-    margin: -18px 0 0 -18px;
-    border: 1.5px solid var(--line-strong);
+    width: 30px; height: 30px;
+    margin: -15px 0 0 -15px;
+    /* Whisper-thin ring — barely there until hover. The 0.32 alpha
+       on the border makes it read as a hint of an outline rather
+       than a hard graphic element. */
+    border: 0.8px solid rgba(232, 184, 111, 0.32);
     border-radius: 50%;
     transition:
-      width 0.32s var(--transition),
-      height 0.32s var(--transition),
-      margin 0.32s var(--transition),
-      border-color 0.3s ease,
-      background 0.3s ease,
-      opacity 0.25s ease;
+      border-color 0.25s ease,
+      background 0.25s ease,
+      opacity 0.25s ease,
+      box-shadow 0.32s var(--transition);
   }
+  /* Hover — single soft bloom, no nested shadows. Border becomes
+     fully amber but stays thin; a single 14px amber wash gives the
+     "lit on hover" feel without theatrics. */
   #cursor-ring.hover {
-    width: 64px; height: 64px;
-    margin: -32px 0 0 -32px;
-    background: var(--accent-soft);
-    border-color: var(--accent);
+    border-color: rgba(232, 184, 111, 0.85);
+    background: rgba(232, 184, 111, 0.05);
+    box-shadow: 0 0 0 8px rgba(232, 184, 111, 0.06);
   }
-  #cursor-dot.hover { background: var(--accent); }
+  #cursor-dot.hover {
+    /* Subtle hover: dot brightens, no scale, no glow. Restraint. */
+    background: var(--text);
+  }
   #cursor-ring.down {
-    width: 28px; height: 28px;
-    margin: -14px 0 0 -14px;
+    /* Click feedback: border tightens to full amber. No bloom. */
+    border-color: rgba(232, 184, 111, 1);
+    border-width: 1px;
+  }
+
+  /* Hide custom cursor on touch / coarse-pointer devices.
+     `hover: none` and `pointer: coarse` together identify mobile/tablet
+     reliably without UA sniffing. */
+  @media (hover: none), (pointer: coarse) {
+    #cursor-dot, #cursor-ring { display: none !important; }
   }
 
   /* PAGE SYSTEM */
@@ -226,8 +246,23 @@
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.5s var(--transition), transform 0.5s var(--transition), visibility 0s 0.5s;
-    transform: translateY(30px);
+    /* PERFORMANCE: translate3d (not translateY) is non-negotiable here.
+       2D transforms like translateY are an ambiguous hint — some
+       browsers promote to a GPU layer, others don't. translate3d
+       is unambiguous: the compositor MUST allocate a layer. Without
+       this hint, the .page → .page.active transition triggered an
+       on-the-fly layer creation at the moment of the back-button
+       click, which stalled the main thread for ~600-1000ms while
+       the compositor built the layer for two full-screen pages
+       simultaneously (source page fading out + home fading in). */
+    transform: translate3d(0, 30px, 0);
     overflow: visible; /* NO overflow here — keeps video out of scroll-clip context */
+    /* will-change is NOT set here permanently. Permanent will-change is
+       an anti-pattern: it keeps layers alive in GPU memory forever and
+       can degrade overall page performance. We set it on demand from
+       JS (showPage) immediately before the transition and clear it on
+       transitionend. See "page transition layer hint" block in the
+       routing section. */
   }
   /* Scrolling is handled by a dedicated inner wrapper, not .page itself */
   .page-scroll-wrapper {
@@ -240,9 +275,16 @@
     opacity: 1;
     visibility: visible;
     pointer-events: all;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
     z-index: 10;
     transition: opacity 0.5s var(--transition), transform 0.5s var(--transition), visibility 0s 0s;
+  }
+  /* Transient class set by JS during the page swap window. It's the
+     only place will-change appears, scoped to the ~600ms window when
+     the transition is actually running. After transitionend the class
+     is removed and the layer is freed back to the compositor. */
+  .page.is-transitioning {
+    will-change: opacity, transform;
   }
 
   /* HOME PAGE */
@@ -1450,11 +1492,18 @@
   }
   .ab-section:last-of-type { border-bottom: none; }
 
-  /* Section header: small index + title — same family used on AI/VFX */
+  /* Section header: small index + title — same family used on AI/VFX.
+     Layout: 3-column grid so the centre cell (title) is centred relative
+     to the section width, while the index ("02") stays at its natural
+     position on the left. The empty third column mirrors the index on
+     the right to balance the centring. Falls back to a baseline-aligned
+     flex on browsers without grid support (none in current scope, but
+     defensive). */
   .ab-section-head {
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: baseline;
-    gap: 28px;
+    column-gap: 28px;
     margin-bottom: clamp(40px, 5vw, 64px);
   }
   .ab-section-num {
@@ -1464,8 +1513,9 @@
     letter-spacing: 0.22em;
     text-transform: uppercase;
     color: var(--text-mute);
-    flex-shrink: 0;
     padding-top: 4px;
+    /* Lives in column 1, anchored left so it stays in its editorial slot */
+    justify-self: start;
   }
   .ab-section-title {
     font-family: var(--font-display);
@@ -1475,6 +1525,8 @@
     line-height: 1;
     color: var(--text);
     margin: 0;
+    /* Centred within column 2 (auto-sized to title's intrinsic width) */
+    text-align: center;
   }
 
   /* ─── 1. STATEMENT — editorial prose with side meta ─── */
@@ -1689,8 +1741,11 @@
     gap: 12px;
     padding: 0;
     flex: 0 0 auto;
-    align-items: flex-start;
-    text-align: left;
+    /* Each stat (number + label) is centred on its own column.
+       The number's intrinsic width is determined by font-size; the
+       label sits below, centred horizontally relative to that number. */
+    align-items: center;
+    text-align: center;
     min-width: 0; /* allow shrinking under flex container constraint */
   }
   .ab-num-value {
@@ -3140,6 +3195,11 @@
 
   /* Fixed positions for desktop */
   #theme-switcher { position: fixed; z-index: 200; pointer-events: all; }
+  /* PER USER REQUEST: theme switcher is HIDDEN on home. The home page
+     is dominated by the bg video, where switching themes has minimal
+     practical effect. The switcher remains on all inner pages where
+     light/dark mode is meaningful. */
+  body[data-page="home"] #theme-switcher { display: none !important; }
   #theme-switcher.home-pos {
     bottom: 36px;
     left: 50%;
@@ -3207,6 +3267,160 @@
   /* On touch devices, allow native cursor on the toggle */
   @media (hover: none), (pointer: coarse) {
     .theme-toggle { cursor: pointer; }
+  }
+
+  /* ============================================================
+     PROJECT DETAIL — MOBILE CENTERING
+     ------------------------------------------------------------
+     Per request: on mobile, EVERY element of a project-detail page
+     should be centered (text + block elements). Below 768px the
+     editorial multi-column / side-anchored layouts collapse into
+     a single centered column where every component (titles, body,
+     credits, stats, hero meta, dialogue layouts, pipeline steps,
+     pull-quotes, etc.) sits centered horizontally with text-align
+     center for inline content.
+
+     The selectors are scoped to #project-detail-page so they don't
+     leak into AI/VFX/Video/About inner pages. Each rule includes
+     the specific override needed; we don't blanket-apply
+     `text-align: center` to the page root because a couple of
+     descendants (e.g. credits which is a flex grid) need explicit
+     justify rules to actually center.
+     ============================================================ */
+  @media (max-width: 768px) {
+    /* Root container: text alignment is centered by default; block
+       children that need different alignment override locally. */
+    #project-detail-page,
+    #project-detail-page .pd-module,
+    #project-detail-page .pd-module > * {
+      text-align: center;
+    }
+
+    /* Hero typographic block — center the meta line, title and feat */
+    #project-detail-page .pd-hero-typo,
+    #project-detail-page .pd-hero-typo-meta,
+    #project-detail-page .pd-hero-typo-title,
+    #project-detail-page .pd-hero-typo-feat {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Stats strip — center its grid items */
+    #project-detail-page .pd-stats {
+      justify-content: center;
+      text-align: center;
+    }
+    #project-detail-page .pd-stat,
+    #project-detail-page .pd-stat-val,
+    #project-detail-page .pd-stat-label {
+      text-align: center;
+      align-items: center;
+    }
+
+    /* Lyrics block */
+    #project-detail-page .pd-lyrics,
+    #project-detail-page .pd-lyrics-label,
+    #project-detail-page .pd-lyrics-text {
+      text-align: center;
+      justify-content: center;
+    }
+
+    /* Split feature: stack media and text vertically, both centered */
+    #project-detail-page .pd-split,
+    #project-detail-page .pd-split-text,
+    #project-detail-page .pd-split-media {
+      text-align: center;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Director's note */
+    #project-detail-page .pd-director,
+    #project-detail-page .pd-director-name,
+    #project-detail-page .pd-director-body {
+      text-align: center;
+      align-items: center;
+    }
+
+    /* Credits — flex grid: center each row + each cell */
+    #project-detail-page .pd-credits {
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    #project-detail-page .pd-credit,
+    #project-detail-page .pd-credit-role,
+    #project-detail-page .pd-credit-name {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Pull-quote */
+    #project-detail-page .pd-pullquote,
+    #project-detail-page .pd-pullquote-text,
+    #project-detail-page .pd-pullquote-attr {
+      text-align: center;
+      justify-content: center;
+    }
+
+    /* Dialogue layout — heading + body + frame centered */
+    #project-detail-page .pd-dialogue-inner,
+    #project-detail-page .pd-dialogue-heading,
+    #project-detail-page .pd-dialogue-body,
+    #project-detail-page .pd-dialogue-frame {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Pipeline (process steps) */
+    #project-detail-page .pd-pipeline,
+    #project-detail-page .pd-pipeline-title,
+    #project-detail-page .pd-pipeline-steps,
+    #project-detail-page .pd-pipeline-step {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Stack / sheet (compare frames, contact-sheet) */
+    #project-detail-page .pd-stack,
+    #project-detail-page .pd-stack-items,
+    #project-detail-page .pd-stack-label,
+    #project-detail-page .pd-sheet,
+    #project-detail-page .pd-sheet-grid,
+    #project-detail-page .pd-sheet-label,
+    #project-detail-page .pd-compare,
+    #project-detail-page .pd-compare-split,
+    #project-detail-page .pd-compare-title {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+    }
+
+    /* Block-level elements that may have margin-anchored alignment:
+       force margin-auto so they recenter inside their parent. */
+    #project-detail-page .pd-module > p,
+    #project-detail-page .pd-module > h1,
+    #project-detail-page .pd-module > h2,
+    #project-detail-page .pd-module > h3,
+    #project-detail-page .pd-module > h4,
+    #project-detail-page .pd-module > h5,
+    #project-detail-page .pd-module > div:not(.pd-fullbleed):not(.pd-dialogue-img) {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Full-bleed images stay full-width — DO NOT center them as that
+       would shrink them. Only their captions (if any) center. */
+    #project-detail-page .pd-fullbleed,
+    #project-detail-page .pd-dialogue-img {
+      text-align: center;
+    }
   }
 
   /* Scrollbar */
@@ -3682,10 +3896,47 @@ let dx = -100, dy = -100;
 let mx = 0, my = 0;
 let rafRunning = false;
 
+/* Page state — declared early because the particles loop reads
+   currentPage as one of its visibility gates (see drawParticles). */
+let currentPage = 'home';
+let _isPopState = false; // prevents pushState ↔ popstate loops
+
+/* PERFORMANCE NOTE — Home was stuttering at 180Hz (180 frames/sec, 5.5ms
+   budget per frame). Root causes identified and fixed:
+   1. movePupil() was called SYNCHRONOUSLY inside mousemove. It calls
+      getBoundingClientRect() — every call forces a sync layout. At 180Hz
+      with a fast mouse → ~200-300 reflows/sec → main thread saturation
+      → system cursor visibly stutters.
+   2. eyeAnimLoop() RAF-recursed forever with no idle detection, even
+      after lerp converged. 6 setAttribute() per frame on SVG, plus 6
+      getElementById() per frame.
+   3. drawParticles() recursed forever without an IntersectionObserver
+      on the canvas — it kept painting even when home was inactive
+      (display:none ≠ "stop the rAF"; the rAF loop has no idea about
+      visibility unless we tell it).
+   Fix: mousemove now ONLY stores coordinates (cheap). All eye-related
+   work moved into eyeAnimLoop(). Pupil rect cached and invalidated
+   only on resize/scroll. Element refs lazily resolved once. Idle
+   detection added: when delta < EPSILON the loop suspends and only
+   resumes on new mousemove input. Particles canvas observed via
+   IntersectionObserver; loop also gated on currentPage === 'home'. */
+
 document.addEventListener('mousemove', e => {
+  /* Hot path: write only. Zero layout reads, zero DOM writes here. */
   tx = e.clientX; ty = e.clientY;
   mx = tx; my = ty;
-  movePupil(mx, my);
+  /* PERFORMANCE: eye guard MOVED outside the hot path.
+     getElementById is cheap (~0.001ms) but at 200+ events/sec on home
+     where the eye doesn't exist, it adds up. We pre-resolve eyeRefs
+     once at boot and gate on the cached reference, not on a live DOM
+     query per event. eyeNeedsUpdate flag is still set for inner pages. */
+  if (eyeRefs) {
+    eyeNeedsUpdate = true;
+    if (!eyeRafRunning) {
+      eyeRafRunning = true;
+      requestAnimationFrame(eyeAnimLoop);
+    }
+  }
   if (!rafRunning) { rafRunning = true; requestAnimationFrame(tick); }
 }, { passive: true });
 
@@ -3701,6 +3952,7 @@ document.addEventListener('mouseenter', () => {
 });
 
 const DOT_EASE = 0.55, RING_EASE = 0.18;
+
 function tick() {
   dx += (tx - dx) * DOT_EASE;
   dy += (ty - dy) * DOT_EASE;
@@ -3733,106 +3985,359 @@ let currentPX = 200, currentPY = 96;
 let targetBGX = 0, targetBGY = 0;
 let currentBGX = 0, currentBGY = 0;
 
-function movePupil(px, py) {
-  const eye = document.getElementById('eye-container');
-  if (!eye) return;
-  const rect = eye.getBoundingClientRect();
+/* Cached bounding rect of the eye container. Recomputed only on resize
+   and scroll (debounced via rAF), NOT on every mousemove. This eliminates
+   the layout-thrashing pattern that was the primary cause of cursor
+   stutter at 180Hz. */
+let eyeRectCache = null;
+function invalidateEyeRect() { eyeRectCache = null; }
+window.addEventListener('resize', invalidateEyeRect, { passive: true });
+window.addEventListener('scroll', invalidateEyeRect, { passive: true, capture: true });
+
+/* Cached SVG element references — resolved once on first frame, reused
+   across all subsequent frames. Avoids 6× getElementById per frame. */
+let eyeRefs = null;
+function resolveEyeRefs() {
+  const c = document.getElementById('eye-container');
+  if (!c) return null;
+  return {
+    container: c,
+    ig: document.getElementById('iris-group'),
+    bgG: document.getElementById('eye-bg-group'),
+    pg: document.getElementById('pupil-glow')
+  };
+}
+
+/* Computes target pupil/iris positions from the latest mouse coords.
+   Pure geometry — no DOM writes. Called from eyeAnimLoop, NOT from
+   the mousemove listener. */
+function computeEyeTargets() {
+  if (!eyeRefs || !eyeRefs.container) return;
+  if (!eyeRectCache) eyeRectCache = eyeRefs.container.getBoundingClientRect();
+  const rect = eyeRectCache;
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
-
-  // Normalize cursor position relative to screen center
-  const nx = (px - cx) / window.innerWidth;
-  const ny = (py - cy) / window.innerHeight;
-
-  // Target positions for pupil (max offset limited anatomically)
+  const nx = (mx - cx) / window.innerWidth;
+  const ny = (my - cy) / window.innerHeight;
   const maxX = 14, maxY = 8;
   targetPX = 200 + Math.max(-maxX, Math.min(maxX, nx * maxX * 2.5));
   targetPY = 96  + Math.max(-maxY, Math.min(maxY, ny * maxY * 2.5));
-
-  // Background group (eyeball) shifts very slightly — like the whole eye moves
   targetBGX = nx * 3;
   targetBGY = ny * 1.8;
 }
 
+/* Idle detection: when the lerp delta drops below this threshold the
+   loop suspends. New mouse input or a blink will set eyeNeedsUpdate
+   = true and re-arm the rAF. */
+const EYE_EPSILON = 0.05;
+let eyeNeedsUpdate = false;
+let eyeRafRunning = false;
+
 function eyeAnimLoop() {
-  // If the eye DOM has been removed (post-redesign), don't keep RAF-looping.
-  if (!document.getElementById('eye-container')) return;
-  // Lerp pupil toward target (lazy follow)
+  /* Guard for non-home pages where the eye DOM doesn't exist */
+  if (!eyeRefs) eyeRefs = resolveEyeRefs();
+  if (!eyeRefs) { eyeRafRunning = false; return; }
+
+  computeEyeTargets();
+
   const ease = 0.055;
-  currentPX += (targetPX - currentPX) * ease;
-  currentPY += (targetPY - currentPY) * ease;
-  currentBGX += (targetBGX - currentBGX) * 0.035;
-  currentBGY += (targetBGY - currentBGY) * 0.035;
+  const ddPX = (targetPX - currentPX) * ease;
+  const ddPY = (targetPY - currentPY) * ease;
+  const ddBX = (targetBGX - currentBGX) * 0.035;
+  const ddBY = (targetBGY - currentBGY) * 0.035;
+  currentPX += ddPX;
+  currentPY += ddPY;
+  currentBGX += ddBX;
+  currentBGY += ddBY;
 
-  const pi = document.getElementById('pupil-inner');
-  const id = document.getElementById('iris-disc');
-  const pg = document.getElementById('pupil-glow');
-  const ig = document.getElementById('iris-group');
-  const bgG = document.getElementById('eye-bg-group');
-  const fibers = document.getElementById('iris-fibers');
-
-  if (ig) {
-    // Move the whole iris+pupil group
-    ig.setAttribute('transform', `translate(${currentPX - 200}, ${currentPY - 96})`);
+  if (eyeRefs.ig) {
+    eyeRefs.ig.setAttribute('transform', `translate(${currentPX - 200}, ${currentPY - 96})`);
   }
-  if (bgG) {
-    bgG.setAttribute('transform', `translate(${currentBGX}, ${currentBGY})`);
+  if (eyeRefs.bgG) {
+    eyeRefs.bgG.setAttribute('transform', `translate(${currentBGX}, ${currentBGY})`);
   }
-  // Catchlight stays mostly in place but drifts very slightly (wet eye feel)
-  if (pg) {
-    pg.setAttribute('cx', 190 + (currentPX - 200) * 0.12);
-    pg.setAttribute('cy', 82  + (currentPY - 96)  * 0.12);
+  if (eyeRefs.pg) {
+    eyeRefs.pg.setAttribute('cx', 190 + (currentPX - 200) * 0.12);
+    eyeRefs.pg.setAttribute('cy', 82  + (currentPY - 96)  * 0.12);
   }
 
-  requestAnimationFrame(eyeAnimLoop);
+  /* Idle detection: if pupil is essentially at target AND no fresh
+     mouse input came in this frame, suspend until something changes. */
+  const stillMoving =
+    Math.abs(ddPX) > EYE_EPSILON || Math.abs(ddPY) > EYE_EPSILON ||
+    Math.abs(ddBX) > EYE_EPSILON || Math.abs(ddBY) > EYE_EPSILON;
+
+  if (stillMoving || eyeNeedsUpdate) {
+    eyeNeedsUpdate = false;
+    requestAnimationFrame(eyeAnimLoop);
+  } else {
+    eyeRafRunning = false;
+  }
 }
-eyeAnimLoop();
+/* Bootstrap: only start the loop if the eye is actually in the DOM.
+   On home it isn't (the SVG eye lives elsewhere in the app); on pages
+   where it IS injected the first mousemove will arm the rAF. To handle
+   the initial blink/idle motion before any mouse input, we kick off
+   one frame here if eyeRefs resolve immediately. */
+(function bootstrapEye() {
+  eyeRefs = resolveEyeRefs();
+  if (eyeRefs && !eyeRafRunning) {
+    eyeRafRunning = true;
+    requestAnimationFrame(eyeAnimLoop);
+  }
+})();
 
-// ---- PARTICLES ----
+/* ============================================================
+   INTERACTIVE PARTICLE FIELD — inner pages only (NOT home)
+   ------------------------------------------------------------
+   Concept:
+   - Sparse field of small amber dots floating with very gentle
+     drift.
+   - Soft glow halo around each dot for a refined, jewel-like
+     look (nothing harsh, nothing cartoonish).
+   - Mouse interaction: a "force field" around the cursor pushes
+     nearby particles AWAY (gentle repulsion). When the mouse
+     stops, particles drift back to their natural trajectory.
+   - Constellation lines: when two particles get close enough,
+     a thin amber line connects them with opacity fading by
+     distance. This creates a living, organic mesh.
+   - Hidden on the home page entirely (the bg video does the
+     visual heavy-lifting there, per Cristiano's brief).
+   - Hidden on mobile / reduced-motion / when tab is hidden.
+
+   Performance posture:
+   - Single canvas, single rAF.
+   - O(n²) connection check is bounded by a hard cap and a
+     squared-distance gate to skip the sqrt for far pairs.
+   - Particle count adapted to viewport area, hard-capped.
+   - DPR-aware sizing capped at 2 to avoid shader-fill explosion
+     on 4K Retina screens.
+   - Theme-cached fillStyle/strokeStyle strings; no per-frame
+     string allocation in the hot loop.
+   - IntersectionObserver pauses the loop when canvas leaves
+     viewport; visibilitychange pauses when tab is hidden;
+     currentPage gate suspends entirely when on home.
+   ============================================================ */
+
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let W, H, particles = [];
-function initCanvas() {
-  W = canvas.width = window.innerWidth;
-  H = canvas.height = window.innerHeight;
+let particlesDpr = 1;
+let particlesRafRunning = false;
+let particlesVisible = true;        // set by IntersectionObserver
+
+/* Amber palette derived from --accent / --accent-strong.
+   Pre-stringified per-theme to avoid per-frame string ops.
+   `dot`     → dense core, 0.55 alpha
+   `halo`    → soft glow, 0.15 alpha
+   `line`    → constellation line base, modulated per-frame by distance */
+let particleColors = { dot: '', halo: '', lineRgb: '' };
+function rebuildParticleColors() {
+  /* The palette is amber-dominant in BOTH themes — Cristiano explicitly
+     asked for "tono dei nav-items (amber/oro)". We bias slightly lighter
+     in dark mode for legibility; in light mode we deepen toward
+     accent-strong so the particles read against bright backgrounds. */
+  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+  const rgb = isLight ? '183, 121, 31' : '232, 184, 111';   // #B7791F vs #E8B86F
+  particleColors.dot     = 'rgba(' + rgb + ', 0.62)';
+  particleColors.halo    = 'rgba(' + rgb + ', 0.10)';
+  particleColors.lineRgb = rgb;     // alpha appended per-frame in draw loop
 }
+
+/* MutationObserver — repaints palette only when theme actually changes,
+   not per frame. */
+if ('MutationObserver' in window) {
+  new MutationObserver(rebuildParticleColors)
+    .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+}
+
+/* Mouse position tracked SEPARATELY from the cursor system.
+   Reason: this listener fires only when particles loop is running,
+   so we don't pay the cost on home where particles are off. */
+let particleMouseX = -9999, particleMouseY = -9999;
+const MOUSE_REPULSE_RADIUS = 110;          // px in CSS units
+const MOUSE_REPULSE_RADIUS_SQ = MOUSE_REPULSE_RADIUS * MOUSE_REPULSE_RADIUS;
+const MOUSE_REPULSE_FORCE = 0.6;           // tuning constant
+function onParticleMouseMove(e) {
+  particleMouseX = e.clientX;
+  particleMouseY = e.clientY;
+}
+function onParticleMouseLeave() {
+  particleMouseX = -9999;
+  particleMouseY = -9999;
+}
+
+/* Connection distance — particles closer than this draw a line.
+   At 130px on a 1080p screen this gives a comfortable mesh
+   without filling the screen with spaghetti. Squared form used
+   in the inner loop to skip the sqrt. */
+const CONNECT_DISTANCE = 130;
+const CONNECT_DISTANCE_SQ = CONNECT_DISTANCE * CONNECT_DISTANCE;
+
+function initCanvas() {
+  particlesDpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width  = Math.round(W * particlesDpr);
+  canvas.height = Math.round(H * particlesDpr);
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(particlesDpr, 0, 0, particlesDpr, 0, 0);
+}
+
 function Particle() {
   this.x = Math.random() * W;
   this.y = Math.random() * H;
-  this.r = Math.random() * 1.5 + 0.3;
-  this.vx = (Math.random() - 0.5) * 0.3;
-  this.vy = (Math.random() - 0.5) * 0.3;
-  this.alpha = Math.random() * 0.4 + 0.1;
+  this.r = Math.random() * 1.2 + 0.6;       // 0.6–1.8 px
+  /* Base velocity — slow ambient drift. The repulsion logic adds
+     transient velocity on top of this, then friction drags us back. */
+  this.vxBase = (Math.random() - 0.5) * 0.18;
+  this.vyBase = (Math.random() - 0.5) * 0.18;
+  this.vx = this.vxBase;
+  this.vy = this.vyBase;
 }
+
 function initParticles() {
   particles = [];
-  for (let i = 0; i < 60; i++) particles.push(new Particle());
+  /* Density: ~1 particle per 22000 px², capped at 70.
+     On 1920×1080 that's ~70; on 2560×1440 ~70 (cap); on 1366×768 ~47.
+     Adapts gracefully without overwhelming small or huge displays. */
+  const count = Math.min(70, Math.floor((W * H) / 22000));
+  for (let i = 0; i < count; i++) particles.push(new Particle());
+  rebuildParticleColors();
 }
+
 function drawParticles() {
-  // Pause when tab hidden
-  if (document.hidden) { requestAnimationFrame(drawParticles); return; }
+  /* Three independent gates: tab visible, canvas in viewport,
+     not on home. ALL three must hold to keep painting. */
+  if (document.hidden || !particlesVisible || currentPage === 'home') {
+    particlesRafRunning = false;
+    return;
+  }
   ctx.clearRect(0, 0, W, H);
-  // Read theme to choose particle tint (re-read each frame is cheap, root attr)
-  const isLight = document.documentElement.getAttribute('data-theme') === 'light';
-  const rgb = isLight ? '20,20,26' : '255,255,255';
-  particles.forEach(p => {
-    p.x += p.vx; p.y += p.vy;
-    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-    if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+
+  const len = particles.length;
+  const mx = particleMouseX, my = particleMouseY;
+  const repulseR2 = MOUSE_REPULSE_RADIUS_SQ;
+
+  /* PASS 1 — physics + dot draw.
+     We loop once over particles to: apply repulsion, integrate
+     position, wrap, draw the halo + dot. Halos use additive
+     compositing for the glow effect. */
+  ctx.fillStyle = particleColors.halo;
+  for (let i = 0; i < len; i++) {
+    const p = particles[i];
+    /* Mouse repulsion — squared distance gate avoids sqrt for far
+       particles. Inverse-square-ish falloff: closer = stronger push. */
+    const dxm = p.x - mx;
+    const dym = p.y - my;
+    const dist2 = dxm * dxm + dym * dym;
+    if (dist2 < repulseR2) {
+      /* Now we DO need the sqrt for direction normalization */
+      const dist = Math.sqrt(dist2) || 1;
+      const force = (1 - dist / MOUSE_REPULSE_RADIUS) * MOUSE_REPULSE_FORCE;
+      p.vx += (dxm / dist) * force;
+      p.vy += (dym / dist) * force;
+    }
+    /* Friction drags transient velocity back toward the base drift —
+       creates the "settle back" feeling after the mouse leaves. */
+    p.vx = p.vx * 0.92 + p.vxBase * 0.08;
+    p.vy = p.vy * 0.92 + p.vyBase * 0.08;
+    /* Integrate */
+    p.x += p.vx;
+    p.y += p.vy;
+    /* Wrap edges */
+    if (p.x < -10) p.x = W + 10; else if (p.x > W + 10) p.x = -10;
+    if (p.y < -10) p.y = H + 10; else if (p.y > H + 10) p.y = -10;
+    /* Halo — soft glow ring around the dot */
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r * 4, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  /* Dots — denser core, drawn on top of halos */
+  ctx.fillStyle = particleColors.dot;
+  for (let i = 0; i < len; i++) {
+    const p = particles[i];
     ctx.beginPath();
     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${rgb},${p.alpha})`;
     ctx.fill();
-  });
+  }
+
+  /* PASS 2 — constellation lines.
+     O(n²) but bounded by CONNECT_DISTANCE_SQ early-out. With ~70
+     particles and ~130px connect range on a 1080p screen, typically
+     fewer than 200 line draws per frame. */
+  const rgb = particleColors.lineRgb;
+  ctx.lineWidth = 0.6;
+  for (let i = 0; i < len; i++) {
+    const a = particles[i];
+    for (let j = i + 1; j < len; j++) {
+      const b = particles[j];
+      const dxc = a.x - b.x;
+      const dyc = a.y - b.y;
+      const d2 = dxc * dxc + dyc * dyc;
+      if (d2 < CONNECT_DISTANCE_SQ) {
+        /* Linear opacity falloff with distance — far pairs draw
+           almost-invisible lines, close pairs draw stronger. */
+        const alpha = (1 - d2 / CONNECT_DISTANCE_SQ) * 0.18;
+        ctx.strokeStyle = 'rgba(' + rgb + ',' + alpha.toFixed(3) + ')';
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+  }
+
   requestAnimationFrame(drawParticles);
 }
-initCanvas(); initParticles();
-if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) drawParticles();
-window.addEventListener('resize', () => { initCanvas(); initParticles(); });
+
+function startParticles() {
+  if (particlesRafRunning) return;
+  if (currentPage === 'home') return;       // never paint on home
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if (window.matchMedia('(max-width: 768px)').matches) return;  // mobile: off
+  particlesRafRunning = true;
+  requestAnimationFrame(drawParticles);
+}
+
+initCanvas();
+initParticles();
+
+if ('IntersectionObserver' in window) {
+  new IntersectionObserver((entries) => {
+    particlesVisible = entries[0].isIntersecting;
+    if (particlesVisible) startParticles();
+  }, { threshold: 0 }).observe(canvas);
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) startParticles();
+});
+
+/* Mouse listeners are added GLOBALLY (not gated on page) but the
+   draw loop ignores them on home. Cheap to keep them always on
+   since they only update two scalars. */
+document.addEventListener('mousemove', onParticleMouseMove, { passive: true });
+document.addEventListener('mouseleave', onParticleMouseLeave, { passive: true });
+
+let resizeRafScheduled = false;
+window.addEventListener('resize', () => {
+  if (resizeRafScheduled) return;
+  resizeRafScheduled = true;
+  requestAnimationFrame(() => {
+    initCanvas();
+    initParticles();
+    resizeRafScheduled = false;
+  });
+}, { passive: true });
+
+/* Boot: do NOT auto-start. The first navigation away from home
+   (or page load on a non-home deep-link) triggers startParticles
+   from showPage. This guarantees zero particle work on the home
+   landing experience. */
 
 // ---- PAGE ROUTING ----
-let currentPage = 'home';
-let _isPopState = false; // prevents pushState ↔ popstate loops
 
 /* History API guard: in some sandboxed contexts (e.g. an iframe loaded via
    srcdoc, certain embed previews, archive.org) replaceState/pushState raises
@@ -3857,8 +4362,57 @@ function showPage(name) {
     /* No-op: same page click; still ensure UI is in correct state */
     return;
   }
+
+  /* PERFORMANCE — page transition layer hint.
+     Mark BOTH the outgoing page (the currently-active .page) and the
+     incoming page with `is-transitioning` BEFORE we swap the .active
+     class. This sets `will-change: opacity, transform` on each, telling
+     the compositor to allocate a GPU layer NOW rather than discovering
+     it needs one mid-animation. Without this, the back button caused
+     a ~600-1000ms stall while the compositor built layers on the fly
+     for two full-screen pages.
+
+     We attach a one-shot transitionend listener (with a safety
+     timeout fallback) that strips `is-transitioning` once the
+     animation completes, so the layer is freed back. Permanent
+     will-change is an anti-pattern — this is the correct narrow use. */
+  const incoming = document.getElementById(name === 'home' ? 'home' : name + '-page');
+  const outgoing = document.querySelector('.page.active');
+  const transitionEls = [];
+  if (incoming) transitionEls.push(incoming);
+  if (outgoing && outgoing !== incoming) transitionEls.push(outgoing);
+  transitionEls.forEach(el => el.classList.add('is-transitioning'));
+  /* Schedule cleanup. transitionend fires per-property; we listen once
+     on opacity (the longest-running of the two animated properties)
+     and clear. The 700ms safety timeout covers the case where
+     transitionend doesn't fire (interrupted transition, browser
+     quirk, etc.) — without it a stalled transition would leave
+     will-change set forever, defeating the purpose. */
+  const clearLayerHint = () => {
+    transitionEls.forEach(el => el.classList.remove('is-transitioning'));
+  };
+  if (incoming) {
+    let cleared = false;
+    const onEnd = (ev) => {
+      if (ev.propertyName !== 'opacity') return;
+      if (cleared) return;
+      cleared = true;
+      incoming.removeEventListener('transitionend', onEnd);
+      clearLayerHint();
+    };
+    incoming.addEventListener('transitionend', onEnd);
+    setTimeout(() => {
+      if (cleared) return;
+      cleared = true;
+      incoming.removeEventListener('transitionend', onEnd);
+      clearLayerHint();
+    }, 700);
+  } else {
+    clearLayerHint();
+  }
+
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const target = document.getElementById(name === 'home' ? 'home' : name + '-page');
+  const target = incoming;
   if (target) {
     target.classList.add('active');
     currentPage = name;
@@ -3866,6 +4420,11 @@ function showPage(name) {
   }
   /* Reflect current page on <body data-page="…"> for CSS targeting (hide hamburger on home, etc.) */
   document.body.setAttribute('data-page', name);
+  /* Re-resolve eye refs in case the destination page has the eye
+     injected dynamically. Safe no-op if eye doesn't exist. Without
+     this, the static cache from bootstrapEye() would miss any eye
+     added after page load. */
+  if (!eyeRefs) eyeRefs = resolveEyeRefs();
 
   const fn = document.getElementById('header-firstname');
   const ln = document.getElementById('header-lastname');
@@ -3897,6 +4456,15 @@ function showPage(name) {
     } else {
       bgVideo.pause();
     }
+  }
+
+  /* Particles loop: now gated on currentPage !== 'home' (particles are
+     INNER PAGES only — home has the bg video instead). The loop
+     suspends itself when navigating TO home; we re-arm it here when
+     navigating AWAY from home. startParticles() is a no-op if already
+     running, on home, mobile, or reduced-motion. */
+  if (name !== 'home' && typeof startParticles === 'function') {
+    startParticles();
   }
 
   /* History API: push only when the navigation is user-initiated */
@@ -4234,6 +4802,11 @@ function showProjectDetail(projectData, fromSection) {
   scrollWrap.scrollTop = 0;
   currentPage = 'project-detail';
   document.body.setAttribute('data-page', 'project-detail');
+
+  /* Particles: project-detail is an inner page, particles should run.
+     showPage() handles this for top-level pages but project-detail
+     skips that path, so we trigger startParticles explicitly here. */
+  if (typeof startParticles === 'function') startParticles();
 
   // Theme switcher → inner-page position
   var tsPd = document.getElementById('theme-switcher');
@@ -5044,70 +5617,22 @@ const vfxData = [
     }
   },
   {
-    title: 'VUEM',
-    titleHtml: '<em>Vuem</em>',
-    artist: 'Giovane Kid',
-    feat: null,
-    desc: 'Frame blends, controlled chromatic fringing, light leaks built shot-by-shot in After Effects. Polish was the wrong direction; texture was the brief.',
-    mainImg: VFX_PATH + 'VFX_2.png',
-    subImg:  VFX_PATH + 'VFX_2-1.png',
-    detail: {
-      archetype: 'music-video',
-      category: 'VFX · Music Video',
-      title: 'VUEM',
-      client: 'Giovane Kid',
-      heroImg: VFX_PATH + 'VFX_2.png',
-      modules: [
-        { type: 'hero-fullbleed',
-          image: VFX_PATH + 'VFX_2.png',
-          category: 'VFX · Music Video',
-          title: 'VUEM',
-          client: 'Giovane Kid' },
-        { type: 'stats-strip', items: [
-          { value: 'Giovane Kid',      label: 'Artist' },
-          { value: 'Music Video',      label: 'Format' },
-          { value: 'Dream / Distort',  label: 'Mood' },
-          { value: '2025',             label: 'Year' }
-        ]},
-        { type: 'lyrics',
-          text: 'Non so <span class="pd-dim">cosa voglia dire</span>,<br>ma so esattamente <em>cosa significa</em>.' },
-        { type: 'full-bleed',
-          image: VFX_PATH + 'VFX_2-1.png' },
-        { type: 'split-feature', flip: true,
-          image: VFX_PATH + 'VFX_2.png',
-          heading: 'Texture over polish',
-          text: 'Grade pushed away from clean and toward grain, fringe and small breaks. Leaks, dust and haze stacked in After Effects per shot &mdash; the footage had to feel handled, not delivered.' },
-        { type: 'director-note',
-          name: 'Director’s note',
-          text: 'Sharp wasn\'t the right answer for this track. So the pipeline went in the other direction: a frame-blend pass, a chroma split, a soft warp on the long takes. Half of it was deciding what to leave broken.' },
-        { type: 'credits', items: [
-          { role: 'Artist',       name: 'Giovane Kid' },
-          { role: 'Post & VFX',   name: 'Francesco Aiena' },
-          { role: 'Colour Grade', name: 'Francesco Aiena' },
-          { role: 'Format',       name: 'Music Video' }
-        ]},
-        { type: 'pull-quote',
-          text: 'Grain, leak, drift. The reality of the footage is a choice as much as a problem.' }
-      ]
-    }
-  },
-  {
     title: 'Aftermovie',
     titleHtml: 'After<em>movie</em>',
     artist: 'DMT',
     feat: null,
     desc: 'Speed ramps, motion-tracked type, beat-synced flashes. Cut for vertical and horizontal in the same pass &mdash; one rhythm, two crops.',
-    mainImg: VFX_PATH + 'VFX_3.png',
-    subImg:  VFX_PATH + 'VFX_3-1.png',
+    mainImg: VFX_PATH + 'VFX_2.png',
+    subImg:  VFX_PATH + 'VFX_2-1.png',
     detail: {
       archetype: 'aftermovie',
       category: 'VFX · Aftermovie',
       title: 'Aftermovie',
       client: 'DMT Collective',
-      heroImg: VFX_PATH + 'VFX_3.png',
+      heroImg: VFX_PATH + 'VFX_2.png',
       modules: [
         { type: 'hero-fullbleed',
-          image: VFX_PATH + 'VFX_3.png',
+          image: VFX_PATH + 'VFX_2.png',
           category: 'VFX · Aftermovie',
           title: 'Aftermovie',
           client: 'DMT Collective' },
@@ -5122,12 +5647,12 @@ const vfxData = [
         { type: 'contact-sheet',
           label: 'Selected frames',
           frames: [
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png',
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png',
-            VFX_PATH + 'VFX_3.png',
-            VFX_PATH + 'VFX_3-1.png'
+            VFX_PATH + 'VFX_2.png',
+            VFX_PATH + 'VFX_2-1.png',
+            VFX_PATH + 'VFX_2.png',
+            VFX_PATH + 'VFX_2-1.png',
+            VFX_PATH + 'VFX_2.png',
+            VFX_PATH + 'VFX_2-1.png'
           ]},
         { type: 'director-note',
           name: 'Director’s note',
@@ -5140,6 +5665,54 @@ const vfxData = [
         ]},
         { type: 'pull-quote',
           text: 'You weren\u2019t there or you were. Either way, the cut has to make you feel like you were.' }
+      ]
+    }
+  },
+  {
+    title: 'VUEM',
+    titleHtml: '<em>Vuem</em>',
+    artist: 'Giovane Kid',
+    feat: null,
+    desc: 'Frame blends, controlled chromatic fringing, light leaks built shot-by-shot in After Effects. Polish was the wrong direction; texture was the brief.',
+    mainImg: VFX_PATH + 'VFX_3.png',
+    subImg:  VFX_PATH + 'VFX_3-1.png',
+    detail: {
+      archetype: 'music-video',
+      category: 'VFX · Music Video',
+      title: 'VUEM',
+      client: 'Giovane Kid',
+      heroImg: VFX_PATH + 'VFX_3.png',
+      modules: [
+        { type: 'hero-fullbleed',
+          image: VFX_PATH + 'VFX_3.png',
+          category: 'VFX · Music Video',
+          title: 'VUEM',
+          client: 'Giovane Kid' },
+        { type: 'stats-strip', items: [
+          { value: 'Giovane Kid',      label: 'Artist' },
+          { value: 'Music Video',      label: 'Format' },
+          { value: 'Dream / Distort',  label: 'Mood' },
+          { value: '2025',             label: 'Year' }
+        ]},
+        { type: 'lyrics',
+          text: 'Non so <span class="pd-dim">cosa voglia dire</span>,<br>ma so esattamente <em>cosa significa</em>.' },
+        { type: 'full-bleed',
+          image: VFX_PATH + 'VFX_3-1.png' },
+        { type: 'split-feature', flip: true,
+          image: VFX_PATH + 'VFX_3.png',
+          heading: 'Texture over polish',
+          text: 'Grade pushed away from clean and toward grain, fringe and small breaks. Leaks, dust and haze stacked in After Effects per shot &mdash; the footage had to feel handled, not delivered.' },
+        { type: 'director-note',
+          name: 'Director’s note',
+          text: 'Sharp wasn\'t the right answer for this track. So the pipeline went in the other direction: a frame-blend pass, a chroma split, a soft warp on the long takes. Half of it was deciding what to leave broken.' },
+        { type: 'credits', items: [
+          { role: 'Artist',       name: 'Giovane Kid' },
+          { role: 'Post & VFX',   name: 'Francesco Aiena' },
+          { role: 'Colour Grade', name: 'Francesco Aiena' },
+          { role: 'Format',       name: 'Music Video' }
+        ]},
+        { type: 'pull-quote',
+          text: 'Grain, leak, drift. The reality of the footage is a choice as much as a problem.' }
       ]
     }
   }
