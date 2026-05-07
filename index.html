@@ -238,6 +238,28 @@
     #cursor-dot, #cursor-ring { display: none !important; }
   }
 
+  /* SUPPRESS NATIVE I-BEAM on text inputs.
+     The browser's user-agent stylesheet sets `cursor: text` on inputs,
+     textareas, contenteditable elements and select dropdowns. That rule
+     wins over the global `body { cursor: none }` because element-level
+     UA defaults outweigh ancestor inheritance. Without this override
+     the I-beam appears NEXT TO the custom dot whenever the user hovers
+     a text field — visible most clearly in the contact form modal.
+     We force `cursor: none` on every text-bearing input so only the
+     custom cursor shows. On coarse-pointer devices the media query
+     above hides the custom cursor and the system one returns naturally
+     since `cursor: none` then has no competing custom layer. */
+  input, textarea, select, [contenteditable="true"], [contenteditable=""] {
+    cursor: none;
+  }
+  /* On coarse-pointer / touch devices we WANT the native cursor back
+     on inputs so users see the standard mobile keyboard caret behavior. */
+  @media (hover: none), (pointer: coarse) {
+    input, textarea, select, [contenteditable="true"], [contenteditable=""] {
+      cursor: auto;
+    }
+  }
+
   /* PAGE SYSTEM */
   .page {
     position: fixed;
@@ -847,7 +869,15 @@
   /* INNER PAGES */
   .inner-page {
     min-height: 100vh;
-    background: var(--bg);
+    /* Background TRANSPARENT — not var(--bg) — so the particle field
+       behind (#particles z-index 1) shows through. The body's own
+       background-color (var(--bg)) provides the actual page colour
+       behind the particles. Without this, .inner-page would paint
+       its own opaque rectangle on top of the canvas and particles
+       would be invisible on About / AI / VFX / Video. The home page
+       doesn't need this because it has its own bg video and #particles
+       is gated off there anyway. */
+    background: transparent;
     padding: 120px 36px 80px;
     position: relative;
   }
